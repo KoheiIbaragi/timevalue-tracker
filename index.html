@@ -8,17 +8,22 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg-primary: #0a0e14; --bg-secondary: #151b24; --bg-tertiary: #1f2937;
-      --accent-primary: #06b6d4; --accent-secondary: #8b5cf6; --accent-success: #10b981;
+      --bg-primary: #0a0e1a; --bg-secondary: #111827; --bg-tertiary: #1a1f35;
+      --accent-primary: #3b82f6; --accent-secondary: #8b5cf6; --accent-success: #10b981;
       --accent-warning: #f59e0b; --accent-danger: #ef4444;
       --text-primary: #f8fafc; --text-secondary: #94a3b8; --text-muted: #64748b;
-      --border: #334155; --shadow: 0 4px 20px rgba(0, 0, 0, 0.3); --sidebar-width: 240px;
+      --border: rgba(148, 163, 184, 0.1); 
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
+      --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.2);
+      --sidebar-width: 240px;
     }
-    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow: hidden; }
-    .app-container { display: flex; height: 100vh; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow: hidden; position: relative; }
+    body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%); animation: ambient 30s linear infinite; pointer-events: none; z-index: 0; }
+    @keyframes ambient { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .app-container { display: flex; height: 100vh; position: relative; z-index: 1; }
     .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); padding: 1.5rem 0; display: flex; flex-direction: column; overflow-y: auto; transition: transform 0.3s; position: relative; z-index: 100; }
     .sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-width))); }
     .sidebar-toggle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--bg-secondary); border: 1px solid var(--border); border-left: none; padding: 0.75rem 0.4rem; cursor: pointer; z-index: 99; border-radius: 0 6px 6px 0; transition: left 0.3s; color: var(--text-primary); font-size: 1rem; }
@@ -46,7 +51,8 @@
     .principles-edit textarea, .principles-edit input { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.8rem; margin-bottom: 0.4rem; }
     .principles-edit textarea { min-height: 60px; resize: vertical; }
     .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-    .kpi-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; position: relative; overflow: hidden; }
+    .kpi-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .kpi-card:hover { transform: translateY(-4px); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); }
     .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); }
     .kpi-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.5rem; }
     .kpi-value { font-size: 1.8rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); margin-bottom: 0.25rem; }
@@ -219,6 +225,49 @@
       const [showTaskModal, setShowTaskModal] = useState(false);
       const [showCompleted, setShowCompleted] = useState(false);
       const [editingTask, setEditingTask] = useState(null);
+      
+      const exportData = () => {
+        const data = {
+          clients: clients,
+          tasks: tasks,
+          timeLogs: timeLogs,
+          principles: principles,
+          clientOrder: clientOrder,
+          runningState: runningState,
+          exportDate: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `timevalue-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+      
+      const importData = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (confirm('インポートすると現在のデータが上書きされます。続行しますか？')) {
+              if (data.clients) setClients(data.clients);
+              if (data.tasks) setTasks(data.tasks);
+              if (data.timeLogs) setTimeLogs(data.timeLogs);
+              if (data.principles) setPrinciples(data.principles);
+              if (data.clientOrder) setClientOrder(data.clientOrder);
+              if (data.runningState) setRunningState(data.runningState);
+              alert('データをインポートしました！');
+            }
+          } catch (error) {
+            alert('ファイルの読み込みに失敗しました。正しいバックアップファイルか確認してください。');
+          }
+        };
+        reader.readAsText(file);
+      };
       const [clients, setClients] = useLocalStorage('clients_v3', [
         { client_id: 'client_1', name: '取引先A', monthly_fee: 100000 },
         { client_id: 'client_2', name: '取引先B', monthly_fee: 150000 }
@@ -350,6 +399,15 @@
                 <button className={`sidebar-btn sidebar-btn-secondary ${showCompleted ? 'active' : ''}`} onClick={() => setShowCompleted(!showCompleted)}>
                   {showCompleted ? '✓ 完了済み表示中' : '完了済み表示'}
                 </button>
+                <div style={{borderTop: '1px solid var(--border)', marginTop: '0.75rem', paddingTop: '0.75rem'}}>
+                  <button className="sidebar-btn sidebar-btn-secondary" onClick={exportData} style={{marginBottom: '0.5rem'}}>
+                    💾 データをバックアップ
+                  </button>
+                  <label className="sidebar-btn sidebar-btn-secondary" style={{cursor: 'pointer', display: 'block', textAlign: 'center'}}>
+                    📥 データを復元
+                    <input type="file" accept=".json" onChange={importData} style={{display: 'none'}} />
+                  </label>
+                </div>
               </div>
             )}
           </aside>
