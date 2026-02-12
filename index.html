@@ -11,14 +11,16 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg-primary: #0a0e1a; --bg-secondary: #111827; --bg-tertiary: #1a1f35;
+      --bg-primary: #0a0d14; --bg-secondary: #0f1419; --bg-tertiary: #151b24;
       --accent-primary: #3b82f6; --accent-secondary: #8b5cf6; --accent-success: #10b981;
       --accent-warning: #f59e0b; --accent-danger: #ef4444;
       --text-primary: #f8fafc; --text-secondary: #94a3b8; --text-muted: #64748b;
-      --border: rgba(148, 163, 184, 0.1); 
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
-      --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.2);
-      --sidebar-width: 240px;
+      --border: rgba(148, 163, 184, 0.12); 
+      --border-subtle: rgba(148, 163, 184, 0.08);
+      --border-strong: rgba(148, 163, 184, 0.2);
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.4); 
+      --shadow-glow: 0 0 32px rgba(59, 130, 246, 0.25);
+      --sidebar-width: 280px;
     }
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow: hidden; position: relative; }
     body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%); animation: ambient 30s linear infinite; pointer-events: none; z-index: 0; }
@@ -394,17 +396,17 @@
             {currentPage === 'dashboard' && (
               <div className="sidebar-actions">
                 <button className="sidebar-btn sidebar-btn-primary" onClick={() => { setEditingTask(null); setShowTaskModal(true); }}>
-                  ＋ 新規タスク
+                  新規タスク
                 </button>
                 <button className={`sidebar-btn sidebar-btn-secondary ${showCompleted ? 'active' : ''}`} onClick={() => setShowCompleted(!showCompleted)}>
-                  {showCompleted ? '✓ 完了済み表示中' : '完了済み表示'}
+                  {showCompleted ? '完了済み表示中' : '完了済み表示'}
                 </button>
-                <div style={{borderTop: '1px solid var(--border)', marginTop: '0.75rem', paddingTop: '0.75rem'}}>
+                <div style={{borderTop: '1px solid var(--border-subtle)', marginTop: '0.75rem', paddingTop: '0.75rem'}}>
                   <button className="sidebar-btn sidebar-btn-secondary" onClick={exportData} style={{marginBottom: '0.5rem'}}>
-                    💾 データをバックアップ
+                    データをバックアップ
                   </button>
                   <label className="sidebar-btn sidebar-btn-secondary" style={{cursor: 'pointer', display: 'block', textAlign: 'center'}}>
-                    📥 データを復元
+                    データを復元
                     <input type="file" accept=".json" onChange={importData} style={{display: 'none'}} />
                   </label>
                 </div>
@@ -654,14 +656,14 @@
                         <div className="task-actions">
                           {task.completed ? (
                             <>
-                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openTimeEntryModal(task); }} title="時間を追加">⏱</button>
+                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openTimeEntryModal(task); }} title="時間を追加">時間追加</button>
                               <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openEditModal(task); }}>編集</button>
                               <button className="btn btn-danger btn-small" onClick={(e) => { e.stopPropagation(); deleteTask(task.task_id); }}>削除</button>
                             </>
                           ) : (
                             <>
                               <button className="btn btn-success btn-small" onClick={(e) => { e.stopPropagation(); completeTask(task.task_id); }}>完了</button>
-                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openTimeEntryModal(task); }} title="時間を追加">⏱</button>
+                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openTimeEntryModal(task); }} title="時間を追加">時間追加</button>
                               <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openEditModal(task); }}>編集</button>
                               <button className={`btn ${isRunning ? 'btn-danger' : 'btn-primary'} btn-small`} onClick={(e) => { e.stopPropagation(); isRunning ? stopTask() : startTask(task.task_id); }} disabled={!isRunning && !!runningState.task_id}>
                                 {isRunning ? '停止' : '開始'}
@@ -683,7 +685,7 @@
             <div className="modal-overlay" onClick={() => { setShowTimeEntryModal(false); setTimeEntryTask(null); }}>
               <div className="modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px'}}>
                 <div className="modal-header">
-                  <h3 className="modal-title">⏱ 作業時間を追加</h3>
+                  <h3 className="modal-title">作業時間を追加</h3>
                 </div>
                 <div style={{marginBottom: '1.5rem'}}>
                   <div style={{padding: '0.75rem', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '1rem', fontSize: '0.9rem'}}>
@@ -1081,7 +1083,7 @@ ${taskSummary}
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
               <h3 style={{fontSize: '1.1rem', fontWeight: '600'}}>タスク別累計時間</h3>
               <button className="btn btn-primary" onClick={startReflectionChat} disabled={uniqueTaskData.length === 0}>
-                🤖 AI で内省する
+                AI で内省する
               </button>
             </div>
             <div className="input-group">
@@ -1139,7 +1141,7 @@ ${taskSummary}
             }}>
               <div className="modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: '700px', maxHeight: '80vh'}}>
                 <div className="modal-header">
-                  <h3 className="modal-title">🤖 AI 内省チャット</h3>
+                  <h3 className="modal-title">AI 内省チャット</h3>
                 </div>
                 
                 <div className="chat-container">
@@ -1197,7 +1199,7 @@ ${taskSummary}
             <div className="modal-overlay" onClick={() => { setShowTimeEditModal(false); setEditingTaskReport(null); }}>
               <div className="modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px'}}>
                 <div className="modal-header">
-                  <h3 className="modal-title">⏱ 作業時間を編集</h3>
+                  <h3 className="modal-title">作業時間を編集</h3>
                 </div>
                 <div style={{marginBottom: '1.5rem'}}>
                   <div style={{padding: '0.75rem', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '1rem', fontSize: '0.9rem'}}>
