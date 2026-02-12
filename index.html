@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeValue Tracker</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0a0e14; --bg-secondary: #151b24; --bg-tertiary: #1f2937;
+      --accent-primary: #06b6d4; --accent-secondary: #8b5cf6; --accent-success: #10b981;
+      --accent-warning: #f59e0b; --accent-danger: #ef4444;
+      --text-primary: #f8fafc; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: #334155; --shadow: 0 4px 20px rgba(0, 0, 0, 0.3); --sidebar-width: 240px;
+    }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow: hidden; }
+    .app-container { display: flex; height: 100vh; }
+    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); padding: 1.5rem 0; display: flex; flex-direction: column; overflow-y: auto; transition: transform 0.3s; position: relative; z-index: 100; }
+    .sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-width))); }
+    .sidebar-toggle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--bg-secondary); border: 1px solid var(--border); border-left: none; padding: 0.75rem 0.4rem; cursor: pointer; z-index: 99; border-radius: 0 6px 6px 0; transition: left 0.3s; color: var(--text-primary); font-size: 1rem; }
+    .sidebar-toggle.shifted { left: var(--sidebar-width); }
+    .sidebar-toggle:hover { background: var(--bg-tertiary); }
+    .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+    .sidebar-logo h1 { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .sidebar-logo p { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; font-family: 'JetBrains Mono', monospace; }
+    .sidebar-nav { list-style: none; flex: 1; }
+    .sidebar-nav li { margin: 0.25rem 0; }
+    .sidebar-nav button { width: 100%; padding: 0.75rem 1.5rem; background: none; border: none; color: var(--text-secondary); text-align: left; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; font-family: 'Outfit', sans-serif; }
+    .sidebar-nav button:hover { background: rgba(6, 182, 212, 0.08); color: var(--text-primary); }
+    .sidebar-nav button.active { background: rgba(6, 182, 212, 0.12); color: var(--accent-primary); border-left-color: var(--accent-primary); }
+    .main-content { flex: 1; padding: 1rem 2rem; overflow-y: auto; height: 100vh; transition: margin-left 0.3s; }
+    .main-content.sidebar-collapsed { margin-left: calc(-1 * var(--sidebar-width)); }
+    .card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; box-shadow: var(--shadow); position: relative; }
+    .edit-icon-btn { position: absolute; top: 0.5rem; right: 0.5rem; width: 24px; height: 24px; padding: 0; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.9rem; transition: all 0.2s; }
+    .edit-icon-btn:hover { background: var(--bg-secondary); color: var(--accent-primary); border-color: var(--accent-primary); }
+    .principles-section { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .principles-card { background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(139, 92, 246, 0.08)); border: 1px solid rgba(6, 182, 212, 0.2); }
+    .motto-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.1)); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .motto { font-size: 1rem; font-weight: 700; line-height: 1.2; background: linear-gradient(135deg, var(--accent-warning), var(--accent-danger)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; margin-bottom: 0.25rem; padding-right: 30px; }
+    .sub-copy { font-size: 0.7rem; color: var(--text-secondary); text-align: center; font-style: italic; }
+    .principles { font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary); white-space: pre-wrap; text-align: center; padding-right: 30px; }
+    .principles-edit textarea, .principles-edit input { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.8rem; margin-bottom: 0.4rem; }
+    .principles-edit textarea { min-height: 60px; resize: vertical; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .kpi-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; position: relative; overflow: hidden; }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); }
+    .kpi-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.5rem; }
+    .kpi-value { font-size: 1.8rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .kpi-unit { font-size: 0.8rem; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+    .task-controls { display: flex; gap: 0.6rem; margin-bottom: 0.75rem; flex-wrap: wrap; align-items: center; }
+    .task-group { margin-bottom: 0.75rem; }
+    .task-group-header { background: var(--bg-tertiary); padding: 0.5rem 0.85rem; border-radius: 6px 6px 0 0; border: 1px solid var(--border); font-weight: 600; font-size: 0.8rem; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
+    .task-group-header:active { cursor: grabbing; }
+    .task-group-header.dragging { opacity: 0.5; }
+    .task-group.drag-over { border: 2px dashed var(--accent-primary); border-radius: 8px; }
+    .task-group-count { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .task-list { border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px; overflow: hidden; }
+    .task-item { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 0.6rem 0.7rem; display: grid; grid-template-columns: 100px 1fr auto; gap: 1rem; align-items: center; transition: all 0.2s; }
+    .task-item:last-child { border-bottom: none; }
+    .task-item:hover { background: rgba(6, 182, 212, 0.05); }
+    .task-item.running { background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), transparent); border-left: 3px solid var(--accent-danger); }
+    .task-item.completed-item { opacity: 0.5; }
+    .task-due-date { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent-warning); white-space: nowrap; }
+    .task-due-date.overdue { color: var(--accent-danger); font-weight: 600; }
+    .task-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .task-title { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-title.completed { text-decoration: line-through; color: var(--text-muted); }
+    .task-elapsed { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent-danger); font-weight: 600; white-space: nowrap; }
+    .task-repeat-badge { padding: 0.1rem 0.3rem; background: rgba(139, 92, 246, 0.2); color: var(--accent-secondary); border-radius: 3px; font-size: 0.6rem; font-weight: 600; white-space: nowrap; }
+    .task-category-badge { padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.6rem; font-weight: 600; white-space: nowrap; }
+    .category-routine { background: rgba(6, 182, 212, 0.2); color: var(--accent-primary); }
+    .category-strategic { background: rgba(245, 158, 11, 0.2); color: var(--accent-warning); }
+    .category-creative { background: rgba(139, 92, 246, 0.2); color: var(--accent-secondary); }
+    .category-admin { background: rgba(100, 116, 139, 0.2); color: var(--text-secondary); }
+    .automation-hint { cursor: pointer; font-size: 0.85rem; }
+    .automation-hint:hover { transform: scale(1.2); }
+    .task-actions { display: flex; gap: 0.35rem; white-space: nowrap; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { margin-bottom: 1.25rem; }
+    .modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .form-input, .form-select { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .weekday-selector { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .weekday-btn { padding: 0.5rem 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); transition: all 0.2s; }
+    .weekday-btn.selected { background: var(--accent-primary); border-color: var(--accent-primary); color: white; }
+    .weekday-btn:hover { border-color: var(--accent-primary); }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif; font-size: 0.8rem; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4); }
+    .btn-success { background: var(--accent-success); color: white; }
+    .btn-success:hover { background: #059669; transform: translateY(-2px); }
+    .btn-danger { background: var(--accent-danger); color: white; }
+    .btn-danger:hover { background: #dc2626; transform: translateY(-2px); }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--bg-secondary); border-color: var(--accent-primary); }
+    .btn-small { padding: 0.3rem 0.6rem; font-size: 0.7rem; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sidebar-actions { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.75rem; }
+    .sidebar-btn { width: 100%; padding: 0.75rem 1rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-family: 'Outfit', sans-serif; font-size: 0.85rem; }
+    .sidebar-btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; }
+    .sidebar-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4); }
+    .sidebar-btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
+    .sidebar-btn-secondary:hover { background: var(--bg-secondary); border-color: var(--accent-primary); }
+    .sidebar-btn-secondary.active { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+    .chat-container { max-height: 400px; overflow-y: auto; margin-bottom: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border); }
+    .chat-message { margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; line-height: 1.6; }
+    .chat-message.user { background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); margin-left: 2rem; }
+    .chat-message.assistant { background: var(--bg-secondary); border: 1px solid var(--border); margin-right: 2rem; }
+    .chat-message.system { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.85rem; text-align: center; }
+    .chat-input-container { display: flex; gap: 0.5rem; }
+    .chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9rem; resize: vertical; min-height: 60px; }
+    .chat-loading { text-align: center; color: var(--text-secondary); font-size: 0.85rem; padding: 1rem; }
+    .client-list { display: grid; gap: 0.75rem; }
+    .client-item { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+    .client-item:hover { border-color: var(--accent-primary); transform: translateX(4px); }
+    .client-info { flex: 1; }
+    .client-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-primary); }
+    .client-meta { font-size: 0.8rem; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+    .report-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .report-table thead { background: var(--bg-tertiary); }
+    .report-table th { padding: 0.85rem; text-align: left; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+    .report-table td { padding: 0.85rem; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    .report-table tr:hover { background: rgba(6, 182, 212, 0.05); }
+    .input-group { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+    .input-group input, .input-group select { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.85rem; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .page-header p { color: var(--text-secondary); font-size: 0.9rem; }
+    .empty-state { text-align: center; padding: 2rem 1.5rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
+    const useLocalStorage = (key, initialValue) => {
+      const [value, setValue] = useState(() => {
+        try {
+          const item = window.localStorage.getItem(key);
+          return item ? JSON.parse(item) : initialValue;
+        } catch {
+          return initialValue;
+        }
+      });
+      const updateValue = useCallback((newValue) => {
+        setValue(newValue);
+        window.localStorage.setItem(key, JSON.stringify(newValue));
+      }, [key]);
+      return [value, updateValue];
+    };
+    const formatDuration = (seconds) => {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+    const formatHours = (seconds) => (seconds / 3600).toFixed(1);
+    const formatCurrency = (amount) => `¥${amount.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}`;
+    const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+    const formatDate = (dateString) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const taskDate = new Date(date);
+      taskDate.setHours(0, 0, 0, 0);
+      const diffDays = Math.ceil((taskDate - today) / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return '期限切れ';
+      if (diffDays === 0) return '今日';
+      if (diffDays === 1) return '明日';
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    };
+    const isOverdue = (dateString) => {
+      if (!dateString) return false;
+      const date = new Date(dateString);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      date.setHours(0, 0, 0, 0);
+      return date < today;
+    };
+    const getNextRepeatDate = (currentDate, repeatType, repeatDays) => {
+      const date = new Date(currentDate);
+      
+      if (repeatType === 'daily') {
+        date.setDate(date.getDate() + 1);
+        return date.toISOString().split('T')[0];
+      }
+      
+      if (repeatType === 'monthly') {
+        date.setMonth(date.getMonth() + 1);
+        return date.toISOString().split('T')[0];
+      }
+      
+      if (repeatType === 'weekly' && repeatDays && repeatDays.length > 0) {
+        date.setDate(date.getDate() + 1);
+        for (let i = 0; i < 7; i++) {
+          const dayOfWeek = date.getDay();
+          if (repeatDays.includes(dayOfWeek)) {
+            return date.toISOString().split('T')[0];
+          }
+          date.setDate(date.getDate() + 1);
+        }
+      }
+      
+      return null;
+    };
+
+    function App() {
+      const [currentPage, setCurrentPage] = useState('dashboard');
+      const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+      const [showTaskModal, setShowTaskModal] = useState(false);
+      const [showCompleted, setShowCompleted] = useState(false);
+      const [editingTask, setEditingTask] = useState(null);
+      const [clients, setClients] = useLocalStorage('clients_v3', [
+        { client_id: 'client_1', name: '取引先A', monthly_fee: 100000 },
+        { client_id: 'client_2', name: '取引先B', monthly_fee: 150000 }
+      ]);
+      const [tasks, setTasks] = useLocalStorage('tasks_v3', []);
+      const [clientOrder, setClientOrder] = useLocalStorage('client_order_v3', []);
+      const [timeLogs, setTimeLogs] = useLocalStorage('time_logs_v3', []);
+      const [runningState, setRunningState] = useLocalStorage('running_state_v3', {
+        id: 'singleton', task_id: null, start_ts: null
+      });
+      const [principles, setPrinciples] = useLocalStorage('principles_v3', {
+        id: 'singleton',
+        motto: '時間は有限。価値を最大化せよ。',
+        subCopy: '独責開眼',
+        principles: '責任を負うと見える世界が変わる',
+        updated_at: Date.now()
+      });
+      const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+      useEffect(() => {
+        if (!runningState.task_id) { setElapsedSeconds(0); return; }
+        const updateElapsed = () => {
+          const elapsed = Math.floor((Date.now() - runningState.start_ts) / 1000);
+          setElapsedSeconds(elapsed);
+        };
+        updateElapsed();
+        const interval = setInterval(updateElapsed, 1000);
+        return () => clearInterval(interval);
+      }, [runningState]);
+
+      const startTask = (taskId) => {
+        if (runningState.task_id) return;
+        setRunningState({ id: 'singleton', task_id: taskId, start_ts: Date.now() });
+      };
+
+      const stopTask = () => {
+        if (!runningState.task_id) return;
+        const endTs = Date.now();
+        const durationSec = Math.floor((endTs - runningState.start_ts) / 1000);
+        const task = tasks.find(t => t.task_id === runningState.task_id);
+        const newLog = {
+          time_log_id: generateId(),
+          task_id: runningState.task_id,
+          client_id: task?.client_id,
+          start_ts: runningState.start_ts,
+          end_ts: endTs,
+          duration_sec: durationSec
+        };
+        setTimeLogs([...timeLogs, newLog]);
+        setRunningState({ id: 'singleton', task_id: null, start_ts: null });
+      };
+
+      const completeTask = (taskId) => {
+        const task = tasks.find(t => t.task_id === taskId);
+        if (task.repeat && (task.repeatType === 'daily' || task.repeatType === 'monthly' || (task.repeatDays && task.repeatDays.length > 0))) {
+          const nextDueDate = getNextRepeatDate(task.due_date || new Date().toISOString().split('T')[0], task.repeatType, task.repeatDays);
+          const newTask = {
+            ...task,
+            task_id: generateId(),
+            due_date: nextDueDate,
+            due_time: task.due_time,
+            completed: false,
+            last_completed: Date.now()
+          };
+          setTasks([
+            ...tasks.map(t => t.task_id === taskId ? { ...t, is_active: false, completed: true, last_completed: Date.now() } : t),
+            newTask
+          ]);
+        } else {
+          setTasks(tasks.map(t => 
+            t.task_id === taskId ? { ...t, is_active: false, completed: true, last_completed: Date.now() } : t
+          ));
+        }
+      };
+
+      const getMonthlyStats = () => {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthlyLogs = timeLogs.filter(log => log.start_ts >= firstDay.getTime());
+        let totalSeconds = 0;
+        let totalRevenue = 0;
+        clients.forEach(client => { totalRevenue += client.monthly_fee || 0; });
+        monthlyLogs.forEach(log => { totalSeconds += log.duration_sec; });
+        const effectiveHourlyRate = totalSeconds > 0 ? (totalRevenue / (totalSeconds / 3600)) : 0;
+        return { totalSeconds, totalRevenue, effectiveHourlyRate };
+      };
+
+      const stats = getMonthlyStats();
+      const getTaskDuration = (taskId) => {
+        const taskLogs = timeLogs.filter(log => log.task_id === taskId);
+        return taskLogs.reduce((sum, log) => sum + log.duration_sec, 0);
+      };
+
+      const renderPage = () => {
+        switch (currentPage) {
+          case 'dashboard':
+            return <Dashboard {...{principles, setPrinciples, runningState, tasks, setTasks, clients, clientOrder, setClientOrder, elapsedSeconds, stopTask, startTask, completeTask, getTaskDuration, timeLogs, setTimeLogs, showTaskModal, setShowTaskModal, showCompleted, setShowCompleted, editingTask, setEditingTask}} />;
+          case 'reports':
+            return <ReportsPage {...{tasks, clients, timeLogs, setTimeLogs, stats}} />;
+          case 'clients':
+            return <ClientsPage {...{clients, setClients, tasks}} />;
+          default:
+            return <Dashboard />;
+        }
+      };
+
+      return (
+        <div className="app-container">
+          <button className={`sidebar-toggle ${!sidebarCollapsed ? 'shifted' : ''}`} onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
+            {sidebarCollapsed ? '→' : '←'}
+          </button>
+          <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+            <div className="sidebar-logo">
+              <h1>TimeValue</h1>
+              <p>意思決定補助装置</p>
+            </div>
+            <nav style={{flex: 1}}>
+              <ul className="sidebar-nav">
+                <li><button className={currentPage === 'dashboard' ? 'active' : ''} onClick={() => setCurrentPage('dashboard')}>ダッシュボード</button></li>
+                <li><button className={currentPage === 'reports' ? 'active' : ''} onClick={() => setCurrentPage('reports')}>レポート</button></li>
+                <li><button className={currentPage === 'clients' ? 'active' : ''} onClick={() => setCurrentPage('clients')}>取引先</button></li>
+              </ul>
+            </nav>
+            {currentPage === 'dashboard' && (
+              <div className="sidebar-actions">
+                <button className="sidebar-btn sidebar-btn-primary" onClick={() => { setEditingTask(null); setShowTaskModal(true); }}>
+                  ＋ 新規タスク
+                </button>
+                <button className={`sidebar-btn sidebar-btn-secondary ${showCompleted ? 'active' : ''}`} onClick={() => setShowCompleted(!showCompleted)}>
+                  {showCompleted ? '✓ 完了済み表示中' : '完了済み表示'}
+                </button>
+              </div>
+            )}
+          </aside>
+          <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+            {renderPage()}
+          </main>
+        </div>
+      );
+    }
+
+    function Dashboard({ principles, setPrinciples, runningState, tasks, setTasks, clients, clientOrder, setClientOrder, elapsedSeconds, stopTask, startTask, completeTask, getTaskDuration, timeLogs, setTimeLogs, showTaskModal, setShowTaskModal, showCompleted, setShowCompleted, editingTask, setEditingTask }) {
+      const [isEditingMotto, setIsEditingMotto] = useState(false);
+      const [isEditingPrinciples, setIsEditingPrinciples] = useState(false);
+      const [editedMotto, setEditedMotto] = useState(principles.motto);
+      const [editedSubCopy, setEditedSubCopy] = useState(principles.subCopy);
+      const [editedPrinciples, setEditedPrinciples] = useState(principles.principles);
+      const [draggingGroup, setDraggingGroup] = useState(null);
+      const [showTimeEntryModal, setShowTimeEntryModal] = useState(false);
+      const [timeEntryTask, setTimeEntryTask] = useState(null);
+      const [timeEntryHours, setTimeEntryHours] = useState('');
+      const [timeEntryMinutes, setTimeEntryMinutes] = useState('');
+      const [formData, setFormData] = useState({ title: '', client_id: '', due_date: '', due_time: '', repeat: false, repeatType: 'weekly', repeatDays: [], category: 'routine' });
+
+      const saveMotto = () => {
+        setPrinciples({ ...principles, motto: editedMotto, subCopy: editedSubCopy, updated_at: Date.now() });
+        setIsEditingMotto(false);
+      };
+      const savePrinciples = () => {
+        setPrinciples({ ...principles, principles: editedPrinciples, updated_at: Date.now() });
+        setIsEditingPrinciples(false);
+      };
+      
+      const openCreateModal = () => {
+        setEditingTask(null);
+        setFormData({ title: '', client_id: '', due_date: '', due_time: '', repeat: false, repeatType: 'weekly', repeatDays: [], category: 'routine' });
+        setShowTaskModal(true);
+      };
+      
+      useEffect(() => {
+        if (showTaskModal && !editingTask) {
+          setFormData({ title: '', client_id: '', due_date: '', due_time: '', repeat: false, repeatType: 'weekly', repeatDays: [], category: 'routine' });
+        }
+      }, [showTaskModal]);
+
+      const openEditModal = (task) => {
+        setEditingTask(task);
+        setFormData({ title: task.title, client_id: task.client_id || '', due_date: task.due_date || '', due_time: task.due_time || '', repeat: task.repeat || false, repeatType: task.repeatType || 'weekly', repeatDays: task.repeatDays || [], category: task.category || 'routine' });
+        setShowTaskModal(true);
+      };
+      const saveTask = () => {
+        if (!formData.title.trim()) { alert('タスク名を入力してください'); return; }
+        if (editingTask) {
+          setTasks(tasks.map(t => t.task_id === editingTask.task_id ? { ...t, title: formData.title, client_id: formData.client_id || null, due_date: formData.due_date || null, due_time: formData.due_time || null, repeat: formData.repeat, repeatType: formData.repeatType, repeatDays: formData.repeatDays, category: formData.category } : t));
+        } else {
+          const newTask = { task_id: generateId(), title: formData.title, client_id: formData.client_id || null, due_date: formData.due_date || null, due_time: formData.due_time || null, repeat: formData.repeat, repeatType: formData.repeatType, repeatDays: formData.repeatDays, category: formData.category, is_active: true, completed: false, last_completed: null };
+          setTasks([...tasks, newTask]);
+        }
+        setShowTaskModal(false);
+      };
+      const deleteTask = (taskId) => {
+        if (confirm('このタスクを削除しますか？')) {
+          setTasks(tasks.filter(t => t.task_id !== taskId));
+          setTimeLogs(timeLogs.filter(log => log.task_id !== taskId));
+        }
+      };
+      
+      const openTimeEntryModal = (task) => {
+        setTimeEntryTask(task);
+        setTimeEntryHours('');
+        setTimeEntryMinutes('');
+        setShowTimeEntryModal(true);
+      };
+      
+      const saveTimeEntry = () => {
+        const hours = parseInt(timeEntryHours) || 0;
+        const minutes = parseInt(timeEntryMinutes) || 0;
+        const totalSeconds = (hours * 3600) + (minutes * 60);
+        
+        if (totalSeconds <= 0) {
+          alert('作業時間を入力してください');
+          return;
+        }
+        
+        const now = Date.now();
+        const newLog = {
+          time_log_id: generateId(),
+          task_id: timeEntryTask.task_id,
+          client_id: timeEntryTask.client_id,
+          start_ts: now - (totalSeconds * 1000),
+          end_ts: now,
+          duration_sec: totalSeconds
+        };
+        
+        setTimeLogs([...timeLogs, newLog]);
+        setShowTimeEntryModal(false);
+        setTimeEntryTask(null);
+        setTimeEntryHours('');
+        setTimeEntryMinutes('');
+      };
+
+      let filteredTasks = showCompleted ? tasks : tasks.filter(t => t.is_active);
+      filteredTasks.sort((a, b) => {
+        if (!a.due_date && b.due_date) return 1;
+        if (a.due_date && !b.due_date) return -1;
+        if (!a.due_date && !b.due_date) return a.title.localeCompare(b.title, 'ja');
+        const dateA = new Date(a.due_date + ' ' + (a.due_time || '00:00'));
+        const dateB = new Date(b.due_date + ' ' + (b.due_time || '00:00'));
+        if (dateA.getTime() !== dateB.getTime()) return dateA - dateB;
+        return a.title.localeCompare(b.title, 'ja');
+      });
+
+      const groupedTasks = {};
+      filteredTasks.forEach(task => {
+        const clientId = task.client_id || 'private';
+        if (!groupedTasks[clientId]) groupedTasks[clientId] = [];
+        groupedTasks[clientId].push(task);
+      });
+
+      const sortedGroupKeys = Object.keys(groupedTasks).sort((a, b) => {
+        const indexA = clientOrder.indexOf(a);
+        const indexB = clientOrder.indexOf(b);
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+      });
+
+      useEffect(() => {
+        const currentGroupKeys = Object.keys(groupedTasks);
+        const newGroups = currentGroupKeys.filter(key => !clientOrder.includes(key));
+        if (newGroups.length > 0) {
+          setClientOrder([...clientOrder, ...newGroups]);
+        }
+      }, [Object.keys(groupedTasks).join(',')]);
+
+      const handleDragStart = (e, clientId) => { 
+        setDraggingGroup(clientId); 
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', clientId);
+      };
+      const handleDragOver = (e) => { 
+        e.preventDefault(); 
+        e.dataTransfer.dropEffect = 'move'; 
+      };
+      const handleDrop = (e, targetClientId) => {
+        e.preventDefault();
+        if (!draggingGroup || draggingGroup === targetClientId) {
+          setDraggingGroup(null);
+          return;
+        }
+        
+        const newOrder = [...clientOrder];
+        const dragIndex = newOrder.indexOf(draggingGroup);
+        const targetIndex = newOrder.indexOf(targetClientId);
+        
+        if (dragIndex === -1 || targetIndex === -1) {
+          setDraggingGroup(null);
+          return;
+        }
+        
+        // 配列から削除して挿入
+        newOrder.splice(dragIndex, 1);
+        const newTargetIndex = newOrder.indexOf(targetClientId);
+        newOrder.splice(newTargetIndex, 0, draggingGroup);
+        
+        setClientOrder(newOrder);
+        setDraggingGroup(null);
+      };
+
+      return (
+        <>
+          <div className="principles-section">
+            <div className="card motto-card">
+              {isEditingMotto ? (
+                <>
+                  <button className="edit-icon-btn" onClick={saveMotto}>✓</button>
+                  <div className="principles-edit">
+                    <input type="text" value={editedMotto} onChange={(e) => setEditedMotto(e.target.value)} placeholder="メインメッセージ" />
+                    <input type="text" value={editedSubCopy} onChange={(e) => setEditedSubCopy(e.target.value)} placeholder="サブコピー" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button className="edit-icon-btn" onClick={() => setIsEditingMotto(true)}>⚙</button>
+                  <div className="motto">{principles.motto}</div>
+                  <div className="sub-copy">{principles.subCopy}</div>
+                </>
+              )}
+            </div>
+            <div className="card principles-card">
+              {isEditingPrinciples ? (
+                <>
+                  <button className="edit-icon-btn" onClick={savePrinciples}>✓</button>
+                  <div className="principles-edit">
+                    <textarea value={editedPrinciples} onChange={(e) => setEditedPrinciples(e.target.value)} placeholder="行動指針" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button className="edit-icon-btn" onClick={() => setIsEditingPrinciples(true)}>⚙</button>
+                  <div className="principles">{principles.principles}</div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="task-controls">
+            {/* 削除: ボタンを右下固定に移動 */}
+          </div>
+
+          {sortedGroupKeys.map(groupKey => {
+            const groupTasks = groupedTasks[groupKey];
+            const client = clients.find(c => c.client_id === groupKey);
+            const groupName = groupKey === 'private' ? 'プライベート' : client?.name || '不明な取引先';
+            return (
+              <div key={groupKey} className={`task-group ${draggingGroup === groupKey ? 'dragging' : ''}`} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, groupKey)}>
+                <div className="task-group-header" draggable onDragStart={(e) => handleDragStart(e, groupKey)}>
+                  <span>{groupName}</span>
+                  <span className="task-group-count">{groupTasks.length}件</span>
+                </div>
+                <div className="task-list">
+                  {groupTasks.map(task => {
+                    const isRunning = runningState.task_id === task.task_id;
+                    const duration = getTaskDuration(task.task_id);
+                    return (
+                      <div key={task.task_id} className={`task-item ${isRunning ? 'running' : ''} ${task.completed ? 'completed-item' : ''}`}>
+                        <div className={`task-due-date ${isOverdue(task.due_date) ? 'overdue' : ''}`}>
+                          {task.due_date ? `${formatDate(task.due_date)} ${task.due_time || ''}` : ''}
+                        </div>
+                        <div className="task-info">
+                          <span className={`task-title ${task.completed ? 'completed' : ''}`}>{task.title}</span>
+                          {isRunning && <span className="task-elapsed">{formatDuration(elapsedSeconds)}</span>}
+                          {task.category && (
+                            <span className={`task-category-badge category-${task.category}`}>
+                              {task.category === 'routine' ? 'ルーティン' : task.category === 'strategic' ? '戦略' : task.category === 'creative' ? '創造' : '管理'}
+                            </span>
+                          )}
+                          {task.repeat && (
+                            <span className="task-repeat-badge">
+                              {task.repeatType === 'daily' ? '毎日' : task.repeatType === 'monthly' ? '毎月' : task.repeatDays && task.repeatDays.length > 0 ? task.repeatDays.map(d => ['日','月','火','水','木','金','土'][d]).join(',') : ''}
+                            </span>
+                          )}
+                        </div>
+                        <div className="task-actions">
+                          {task.completed ? (
+                            <>
+                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openTimeEntryModal(task); }} title="時間を追加">⏱</button>
+                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openEditModal(task); }}>編集</button>
+                              <button className="btn btn-danger btn-small" onClick={(e) => { e.stopPropagation(); deleteTask(task.task_id); }}>削除</button>
+                            </>
+                          ) : (
+                            <>
+                              <button className="btn btn-success btn-small" onClick={(e) => { e.stopPropagation(); completeTask(task.task_id); }}>完了</button>
+                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openTimeEntryModal(task); }} title="時間を追加">⏱</button>
+                              <button className="btn btn-secondary btn-small" onClick={(e) => { e.stopPropagation(); openEditModal(task); }}>編集</button>
+                              <button className={`btn ${isRunning ? 'btn-danger' : 'btn-primary'} btn-small`} onClick={(e) => { e.stopPropagation(); isRunning ? stopTask() : startTask(task.task_id); }} disabled={!isRunning && !!runningState.task_id}>
+                                {isRunning ? '停止' : '開始'}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredTasks.length === 0 && <div className="empty-state"><p>タスクがありません</p></div>}
+
+          {showTimeEntryModal && timeEntryTask && (
+            <div className="modal-overlay" onClick={() => { setShowTimeEntryModal(false); setTimeEntryTask(null); }}>
+              <div className="modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px'}}>
+                <div className="modal-header">
+                  <h3 className="modal-title">⏱ 作業時間を追加</h3>
+                </div>
+                <div style={{marginBottom: '1.5rem'}}>
+                  <div style={{padding: '0.75rem', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '1rem', fontSize: '0.9rem'}}>
+                    <strong>タスク：</strong>{timeEntryTask.title}
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">時間</label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        value={timeEntryHours} 
+                        onChange={(e) => setTimeEntryHours(e.target.value)} 
+                        placeholder="0"
+                        min="0"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">分</label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        value={timeEntryMinutes} 
+                        onChange={(e) => setTimeEntryMinutes(e.target.value)} 
+                        placeholder="0"
+                        min="0"
+                        max="59"
+                      />
+                    </div>
+                  </div>
+                  <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem'}}>
+                    例：1時間30分 → 時間: 1、分: 30
+                  </p>
+                </div>
+                <div className="modal-actions">
+                  <button className="btn btn-secondary" onClick={() => { setShowTimeEntryModal(false); setTimeEntryTask(null); }}>キャンセル</button>
+                  <button className="btn btn-primary" onClick={saveTimeEntry}>追加</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showTaskModal && (
+            <div className="modal-overlay" onClick={() => setShowTaskModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header"><h3 className="modal-title">{editingTask ? 'タスク編集' : '新規タスク作成'}</h3></div>
+                <div className="form-group">
+                  <label className="form-label">タスク名 *</label>
+                  <input type="text" className="form-input" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="例: コーディング作業" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">取引先</label>
+                  <select className="form-select" value={formData.client_id} onChange={(e) => setFormData({...formData, client_id: e.target.value})}>
+                    <option value="">プライベート</option>
+                    {clients.map(c => <option key={c.client_id} value={c.client_id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">カテゴリー</label>
+                  <select className="form-select" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
+                    <option value="routine">ルーティン（定期作業）</option>
+                    <option value="strategic">戦略（成長に関わる仕事）</option>
+                    <option value="creative">創造（クリエイティブ作業）</option>
+                    <option value="admin">管理（その他管理業務）</option>
+                  </select>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">期日</label>
+                    <input type="date" className="form-input" value={formData.due_date} onChange={(e) => setFormData({...formData, due_date: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">時間</label>
+                    <input type="time" className="form-input" value={formData.due_time} onChange={(e) => setFormData({...formData, due_time: e.target.value})} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">繰り返し設定</label>
+                  <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', cursor: 'pointer'}}>
+                    <input type="checkbox" checked={formData.repeat} onChange={(e) => setFormData({...formData, repeat: e.target.checked, repeatDays: e.target.checked ? formData.repeatDays : [], repeatType: e.target.checked ? (formData.repeatType || 'weekly') : null})} />
+                    <span style={{fontSize: '0.85rem'}}>繰り返しタスクにする</span>
+                  </label>
+                  {formData.repeat && (
+                    <>
+                      <div style={{marginBottom: '0.75rem'}}>
+                        <select className="form-select" value={formData.repeatType || 'weekly'} onChange={(e) => setFormData({...formData, repeatType: e.target.value})}>
+                          <option value="daily">毎日</option>
+                          <option value="weekly">週単位</option>
+                          <option value="monthly">月単位</option>
+                        </select>
+                      </div>
+                      {formData.repeatType === 'weekly' && (
+                        <div className="weekday-selector">
+                          {['日', '月', '火', '水', '木', '金', '土'].map((day, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              className={`weekday-btn ${formData.repeatDays.includes(index) ? 'selected' : ''}`}
+                              onClick={() => {
+                                const newDays = formData.repeatDays.includes(index)
+                                  ? formData.repeatDays.filter(d => d !== index)
+                                  : [...formData.repeatDays, index].sort((a, b) => a - b);
+                                setFormData({...formData, repeatDays: newDays});
+                              }}
+                            >
+                              {day}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {formData.repeatType === 'monthly' && (
+                        <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem'}}>
+                          毎月同じ日に繰り返されます
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                <div className="modal-actions">
+                  {editingTask && <button className="btn btn-danger btn-small" onClick={() => { deleteTask(editingTask.task_id); setShowTaskModal(false); }}>削除</button>}
+                  <button className="btn btn-secondary" onClick={() => setShowTaskModal(false)}>キャンセル</button>
+                  <button className="btn btn-primary" onClick={saveTask}>保存</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    function ReportsPage({ tasks, clients, timeLogs, setTimeLogs, stats }) {
+      const [fromDate, setFromDate] = useState(() => {
+        const date = new Date();
+        date.setDate(1);
+        return date.toISOString().split('T')[0];
+      });
+      const [toDate, setToDate] = useState(() => new Date().toISOString().split('T')[0]);
+      const [selectedClient, setSelectedClient] = useState('');
+      const [showTimeEditModal, setShowTimeEditModal] = useState(false);
+      const [editingTaskReport, setEditingTaskReport] = useState(null);
+      const [editHours, setEditHours] = useState('');
+      const [editMinutes, setEditMinutes] = useState('');
+      const [showReflectionChat, setShowReflectionChat] = useState(false);
+      const [chatMessages, setChatMessages] = useState([]);
+      const [chatInput, setChatInput] = useState('');
+      const [isLoadingChat, setIsLoadingChat] = useState(false);
+
+      const getFilteredReport = () => {
+        const from = new Date(fromDate).getTime();
+        const to = new Date(toDate).getTime() + 86400000;
+        let completedTasks = tasks.filter(t => t.completed && t.last_completed && t.last_completed >= from && t.last_completed < to);
+        if (selectedClient) completedTasks = completedTasks.filter(t => t.client_id === selectedClient);
+        return completedTasks.map(task => {
+          const taskLogs = timeLogs.filter(log => log.task_id === task.task_id);
+          const totalSeconds = taskLogs.reduce((sum, log) => sum + log.duration_sec, 0);
+          const completedDate = new Date(task.last_completed);
+          return {
+            task_id: task.task_id,
+            taskName: task.title,
+            clientName: task.client_id ? (clients.find(c => c.client_id === task.client_id)?.name || 'N/A') : 'プライベート',
+            completedDate: `${completedDate.getMonth() + 1}/${completedDate.getDate()}`,
+            totalSeconds,
+            task: task
+          };
+        });
+      };
+      
+      const getUniqueTaskReport = () => {
+        const from = new Date(fromDate).getTime();
+        const to = new Date(toDate).getTime() + 86400000;
+        
+        // タスク名でグループ化
+        const taskMap = new Map();
+        
+        tasks.forEach(task => {
+          if (task.completed && task.last_completed && task.last_completed >= from && task.last_completed < to) {
+            if (selectedClient && task.client_id !== selectedClient) return;
+            
+            const taskLogs = timeLogs.filter(log => log.task_id === task.task_id);
+            const taskSeconds = taskLogs.reduce((sum, log) => sum + log.duration_sec, 0);
+            
+            if (taskMap.has(task.title)) {
+              taskMap.get(task.title).totalSeconds += taskSeconds;
+              taskMap.get(task.title).count += 1;
+            } else {
+              taskMap.set(task.title, {
+                taskName: task.title,
+                clientName: task.client_id ? (clients.find(c => c.client_id === task.client_id)?.name || 'N/A') : 'プライベート',
+                totalSeconds: taskSeconds,
+                count: 1
+              });
+            }
+          }
+        });
+        
+        // 配列に変換して時間順にソート
+        return Array.from(taskMap.values()).sort((a, b) => b.totalSeconds - a.totalSeconds);
+      };
+      
+      const openTimeEditModal = (reportRow) => {
+        setEditingTaskReport(reportRow);
+        const hours = Math.floor(reportRow.totalSeconds / 3600);
+        const minutes = Math.floor((reportRow.totalSeconds % 3600) / 60);
+        setEditHours(hours.toString());
+        setEditMinutes(minutes.toString());
+        setShowTimeEditModal(true);
+      };
+      
+      const saveTimeEdit = () => {
+        const hours = parseInt(editHours) || 0;
+        const minutes = parseInt(editMinutes) || 0;
+        const newTotalSeconds = (hours * 3600) + (minutes * 60);
+        
+        if (newTotalSeconds < 0) {
+          alert('正しい時間を入力してください');
+          return;
+        }
+        
+        // 既存のログを削除して新しいログを作成
+        const filteredLogs = timeLogs.filter(log => log.task_id !== editingTaskReport.task_id);
+        
+        if (newTotalSeconds > 0) {
+          const now = Date.now();
+          const newLog = {
+            time_log_id: generateId(),
+            task_id: editingTaskReport.task_id,
+            client_id: editingTaskReport.task.client_id,
+            start_ts: now - (newTotalSeconds * 1000),
+            end_ts: now,
+            duration_sec: newTotalSeconds
+          };
+          setTimeLogs([...filteredLogs, newLog]);
+        } else {
+          setTimeLogs(filteredLogs);
+        }
+        
+        setShowTimeEditModal(false);
+        setEditingTaskReport(null);
+      };
+      
+      const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+      
+      const startReflectionChat = () => {
+        const uniqueReport = getUniqueTaskReport();
+        const top10 = uniqueReport.slice(0, 10);
+        
+        const taskSummary = top10.map((task, idx) => 
+          `${idx + 1}. ${task.taskName}: ${formatDuration(task.totalSeconds)} (${task.count}回実行)`
+        ).join('\n');
+        
+        const initialMessage = `期間: ${fromDate} 〜 ${toDate}
+${selectedClient ? `取引先: ${clients.find(c => c.client_id === selectedClient)?.name}` : '全取引先'}
+
+【時間がかかっているタスクTOP10】
+${taskSummary}
+
+これらのタスクについて、以下の観点で内省を手伝ってください：
+1. このタスクに本当にこれだけの時間をかける必要があるか？
+2. もっと効率化できる方法はないか？
+3. そもそも今の自分にとって必要なタスクなのか？
+4. 優先順位は適切か？
+
+まず、最も時間がかかっているタスクについて、具体的にどのような作業をしているか教えてください。`;
+
+        setChatMessages([{ role: 'user', content: initialMessage }]);
+        setShowReflectionChat(true);
+        sendInitialChatMessage(initialMessage);
+      };
+      
+      const sendInitialChatMessage = async (message) => {
+        setIsLoadingChat(true);
+        
+        try {
+          const response = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1500,
+              messages: [{ role: 'user', content: message }]
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+          }
+          
+          const data = await response.json();
+          const assistantMessage = data.content?.map(item => item.type === 'text' ? item.text : '').join('\n') || 'エラー：応答を取得できませんでした';
+          
+          setChatMessages([
+            { role: 'user', content: message },
+            { role: 'assistant', content: assistantMessage }
+          ]);
+        } catch (error) {
+          console.error('Initial chat error:', error);
+          setChatMessages([
+            { role: 'user', content: message },
+            { role: 'assistant', content: `エラーが発生しました: ${error.message}` }
+          ]);
+        } finally {
+          setIsLoadingChat(false);
+        }
+      };
+      
+      const sendChatMessage = async () => {
+        if (!chatInput.trim() || isLoadingChat) return;
+        
+        const userMessage = chatInput.trim();
+        setChatInput('');
+        
+        const newMessages = [...chatMessages, { role: 'user', content: userMessage }];
+        setChatMessages(newMessages);
+        setIsLoadingChat(true);
+        
+        try {
+          const response = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1500,
+              messages: newMessages
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+          }
+          
+          const data = await response.json();
+          const assistantMessage = data.content?.map(item => item.type === 'text' ? item.text : '').join('\n') || 'エラー：応答を取得できませんでした';
+          
+          setChatMessages([...newMessages, { role: 'assistant', content: assistantMessage }]);
+        } catch (error) {
+          console.error('Chat error:', error);
+          setChatMessages([...newMessages, { role: 'assistant', content: `エラーが発生しました: ${error.message}` }]);
+        } finally {
+          setIsLoadingChat(false);
+        }
+      };
+      
+      const getFilteredStats = () => {
+        const from = new Date(fromDate).getTime();
+        const to = new Date(toDate).getTime() + 86400000;
+        
+        // フィルター期間内の完了タスク
+        let completedTasks = tasks.filter(t => t.completed && t.last_completed && t.last_completed >= from && t.last_completed < to);
+        if (selectedClient) completedTasks = completedTasks.filter(t => t.client_id === selectedClient);
+        
+        // フィルター期間内の作業時間ログを集計
+        const filteredLogs = timeLogs.filter(log => {
+          const task = tasks.find(t => t.task_id === log.task_id);
+          if (!task) return false;
+          
+          // タスクがフィルター条件に合致するか確認
+          const isInDateRange = task.completed && task.last_completed && task.last_completed >= from && task.last_completed < to;
+          const isInClientFilter = selectedClient ? task.client_id === selectedClient : true;
+          
+          return isInDateRange && isInClientFilter;
+        });
+        
+        const totalSeconds = filteredLogs.reduce((sum, log) => sum + log.duration_sec, 0);
+        
+        // フィルター条件に合致する取引先の売上
+        let totalRevenue = 0;
+        if (selectedClient) {
+          const client = clients.find(c => c.client_id === selectedClient);
+          totalRevenue = client ? (client.monthly_fee || 0) : 0;
+        } else {
+          clients.forEach(client => { totalRevenue += client.monthly_fee || 0; });
+        }
+        
+        const effectiveHourlyRate = totalSeconds > 0 ? (totalRevenue / (totalSeconds / 3600)) : 0;
+        
+        return { totalSeconds, totalRevenue, effectiveHourlyRate };
+      };
+
+      const reportData = getFilteredReport();
+      const uniqueTaskData = getUniqueTaskReport();
+      const filteredStats = getFilteredStats();
+
+      return (
+        <>
+          <div className="page-header"><h2>レポート</h2><p>期間別の作業分析</p></div>
+          <div className="kpi-grid">
+            <div className="kpi-card"><div className="kpi-label">期間内の作業時間</div><div className="kpi-value">{formatHours(filteredStats.totalSeconds)}</div><div className="kpi-unit">時間</div></div>
+            <div className="kpi-card"><div className="kpi-label">期間内の総売上</div><div className="kpi-value">{formatCurrency(filteredStats.totalRevenue)}</div><div className="kpi-unit">円</div></div>
+            <div className="kpi-card"><div className="kpi-label">実質時給</div><div className="kpi-value">{formatCurrency(filteredStats.effectiveHourlyRate)}</div><div className="kpi-unit">円/時</div></div>
+          </div>
+          
+          <div className="card">
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+              <h3 style={{fontSize: '1.1rem', fontWeight: '600'}}>タスク別累計時間</h3>
+              <button className="btn btn-primary" onClick={startReflectionChat} disabled={uniqueTaskData.length === 0}>
+                🤖 AI で内省する
+              </button>
+            </div>
+            <div className="input-group">
+              <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+              <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+              <select value={selectedClient} onChange={(e) => setSelectedClient(e.target.value)}>
+                <option value="">全取引先</option>
+                {clients.map(c => <option key={c.client_id} value={c.client_id}>{c.name}</option>)}
+              </select>
+            </div>
+            {uniqueTaskData.length > 0 ? (
+              <table className="report-table">
+                <thead><tr><th>タスク名</th><th>取引先</th><th>実行回数</th><th>累計時間</th></tr></thead>
+                <tbody>{uniqueTaskData.map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{row.taskName}</td>
+                    <td>{row.clientName}</td>
+                    <td>{row.count}回</td>
+                    <td>{formatDuration(row.totalSeconds)}</td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            ) : (
+              <div className="empty-state"><p>該当するデータがありません</p></div>
+            )}
+          </div>
+          
+          <div className="card" style={{marginTop: '1.5rem'}}>
+            <h3 style={{fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem'}}>完了タスク一覧</h3>
+            {reportData.length > 0 ? (
+              <table className="report-table">
+                <thead><tr><th>タスク名</th><th>取引先</th><th>完了日</th><th>作業時間</th><th>操作</th></tr></thead>
+                <tbody>{reportData.map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{row.taskName}</td>
+                    <td>{row.clientName}</td>
+                    <td>{row.completedDate}</td>
+                    <td>{formatDuration(row.totalSeconds)}</td>
+                    <td>
+                      <button className="btn btn-secondary btn-small" onClick={() => openTimeEditModal(row)}>編集</button>
+                    </td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            ) : (
+              <div className="empty-state"><p>該当するデータがありません</p></div>
+            )}
+          </div>
+          
+          {showReflectionChat && (
+            <div className="modal-overlay" onClick={() => { 
+              setShowReflectionChat(false); 
+              setChatMessages([]);
+              setChatInput('');
+            }}>
+              <div className="modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: '700px', maxHeight: '80vh'}}>
+                <div className="modal-header">
+                  <h3 className="modal-title">🤖 AI 内省チャット</h3>
+                </div>
+                
+                <div className="chat-container">
+                  {chatMessages.map((msg, index) => (
+                    <div key={index} className={`chat-message ${msg.role}`}>
+                      {msg.role === 'assistant' && <div style={{fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--accent-primary)'}}>Claude</div>}
+                      {msg.role === 'user' && <div style={{fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--text-primary)'}}>あなた</div>}
+                      <div style={{whiteSpace: 'pre-wrap', fontSize: '0.9rem'}}>{msg.content}</div>
+                    </div>
+                  ))}
+                  
+                  {isLoadingChat && (
+                    <div className="chat-loading">
+                      <span>Claude が考えています...</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="chat-input-container">
+                  <textarea 
+                    className="chat-input" 
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendChatMessage();
+                      }
+                    }}
+                    placeholder="メッセージを入力... (Shift+Enterで改行)"
+                    disabled={isLoadingChat}
+                  />
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={sendChatMessage}
+                    disabled={isLoadingChat || !chatInput.trim()}
+                    style={{alignSelf: 'flex-end'}}
+                  >
+                    送信
+                  </button>
+                </div>
+                
+                <div className="modal-actions" style={{marginTop: '1rem'}}>
+                  <button className="btn btn-secondary" onClick={() => { 
+                    setShowReflectionChat(false); 
+                    setChatMessages([]);
+                    setChatInput('');
+                  }}>閉じる</button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {showTimeEditModal && editingTaskReport && (
+            <div className="modal-overlay" onClick={() => { setShowTimeEditModal(false); setEditingTaskReport(null); }}>
+              <div className="modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px'}}>
+                <div className="modal-header">
+                  <h3 className="modal-title">⏱ 作業時間を編集</h3>
+                </div>
+                <div style={{marginBottom: '1.5rem'}}>
+                  <div style={{padding: '0.75rem', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '1rem', fontSize: '0.9rem'}}>
+                    <strong>タスク：</strong>{editingTaskReport.taskName}
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">時間</label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        value={editHours} 
+                        onChange={(e) => setEditHours(e.target.value)} 
+                        placeholder="0"
+                        min="0"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">分</label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        value={editMinutes} 
+                        onChange={(e) => setEditMinutes(e.target.value)} 
+                        placeholder="0"
+                        min="0"
+                        max="59"
+                      />
+                    </div>
+                  </div>
+                  <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem'}}>
+                    現在の作業時間：{formatDuration(editingTaskReport.totalSeconds)}
+                  </p>
+                </div>
+                <div className="modal-actions">
+                  <button className="btn btn-secondary" onClick={() => { setShowTimeEditModal(false); setEditingTaskReport(null); }}>キャンセル</button>
+                  <button className="btn btn-primary" onClick={saveTimeEdit}>保存</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    function ClientsPage({ clients, setClients, tasks }) {
+      const [showModal, setShowModal] = useState(false);
+      const [editingClient, setEditingClient] = useState(null);
+      const [formData, setFormData] = useState({ name: '', monthly_fee: '' });
+
+      const openCreateModal = () => { setEditingClient(null); setFormData({ name: '', monthly_fee: '' }); setShowModal(true); };
+      const openEditModal = (client) => { setEditingClient(client); setFormData({ name: client.name, monthly_fee: client.monthly_fee || '' }); setShowModal(true); };
+      const saveClient = () => {
+        if (!formData.name.trim()) { alert('取引先名を入力してください'); return; }
+        if (editingClient) {
+          setClients(clients.map(c => c.client_id === editingClient.client_id ? { ...c, name: formData.name, monthly_fee: formData.monthly_fee ? parseFloat(formData.monthly_fee) : 0 } : c));
+        } else {
+          const newClient = { client_id: generateId(), name: formData.name, monthly_fee: formData.monthly_fee ? parseFloat(formData.monthly_fee) : 0 };
+          setClients([...clients, newClient]);
+        }
+        setShowModal(false);
+      };
+      const deleteClient = (clientId) => {
+        const hasRelatedTasks = tasks.some(t => t.client_id === clientId);
+        if (hasRelatedTasks) { alert('この取引先に関連するタスクが存在するため削除できません'); return; }
+        if (confirm('この取引先を削除しますか？')) setClients(clients.filter(c => c.client_id !== clientId));
+      };
+
+      return (
+        <>
+          <div className="page-header"><h2>取引先管理</h2><p>取引先の登録・編集</p></div>
+          <div style={{ marginBottom: '1rem' }}><button className="btn btn-primary btn-small" onClick={openCreateModal}>新規取引先登録</button></div>
+          <div className="client-list">
+            {clients.map(client => (
+              <div key={client.client_id} className="client-item">
+                <div className="client-info">
+                  <div className="client-name">{client.name}</div>
+                  <div className="client-meta">月額報酬: {formatCurrency(client.monthly_fee || 0)}</div>
+                </div>
+                <div className="task-actions">
+                  <button className="btn btn-secondary btn-small" onClick={() => openEditModal(client)}>編集</button>
+                  <button className="btn btn-danger btn-small" onClick={() => deleteClient(client.client_id)}>削除</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {clients.length === 0 && <div className="empty-state"><p>取引先が登録されていません</p></div>}
+          {showModal && (
+            <div className="modal-overlay" onClick={() => setShowModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header"><h3 className="modal-title">{editingClient ? '取引先編集' : '新規取引先登録'}</h3></div>
+                <div className="form-group">
+                  <label className="form-label">取引先名 *</label>
+                  <input type="text" className="form-input" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="例: 株式会社◯◯" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">月額報酬 (円)</label>
+                  <input type="number" className="form-input" value={formData.monthly_fee} onChange={(e) => setFormData({...formData, monthly_fee: e.target.value})} placeholder="例: 100000" />
+                </div>
+                <div className="modal-actions">
+                  <button className="btn btn-secondary" onClick={() => setShowModal(false)}>キャンセル</button>
+                  <button className="btn btn-primary" onClick={saveClient}>保存</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
