@@ -8,7 +8,7 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@200;300;400;500&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --bg-primary: #0a0d14; --bg-secondary: #0f1419; --bg-tertiary: #151b24;
@@ -22,7 +22,7 @@
       --shadow-glow: 0 0 32px rgba(59, 130, 246, 0.25);
       --sidebar-width: 280px;
     }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow: hidden; position: relative; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow: hidden; position: relative; font-weight: 300; -webkit-font-smoothing: antialiased; }
     body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%); animation: ambient 30s linear infinite; pointer-events: none; z-index: 0; }
     @keyframes ambient { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .app-container { display: flex; height: 100vh; position: relative; z-index: 1; }
@@ -32,7 +32,7 @@
     .sidebar-toggle.shifted { left: var(--sidebar-width); }
     .sidebar-toggle:hover { background: var(--bg-tertiary); }
     .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
-    .sidebar-logo h1 { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .sidebar-logo h1 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .sidebar-logo p { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; font-family: 'JetBrains Mono', monospace; }
     .sidebar-nav { list-style: none; flex: 1; }
     .sidebar-nav li { margin: 0.25rem 0; }
@@ -140,7 +140,7 @@
     .input-group { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
     .input-group input, .input-group select { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.85rem; }
     .page-header { margin-bottom: 1.5rem; }
-    .page-header h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .page-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
     .page-header p { color: var(--text-secondary); font-size: 0.9rem; }
     .empty-state { text-align: center; padding: 2rem 1.5rem; color: var(--text-muted); }
   </style>
