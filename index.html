@@ -36,27 +36,38 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .nav-b:hover{color:var(--text)}
 .nav-b.on{color:var(--text);background:var(--bg);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 
-/* HERO COLLAGE - editorial magazine style */
-.hero{position:relative;margin-bottom:.8rem;height:260px;overflow:visible}
-/* Photo layers */
-.h-img{position:absolute;object-fit:cover;display:block}
-.h-img.p1{top:15px;left:8%;width:42%;height:220px;z-index:2;box-shadow:4px 6px 24px rgba(0,0,0,.12)}
-.h-img.p2{top:0;left:38%;width:32%;height:180px;z-index:3;box-shadow:3px 4px 18px rgba(0,0,0,.1);transform:rotate(.5deg)}
-.h-img.p3{bottom:0;right:10%;width:24%;height:150px;z-index:4;box-shadow:2px 4px 16px rgba(0,0,0,.1);transform:rotate(-.3deg)}
-.h-img.p4{bottom:15px;left:3%;width:12%;height:70px;z-index:5;box-shadow:1px 2px 10px rgba(0,0,0,.08);opacity:.85}
-/* White frames crossing over photos */
-.h-fr{position:absolute;border:1.5px solid rgba(255,255,255,.7);pointer-events:none}
-.h-fr.f1{top:8px;left:6%;width:46%;height:230px;z-index:6}
-.h-fr.f2{top:-8px;left:35%;width:35%;height:192px;z-index:6}
-.h-fr.f3{bottom:-5px;right:8%;width:27%;height:158px;z-index:6}
-/* Accent lines */
+/* HERO - Editorial Diagonal Collage */
+.hero{position:relative;margin-bottom:.6rem;height:280px;overflow:hidden}
+/* Base photo layers with clip-path diagonal cuts */
+.h-img{position:absolute;object-fit:cover;display:block;transition:opacity .5s}
+.h-img.p1{top:0;left:0;width:65%;height:100%;z-index:2;clip-path:polygon(0 0,85% 0,70% 100%,0 100%)}
+.h-img.p2{top:0;right:0;width:55%;height:65%;z-index:3;clip-path:polygon(25% 0,100% 0,100% 100%,10% 100%)}
+.h-img.p3{bottom:0;right:0;width:40%;height:55%;z-index:4;clip-path:polygon(15% 0,100% 0,100% 100%,0 100%)}
+.h-img.p4{bottom:20px;left:5%;width:15%;height:30%;z-index:5;clip-path:polygon(0 8%,100% 0,95% 100%,5% 92%)}
+/* Geometric color planes */
+.h-plane{position:absolute;pointer-events:none}
+.h-plane.pl1{top:0;left:55%;width:20%;height:40%;background:var(--bg);z-index:2;clip-path:polygon(30% 0,100% 0,70% 100%,0 100%)}
+.h-plane.pl2{bottom:0;left:45%;width:18%;height:35%;background:rgba(212,197,249,.15);z-index:1}
+.h-plane.pl3{top:10px;right:0;width:8%;height:25%;background:rgba(184,212,255,.12);z-index:1}
+/* White crossing frames */
+.h-fr{position:absolute;border:1.5px solid rgba(255,255,255,.65);pointer-events:none;z-index:6}
+.h-fr.f1{top:10px;left:3%;width:58%;height:260px;transform:rotate(-.3deg)}
+.h-fr.f2{top:-5px;right:5%;width:36%;height:180px;transform:rotate(.4deg)}
+.h-fr.f3{bottom:5px;right:15%;width:22%;height:130px}
+/* Dark accent frame */
+.h-dfr{position:absolute;border:1px solid rgba(26,26,26,.1);pointer-events:none;z-index:6}
+.h-dfr.d1{top:20px;left:8%;width:45%;height:200px;transform:rotate(.2deg)}
+/* Accent elements */
 .h-ac{position:absolute;pointer-events:none;z-index:7}
-/* Colored tint blocks */
-.h-tint{position:absolute;pointer-events:none;z-index:1}
-/* Motto overlay */
-.h-motto{position:absolute;bottom:20px;right:6%;z-index:8;text-align:right;max-width:260px}
-.h-motto-main{font-size:1.5rem;font-weight:900;color:var(--white);text-shadow:0 2px 16px rgba(0,0,0,.55),0 0 40px rgba(0,0,0,.2);line-height:1.25;letter-spacing:.05em}
-.h-motto-sub{font-size:.62rem;font-weight:300;color:rgba(255,255,255,.75);text-shadow:0 1px 8px rgba(0,0,0,.4);margin-top:.15rem;letter-spacing:.04em}
+/* Diagonal gradient overlay */
+.h-grad{position:absolute;bottom:0;right:0;width:45%;height:100%;z-index:5;background:linear-gradient(135deg,transparent 30%,rgba(26,26,26,.3) 100%);pointer-events:none}
+/* Motto */
+.h-motto{position:absolute;bottom:22px;right:5%;z-index:8;text-align:right;max-width:280px}
+.h-motto-main{font-size:1.8rem;font-weight:900;color:var(--white);text-shadow:0 2px 20px rgba(0,0,0,.5),0 0 60px rgba(0,0,0,.15);line-height:1.2;letter-spacing:.08em}
+.h-motto-sub{font-size:.6rem;font-weight:300;color:rgba(255,255,255,.7);text-shadow:0 1px 10px rgba(0,0,0,.5);margin-top:.2rem;letter-spacing:.06em}
+/* Diagonal divider line after hero */
+.h-div{position:relative;height:6px;margin-bottom:.5rem;overflow:hidden}
+.h-div::before{content:'';position:absolute;top:0;left:-3%;right:-3%;height:100%;background:linear-gradient(90deg,var(--purple) 0%,var(--blue) 25%,var(--pink) 50%,var(--peach) 75%,var(--mint) 100%);transform:skewX(-25deg)}
 
 /* MOTTO BAR */
 .motto{display:flex;align-items:center;gap:1rem;margin-bottom:.6rem;padding:.4rem 1rem;background:var(--white);border:1px solid var(--bdr2);cursor:pointer;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.02)}
@@ -237,13 +248,14 @@ const CATS=[{id:'routine',l:'Routine',c:'tt-routine'},{id:'strategic',l:'Strateg
 const REPS=[{id:'none',l:'なし'},{id:'daily',l:'毎日'},{id:'weekly',l:'毎週'},{id:'monthly',l:'毎月'}];
 const WDS=[{id:0,l:'日'},{id:1,l:'月'},{id:2,l:'火'},{id:3,l:'水'},{id:4,l:'木'},{id:5,l:'金'},{id:6,l:'土'}];
 
-// Unsplash architectural/urban photos - curated collection
+// Curated architectural photo sets [main, overlap, corner, accent]
 const PHOTOS=[
-  ['https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80','https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=700&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=600&q=80','https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=900&q=80','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=700&q=80','https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1514565131-fce0801e5785?w=900&q=80','https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=700&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=600&q=80','https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=900&q=80','https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=700&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=600&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=900&q=80','https://images.unsplash.com/photo-1486325212027-8081e485255e?w=700&q=80','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=700&q=80','https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=500&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=900&q=80','https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=700&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=500&q=80','https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1514565131-fce0801e5785?w=900&q=80','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=700&q=80','https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=500&q=80','https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=900&q=80','https://images.unsplash.com/photo-1486325212027-8081e485255e?w=700&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=500&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=900&q=80','https://images.unsplash.com/photo-1514565131-fce0801e5785?w=700&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=500&q=80','https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=900&q=80','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=700&q=80','https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80','https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=300&q=80'],
 ];
 
 function fmtDate(d){if(!d)return'';const today=new Date();today.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-today)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
@@ -303,7 +315,6 @@ function App(){
 }
 
 function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,photos}){
-  const[pO,setPO]=useState(false);
   const[eP,setEP]=useState(false);
   const[pF,setPF]=useState(pr);
   const[modal,setMo]=useState(false);
@@ -344,54 +355,52 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
 
   return(
     <div className="fi">
-      {/* Hero collage - editorial magazine style */}
+      {/* Hero - Editorial Diagonal Collage */}
       <div className="hero">
-        {/* Tint blocks behind photos */}
-        <div className="h-tint" style={{top:0,left:'15%',width:'35%',height:'60%',background:'rgba(184,212,255,.12)'}}></div>
-        <div className="h-tint" style={{bottom:0,right:'5%',width:'28%',height:'50%',background:'rgba(212,197,249,.08)'}}></div>
-        {/* 4 photos at different sizes, overlapping */}
+        {/* Geometric color planes behind */}
+        <div className="h-plane pl1"></div>
+        <div className="h-plane pl2"></div>
+        <div className="h-plane pl3"></div>
+        {/* Photos with diagonal clip-paths */}
         <img className="h-img p1" src={photos[0]} alt=""/>
         <img className="h-img p2" src={photos[1]} alt=""/>
         <img className="h-img p3" src={photos[2]} alt=""/>
         <img className="h-img p4" src={photos[3]} alt=""/>
-        {/* White frames crossing over photos */}
+        {/* Gradient overlay for text readability */}
+        <div className="h-grad"></div>
+        {/* White frames crossing diagonally */}
         <div className="h-fr f1"></div>
         <div className="h-fr f2"></div>
         <div className="h-fr f3"></div>
+        {/* Dark accent frame */}
+        <div className="h-dfr d1"></div>
         {/* Small accent lines */}
-        <div className="h-ac" style={{top:'12px',left:'2%',width:'22px',height:'2px',background:'rgba(184,212,255,.5)'}}></div>
-        <div className="h-ac" style={{top:'40px',left:'2.5%',width:'14px',height:'2px',background:'rgba(26,26,26,.15)'}}></div>
-        <div className="h-ac" style={{bottom:'35px',left:'22%',width:'16px',height:'2px',background:'rgba(26,26,26,.18)'}}></div>
-        <div className="h-ac" style={{top:'50px',right:'3%',width:'2px',height:'28px',background:'rgba(26,26,26,.12)'}}></div>
-        <div className="h-ac" style={{bottom:'50px',right:'5%',width:'2px',height:'20px',background:'rgba(212,197,249,.3)'}}></div>
-        {/* Small accent squares */}
-        <div className="h-ac" style={{bottom:'20px',left:'1%',width:'8px',height:'8px',background:'rgba(184,212,255,.25)'}}></div>
-        <div className="h-ac" style={{top:'5px',right:'38%',width:'6px',height:'6px',background:'rgba(255,200,221,.2)',transform:'rotate(45deg)'}}></div>
-        {/* Motto overlay on the composition */}
+        <div className="h-ac" style={{top:'8px',left:'1%',width:'20px',height:'1.5px',background:'rgba(184,212,255,.5)'}}></div>
+        <div className="h-ac" style={{top:'30px',left:'1.5%',width:'12px',height:'1.5px',background:'rgba(26,26,26,.15)'}}></div>
+        <div className="h-ac" style={{bottom:'60px',left:'20%',width:'14px',height:'1.5px',background:'rgba(255,255,255,.4)'}}></div>
+        <div className="h-ac" style={{top:'80px',right:'2%',width:'1.5px',height:'24px',background:'rgba(26,26,26,.1)'}}></div>
+        <div className="h-ac" style={{bottom:'40px',right:'42%',width:'1.5px',height:'18px',background:'rgba(255,255,255,.35)'}}></div>
+        {/* Small colored squares */}
+        <div className="h-ac" style={{bottom:'25px',left:'1.5%',width:'7px',height:'7px',background:'rgba(184,212,255,.3)'}}></div>
+        <div className="h-ac" style={{top:'55px',left:'62%',width:'5px',height:'5px',background:'rgba(255,200,221,.25)',transform:'rotate(45deg)'}}></div>
+        <div className="h-ac" style={{top:'15px',right:'35%',width:'6px',height:'6px',background:'rgba(212,197,249,.2)'}}></div>
+        {/* Motto */}
         <div className="h-motto">
           <div className="h-motto-main">{pr.main}</div>
           <div className="h-motto-sub">{pr.sub.split('\n')[0]}</div>
+          <button className="bt" style={{marginTop:'.3rem',fontSize:'.5rem',opacity:.6,background:'rgba(255,255,255,.15)',color:'#fff',border:'1px solid rgba(255,255,255,.3)'}} onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
         </div>
       </div>
+      {eP&&<div className="motto" style={{marginBottom:'.5rem'}}>
+        <span className="motto-tag">Motto Edit</span>
+        <div style={{flex:1}}>
+          <div className="fg"><input className="inp" value={pF.main} onChange={e=>setPF({...pF,main:e.target.value})}/></div>
+          <div className="fg"><textarea className="txa" value={pF.sub} onChange={e=>setPF({...pF,sub:e.target.value})} rows={3}/></div>
+          <div style={{display:'flex',gap:'.3rem'}}><button className="btn btn-p btn-s" onClick={saveP}>保存</button><button className="btn btn-s" onClick={()=>setEP(false)}>取消</button></div>
+        </div>
+      </div>}
+      <div className="h-div"></div>
 
-      {/* Motto bar collapsible */}
-      <div className={'motto'+(pO?' open':'')} onClick={()=>{if(!eP)setPO(!pO)}}>
-        <span className="motto-tag">Motto</span>
-        {eP?(
-          <div style={{flex:1}} onClick={e=>e.stopPropagation()}>
-            <div className="fg"><input className="inp" value={pF.main} onChange={e=>setPF({...pF,main:e.target.value})}/></div>
-            <div className="fg"><textarea className="txa" value={pF.sub} onChange={e=>setPF({...pF,sub:e.target.value})} rows={3}/></div>
-            <div style={{display:'flex',gap:'.3rem'}}><button className="btn btn-p btn-s" onClick={saveP}>保存</button><button className="btn btn-s" onClick={()=>setEP(false)}>取消</button></div>
-          </div>
-        ):(<>
-          <span className="motto-main">{pr.main}</span>
-          {pO?<span className="motto-sub">{pr.sub}</span>:<span className="motto-sub">{pr.sub}</span>}
-          {pO&&<button className="bt" onClick={e=>{e.stopPropagation();setEP(true);setPF(pr)}}>編集</button>}
-          <span className="motto-tog">{pO?'−':'+'}</span>
-        </>)}
-      </div>
-
-      <div className="diag"></div>
 
       <div className="mg">
         <div>
