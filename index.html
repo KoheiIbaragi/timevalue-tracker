@@ -4,266 +4,233 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TimeValue Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --pastel-blue:#b8d4ff;--pastel-purple:#d4c5f9;--pastel-pink:#ffc8dd;
-  --pastel-mint:#c7f0db;--pastel-peach:#ffd6a5;--pastel-lavender:#e7c6ff;
-  --bg:#f4f2ef;--text:#1a1a1a;--text-light:#5a5a5a;--text-muted:#999;
-  --white:#fff;--border:#ddd8d0;--border-light:#eae6e0;
-  --frame-dark:rgba(26,26,26,0.15);--frame-mid:rgba(26,26,26,0.08);--frame-light:rgba(26,26,26,0.04);
-  --shadow:0 4px 30px rgba(0,0,0,0.06);
-  --font-body:'Noto Sans JP',sans-serif;--font-heading:'Noto Serif JP',serif;
+  --blue:#b8d4ff;--purple:#d4c5f9;--pink:#ffc8dd;
+  --mint:#c7f0db;--peach:#ffd6a5;--lav:#e7c6ff;
+  --bg:#f4f2ef;--text:#1a1a1a;--t2:#5a5a5a;--t3:#999;
+  --white:#fff;--bdr:#ddd8d0;--bdr2:#eae6e0;
+  --fd:rgba(26,26,26,0.14);--fm:rgba(26,26,26,0.07);
+  --sh:0 2px 16px rgba(0,0,0,0.05);
+  --f:'Noto Sans JP',sans-serif;
 }
 html{font-size:14px}
-body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.7;font-weight:300;min-height:100vh;overflow-x:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh;overflow-x:hidden}
 
-/* === DIAGONAL DECORATIVE ELEMENTS === */
-.deco-diagonal{position:fixed;pointer-events:none;z-index:0}
+.app{max-width:1440px;margin:0 auto;padding:1.2rem 2.5rem;position:relative;z-index:1}
+@media(max-width:1024px){.app{padding:1rem 1rem}}
 
-/* === MAIN LAYOUT === */
-.app{max-width:1400px;margin:0 auto;padding:1.5rem 3rem;position:relative;z-index:1}
-@media(max-width:1024px){.app{padding:1rem 1.2rem}}
+/* HEADER */
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;position:relative}
+.hd-left{display:flex;align-items:baseline;gap:0.6rem;position:relative}
+.logo{font-size:1.4rem;font-weight:900;letter-spacing:-0.03em}
+.logo-s{font-size:0.55rem;font-weight:300;color:var(--t3);letter-spacing:0.2em;text-transform:uppercase}
+/* Logo frames */
+.logo-f1{position:absolute;top:-10px;left:-16px;width:46px;height:46px;border:1.5px solid var(--fd);transform:rotate(10deg);pointer-events:none}
+.logo-f2{position:absolute;top:-3px;left:-10px;width:30px;height:30px;border:1px solid var(--purple);opacity:.4;transform:rotate(-5deg);pointer-events:none}
 
-/* === HEADER: ultra-compact === */
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;position:relative}
-.header-left{display:flex;align-items:baseline;gap:1.5rem}
-.logo{font-family:var(--font-heading);font-size:1.8rem;font-weight:900;letter-spacing:-0.03em;line-height:1;position:relative}
-.logo-sub{font-size:0.6rem;font-weight:300;color:var(--text-muted);letter-spacing:0.2em;text-transform:uppercase}
+.nav{display:flex;gap:2px;background:var(--white);border:1px solid var(--bdr2);border-radius:5px;padding:2px;box-shadow:0 1px 6px rgba(0,0,0,0.03)}
+.nav-b{padding:0.3rem 0.9rem;font-family:var(--f);font-size:0.68rem;font-weight:400;color:var(--t3);background:0;border:0;border-radius:3px;cursor:pointer;transition:all .2s}
+.nav-b:hover{color:var(--text)}
+.nav-b.on{color:var(--text);background:var(--bg);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 
-/* Overlapping frame on logo */
-.logo-frame{position:absolute;top:-8px;left:-14px;width:50px;height:50px;border:1.5px solid var(--frame-dark);transform:rotate(8deg);pointer-events:none}
-.logo-frame2{position:absolute;top:-2px;left:-8px;width:35px;height:35px;border:1px solid var(--pastel-purple);opacity:0.5;transform:rotate(-4deg);pointer-events:none}
+/* KPI BAR */
+.kpi{display:flex;background:var(--white);border:1px solid var(--bdr2);box-shadow:var(--sh);position:relative;margin-bottom:0.8rem}
+.kpi::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;bottom:10px;border:1.5px solid var(--fd);pointer-events:none}
+.kpi::after{content:'';position:absolute;top:7px;left:10px;right:-10px;bottom:-7px;border:1px solid var(--fm);pointer-events:none}
+.kpi-i{flex:1;padding:0.6rem 1.2rem;position:relative;z-index:1}
+.kpi-i+.kpi-i{border-left:1px solid var(--bdr2)}
+.kpi-i:nth-child(1){border-top:2px solid var(--blue)}
+.kpi-i:nth-child(2){border-top:2px solid var(--purple)}
+.kpi-i:nth-child(3){border-top:2px solid var(--mint)}
+.kpi-l{font-size:0.55rem;font-weight:500;color:var(--t3);letter-spacing:.12em;text-transform:uppercase}
+.kpi-v{font-size:1.3rem;font-weight:700;line-height:1.2}
+.kpi-u{font-size:0.65rem;font-weight:300;color:var(--t2);margin-left:0.15rem}
 
-.nav{display:flex;gap:2px;background:var(--white);border:1px solid var(--border-light);border-radius:6px;padding:3px;box-shadow:0 1px 8px rgba(0,0,0,0.04)}
-.nav-btn{padding:0.35rem 1rem;font-family:var(--font-body);font-size:0.72rem;font-weight:400;color:var(--text-muted);background:0;border:0;border-radius:4px;cursor:pointer;transition:all .2s;letter-spacing:.02em}
-.nav-btn:hover{color:var(--text)}
-.nav-btn.on{color:var(--text);background:var(--bg);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+/* MOTTO BAR */
+.motto{display:flex;align-items:center;gap:1rem;margin-bottom:0.6rem;padding:0.4rem 1rem;background:var(--white);border:1px solid var(--bdr2);cursor:pointer;position:relative;box-shadow:0 1px 4px rgba(0,0,0,0.02)}
+.motto::before{content:'';position:absolute;top:-5px;left:6px;right:-5px;bottom:4px;border:1px solid var(--fm);pointer-events:none}
+.motto-tag{font-size:0.5rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;flex-shrink:0}
+.motto-main{font-size:0.95rem;font-weight:700;flex-shrink:0}
+.motto-sub{font-size:0.7rem;color:var(--t2);font-weight:300;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.motto-tog{font-size:0.6rem;color:var(--t3);flex-shrink:0}
+.motto.open{flex-wrap:wrap;padding:0.8rem 1rem}
+.motto.open .motto-sub{white-space:pre-line;overflow:visible;flex-basis:100%;margin-top:0.3rem}
 
-/* === KPI BAR: single compact row === */
-.kpi-bar{
-  display:flex;gap:0;margin-bottom:1rem;position:relative;
-  background:var(--white);border:1px solid var(--border-light);box-shadow:var(--shadow);
-}
-.kpi-bar::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;bottom:10px;border:1.5px solid var(--frame-dark);pointer-events:none}
-.kpi-bar::after{content:'';position:absolute;top:8px;left:10px;right:-10px;bottom:-8px;border:1px solid var(--frame-mid);pointer-events:none}
-.kpi-item{flex:1;padding:0.8rem 1.4rem;position:relative;z-index:1}
-.kpi-item+.kpi-item{border-left:1px solid var(--border-light)}
-.kpi-item:nth-child(1){border-top:3px solid var(--pastel-blue)}
-.kpi-item:nth-child(2){border-top:3px solid var(--pastel-purple)}
-.kpi-item:nth-child(3){border-top:3px solid var(--pastel-mint)}
-.kpi-lbl{font-size:0.6rem;font-weight:400;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:0.15rem}
-.kpi-val{font-family:var(--font-heading);font-size:1.5rem;font-weight:700;line-height:1.1}
-.kpi-unit{font-family:var(--font-body);font-size:0.7rem;font-weight:300;color:var(--text-light);margin-left:0.2rem}
+/* DIAGONAL BAR */
+.diag{position:relative;overflow:hidden;height:3px;margin:0.4rem 0 0.8rem}
+.diag::before{content:'';position:absolute;top:0;left:-5%;right:-5%;bottom:0;background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 30%,var(--pink) 60%,var(--peach) 100%);transform:skewX(-20deg)}
 
-/* === PRINCIPLES: collapsible minimal === */
-.principles-bar{
-  display:flex;align-items:center;gap:1.5rem;
-  margin-bottom:1rem;padding:0.6rem 1.4rem;
-  background:var(--white);border:1px solid var(--border-light);
-  cursor:pointer;position:relative;
-  box-shadow:0 1px 8px rgba(0,0,0,0.03);
-}
-.principles-bar::before{content:'';position:absolute;top:-6px;left:8px;right:-6px;bottom:6px;border:1px solid var(--frame-mid);pointer-events:none}
-.principles-tag{font-size:0.58rem;font-weight:400;color:var(--text-muted);letter-spacing:.2em;text-transform:uppercase;flex-shrink:0}
-.principles-text{font-family:var(--font-heading);font-size:1rem;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.principles-sub-text{font-size:0.75rem;color:var(--text-light);font-weight:300;flex:2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.principles-toggle{font-size:0.7rem;color:var(--text-muted);flex-shrink:0;transition:transform .2s}
-.principles-expanded{padding:1.2rem 1.4rem}
-.principles-expanded .principles-text{white-space:normal;font-size:1.3rem;margin-bottom:0.4rem}
-.principles-expanded .principles-sub-text{white-space:pre-line;display:block;margin-top:0.3rem}
+/* MAIN GRID */
+.mg{display:grid;grid-template-columns:1fr 280px;gap:1.2rem;align-items:start}
+@media(max-width:1024px){.mg{grid-template-columns:1fr}}
 
-/* === CONTENT GRID === */
-.main-grid{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start}
-@media(max-width:1024px){.main-grid{grid-template-columns:1fr}}
+/* SECTION */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem}
+.st{font-size:0.95rem;font-weight:700;position:relative;padding-left:0.7rem}
+.st::before{content:'';position:absolute;left:0;top:0.15em;width:2.5px;height:0.9em;background:var(--purple)}
+.sr{display:flex;gap:0.3rem;align-items:center}
 
-/* === SECTION === */
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem}
-.sec-title{font-family:var(--font-heading);font-size:1.1rem;font-weight:700;position:relative;padding-left:0.8rem}
-.sec-title::before{content:'';position:absolute;left:0;top:0.15em;width:3px;height:1em;background:var(--pastel-purple)}
-.sec-right{display:flex;gap:0.4rem;align-items:center}
+/* CLIENT GROUP */
+.cg{margin-bottom:0.8rem;position:relative}
+.cg-head{display:flex;align-items:center;justify-content:space-between;padding:0.3rem 0.7rem;background:var(--white);border:1px solid var(--bdr2);border-bottom:0;font-size:0.72rem;font-weight:600}
+.cg-count{font-size:0.6rem;font-weight:300;color:var(--t3)}
 
-/* === TASK ROW: single line === */
-.task-list{position:relative}
-.task-list::before{content:'';position:absolute;top:-12px;left:-12px;right:16px;bottom:16px;border:1.5px solid var(--frame-dark);pointer-events:none;z-index:0}
-.task-list::after{content:'';position:absolute;top:10px;left:12px;right:-12px;bottom:-10px;border:1px solid var(--frame-mid);pointer-events:none;z-index:0}
+/* TASK ROW */
+.tl{position:relative}
+.tl::before{content:'';position:absolute;top:-8px;left:-8px;right:12px;bottom:12px;border:1.5px solid var(--fd);pointer-events:none;z-index:0}
+.tl::after{content:'';position:absolute;top:8px;left:8px;right:-8px;bottom:-8px;border:1px solid var(--fm);pointer-events:none;z-index:0}
 
-.task-row{
-  display:flex;align-items:center;gap:0.6rem;
-  background:var(--white);border:1px solid var(--border-light);
-  padding:0.5rem 0.8rem;margin-bottom:3px;
-  position:relative;z-index:1;
-  transition:all .15s;font-size:0.82rem;
-}
-.task-row:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06);border-color:var(--border)}
-.task-row.running{border-left:3px solid #5a8f6e}
-.task-row.done{opacity:0.4}
-.task-row.done .t-name{text-decoration:line-through}
+.tr{display:flex;align-items:center;gap:0.5rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:0.35rem 0.7rem;position:relative;z-index:1;transition:all .12s;font-size:0.78rem;cursor:pointer}
+.tr:first-child,.cg-head+.tr{border-top:1px solid var(--bdr2)}
+.tr:hover{background:#faf9f7;box-shadow:0 1px 8px rgba(0,0,0,0.04)}
+.tr.run{border-left:3px solid #5a8f6e}
+.tr.done{opacity:.35}
+.tr.done .tn{text-decoration:line-through}
 
-.t-name{font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:0.82rem}
-.t-client{font-size:0.68rem;color:var(--text-muted);font-weight:300;flex-shrink:0;max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.t-tag{display:inline-block;padding:0.1rem 0.5rem;font-size:0.6rem;font-weight:400;border-radius:1px;flex-shrink:0}
-.t-tag-routine{background:var(--pastel-blue);color:#3a6db5}
-.t-tag-strategic{background:var(--pastel-purple);color:#6b5a9e}
-.t-tag-creative{background:var(--pastel-pink);color:#b5577a}
-.t-tag-admin{background:var(--pastel-peach);color:#b58040}
-.t-repeat{font-size:0.58rem;color:var(--text-muted);flex-shrink:0}
-.t-time{font-family:var(--font-heading);font-size:0.78rem;font-weight:600;flex-shrink:0;min-width:36px;text-align:right}
-.t-actions{display:flex;gap:2px;flex-shrink:0}
+.td-date{font-size:0.62rem;color:var(--purple);font-weight:500;min-width:42px;flex-shrink:0}
+.td-date.overdue{color:#c77}
+.td-date.today{color:#5a8f6e;font-weight:600}
+.tn{font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:0.78rem}
+.tc{font-size:0.58rem;color:var(--t3);flex-shrink:0;max-width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt{display:inline-block;padding:0.08rem 0.45rem;font-size:0.55rem;font-weight:500;border-radius:1px;flex-shrink:0}
+.tt-routine{background:var(--blue);color:#3a6db5}
+.tt-strategic{background:var(--purple);color:#6b5a9e}
+.tt-creative{background:var(--pink);color:#b5577a}
+.tt-admin{background:var(--peach);color:#b58040}
+.ttm{font-family:var(--f);font-size:0.72rem;font-weight:600;flex-shrink:0;min-width:32px;text-align:right}
+.ta{display:flex;gap:2px;flex-shrink:0}
 
-.btn-t{font-family:var(--font-body);font-size:0.62rem;padding:0.2rem 0.5rem;border:1px solid var(--border);background:var(--white);color:var(--text-light);cursor:pointer;transition:all .15s}
-.btn-t:hover{background:var(--bg);color:var(--text)}
-.btn-start{background:var(--pastel-mint);color:#3a7d5c;border-color:rgba(58,125,92,0.15);font-weight:500}
-.btn-start:hover{background:#a8e6c3}
-.btn-stop{background:var(--pastel-pink);color:#b5577a;border-color:rgba(181,87,122,0.15);font-weight:500}
-.btn-stop:hover{background:#ffacc7}
-.btn-del{color:#c77;border:0;background:0}
-.btn-del:hover{color:#a55}
+.bt{font-family:var(--f);font-size:0.58rem;padding:0.15rem 0.45rem;border:1px solid var(--bdr);background:var(--white);color:var(--t2);cursor:pointer;transition:all .12s}
+.bt:hover{background:var(--bg);color:var(--text)}
+.bt-go{background:var(--mint);color:#3a7d5c;border-color:rgba(58,125,92,.12);font-weight:600}
+.bt-go:hover{background:#a8e6c3}
+.bt-st{background:var(--pink);color:#b5577a;border-color:rgba(181,87,122,.12);font-weight:600}
+.bt-st:hover{background:#ffacc7}
+.bt-x{color:#c77;border:0;background:0}
 
-/* Task expanded actions row */
-.task-expand{
-  display:flex;align-items:center;gap:0.3rem;
-  background:var(--white);border:1px solid var(--border-light);border-top:0;
-  padding:0.25rem 0.8rem;margin-bottom:3px;margin-top:-3px;
-  position:relative;z-index:1;font-size:0.65rem;
-}
+/* Task expand */
+.te{display:flex;align-items:center;gap:0.3rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:0.2rem 0.7rem;position:relative;z-index:1;font-size:0.6rem}
 
-/* === SIDEBAR === */
-.sidebar{position:relative}
-.sidebar::before{content:'';position:absolute;top:0;left:-0.8rem;width:1px;height:100%;background:var(--border-light)}
+/* SIDEBAR */
+.sb{position:relative}
+.sb::before{content:'';position:absolute;top:0;left:-0.6rem;width:1px;height:100%;background:var(--bdr2)}
 
-/* Timer widget */
-.timer-w{
-  background:var(--white);border:1px solid var(--border-light);
-  padding:1.2rem;box-shadow:var(--shadow);position:relative;z-index:1;
-  margin-bottom:1rem;
-}
-.timer-w::before{content:'';position:absolute;top:-10px;right:-10px;width:40px;height:40px;border:1.5px solid var(--frame-dark);transform:rotate(12deg);pointer-events:none}
-.timer-w::after{content:'';position:absolute;bottom:-8px;left:-8px;width:28px;height:28px;border:1px solid var(--pastel-lavender);opacity:0.5;transform:rotate(-8deg);pointer-events:none}
-.timer-label{font-size:0.58rem;font-weight:400;color:var(--text-muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:0.8rem}
-.timer-task-name{font-size:0.82rem;font-weight:500;margin-bottom:0.15rem}
-.timer-task-client{font-size:0.68rem;color:var(--text-muted);margin-bottom:0.6rem}
-.timer-digits{font-family:var(--font-heading);font-size:2.2rem;font-weight:700;text-align:center;padding:0.5rem 0;letter-spacing:.05em}
-.timer-digits.on{color:#5a8f6e}
-.timer-digits.off{opacity:0.2}
-.timer-ctrls{display:flex;justify-content:center;margin-top:0.4rem}
+.tw{background:var(--white);border:1px solid var(--bdr2);padding:1rem;box-shadow:var(--sh);position:relative;z-index:1}
+.tw::before{content:'';position:absolute;top:-8px;right:-8px;width:34px;height:34px;border:1.5px solid var(--fd);transform:rotate(12deg);pointer-events:none}
+.tw::after{content:'';position:absolute;bottom:-6px;left:-6px;width:22px;height:22px;border:1px solid var(--lav);opacity:.4;transform:rotate(-8deg);pointer-events:none}
+.tw-l{font-size:0.5rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:0.6rem}
+.tw-n{font-size:0.78rem;font-weight:600;margin-bottom:0.1rem}
+.tw-c{font-size:0.62rem;color:var(--t3);margin-bottom:0.5rem}
+.tw-d{font-size:1.8rem;font-weight:700;text-align:center;padding:0.3rem 0;letter-spacing:.05em}
+.tw-d.on{color:#5a8f6e}
+.tw-d.off{opacity:.15}
+.tw-ctr{display:flex;justify-content:center;margin-top:0.3rem}
 
-/* === DIAGONAL ACCENT BAR === */
-.diag-accent{
-  position:relative;overflow:hidden;
-  height:4px;margin:0.8rem 0;
-}
-.diag-accent::before{
-  content:'';position:absolute;top:0;left:-5%;right:-5%;bottom:0;
-  background:linear-gradient(135deg, var(--pastel-blue) 0%, var(--pastel-purple) 30%, var(--pastel-pink) 60%, var(--pastel-peach) 100%);
-  transform:skewX(-20deg);
-}
-
-/* === BUTTONS === */
-.btn{font-family:var(--font-body);font-size:0.75rem;font-weight:400;padding:0.5rem 1.2rem;border:1px solid var(--border);background:var(--white);color:var(--text);cursor:pointer;transition:all .2s;letter-spacing:.02em}
+/* BUTTONS */
+.btn{font-family:var(--f);font-size:0.7rem;font-weight:400;padding:0.4rem 1rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);cursor:pointer;transition:all .2s}
 .btn:hover{background:var(--text);color:var(--white);border-color:var(--text)}
 .btn-p{background:var(--text);color:var(--white);border-color:var(--text)}
-.btn-p:hover{background:#444;border-color:#444}
-.btn-sm{padding:0.3rem 0.8rem;font-size:0.7rem}
+.btn-p:hover{background:#444}
+.btn-s{padding:0.25rem 0.65rem;font-size:0.65rem}
 
-/* === FORMS === */
-.input,.sel,.txa{font-family:var(--font-body);font-size:0.82rem;font-weight:300;padding:0.55rem 0.8rem;border:1px solid var(--border);background:var(--white);color:var(--text);width:100%;outline:0;transition:border-color .2s}
-.input:focus,.sel:focus,.txa:focus{border-color:var(--text-muted)}
-.txa{resize:vertical;min-height:60px;line-height:1.6}
-.f-label{display:block;font-size:0.65rem;font-weight:400;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:0.3rem}
-.f-group{margin-bottom:0.8rem}
-.f-row{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem}
+/* FORMS */
+.inp,.sel,.txa{font-family:var(--f);font-size:0.78rem;font-weight:300;padding:0.5rem 0.7rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);width:100%;outline:0;transition:border-color .2s}
+.inp:focus,.sel:focus,.txa:focus{border-color:var(--t3)}
+.txa{resize:vertical;min-height:50px;line-height:1.5}
+.fl{display:block;font-size:0.6rem;font-weight:500;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:0.25rem}
+.fg{margin-bottom:0.7rem}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem}
 
-/* Weekday */
-.wd-pick{display:flex;gap:3px}
-.wd-btn{width:30px;height:30px;border:1px solid var(--border);background:var(--white);color:var(--text-light);font-size:0.65rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;font-family:var(--font-body)}
-.wd-btn:hover{border-color:var(--text-muted)}
-.wd-btn.on{background:var(--text);color:var(--white);border-color:var(--text);font-weight:500}
+.wd{display:flex;gap:2px}
+.wd-b{width:28px;height:28px;border:1px solid var(--bdr);background:var(--white);color:var(--t2);font-size:0.6rem;cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;font-family:var(--f)}
+.wd-b:hover{border-color:var(--t3)}
+.wd-b.on{background:var(--text);color:var(--white);border-color:var(--text);font-weight:600}
 
-/* === MODAL === */
-.modal-bg{position:fixed;inset:0;background:rgba(26,26,26,0.35);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fi .2s}
-.modal{background:var(--white);width:90%;max-width:520px;max-height:85vh;overflow-y:auto;padding:2rem;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.15);animation:su .25s}
-.modal::before{content:'';position:absolute;top:-12px;left:-12px;right:16px;bottom:16px;border:1.5px solid var(--frame-dark);pointer-events:none}
-.modal::after{content:'';position:absolute;top:10px;left:10px;right:-10px;bottom:-10px;border:1px solid var(--frame-mid);pointer-events:none}
-.modal-title{font-family:var(--font-heading);font-size:1.1rem;font-weight:700;margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--border-light)}
-.modal-foot{display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.2rem;padding-top:0.8rem;border-top:1px solid var(--border-light)}
+/* MODAL */
+.mo-bg{position:fixed;inset:0;background:rgba(26,26,26,.35);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fi .15s}
+.mo{background:var(--white);width:90%;max-width:480px;max-height:85vh;overflow-y:auto;padding:1.5rem;position:relative;box-shadow:0 16px 50px rgba(0,0,0,.15);animation:su .2s}
+.mo::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;bottom:14px;border:1.5px solid var(--fd);pointer-events:none}
+.mo::after{content:'';position:absolute;top:8px;left:8px;right:-8px;bottom:-8px;border:1px solid var(--fm);pointer-events:none}
+.mo-t{font-size:1rem;font-weight:700;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--bdr2)}
+.mo-f{display:flex;gap:0.4rem;justify-content:flex-end;margin-top:1rem;padding-top:0.6rem;border-top:1px solid var(--bdr2)}
 
-/* === REPORT === */
-.rep-filters{display:flex;gap:0.8rem;margin-bottom:1rem;flex-wrap:wrap;align-items:end}
-.rep-table{width:100%;border-collapse:collapse}
-.rep-table th{font-size:0.65rem;font-weight:500;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;text-align:left;padding:0.5rem 0.8rem;border-bottom:2px solid var(--border)}
-.rep-table td{font-size:0.8rem;font-weight:300;padding:0.5rem 0.8rem;border-bottom:1px solid var(--border-light)}
+/* REPORT */
+.rf{display:flex;gap:0.6rem;margin-bottom:0.8rem;flex-wrap:wrap;align-items:end}
+.rtbl{width:100%;border-collapse:collapse}
+.rtbl th{font-size:0.6rem;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:0.4rem 0.7rem;border-bottom:2px solid var(--bdr)}
+.rtbl td{font-size:0.75rem;font-weight:300;padding:0.4rem 0.7rem;border-bottom:1px solid var(--bdr2)}
 
-/* AI CHAT */
-.chat-box{background:var(--white);border:1px solid var(--border-light);box-shadow:var(--shadow);padding:1.2rem;position:relative;z-index:1}
-.chat-box::before{content:'';position:absolute;top:-10px;left:6px;right:-8px;bottom:8px;border:1.5px solid var(--frame-dark);pointer-events:none;z-index:-1}
-.chat-box::after{content:'';position:absolute;top:8px;left:-8px;right:10px;bottom:-8px;border:1px solid var(--frame-mid);pointer-events:none;z-index:-1}
-.chat-msgs{min-height:120px;max-height:300px;overflow-y:auto;margin-bottom:0.6rem}
-.chat-b{padding:0.6rem 1rem;margin-bottom:0.5rem;font-size:0.8rem;line-height:1.6;font-weight:300;max-width:85%;white-space:pre-line}
-.chat-b-u{background:var(--bg);border:1px solid var(--border-light);margin-left:auto}
-.chat-b-a{background:var(--pastel-lavender);opacity:0.9;border:1px solid rgba(0,0,0,0.04)}
-.chat-row{display:flex;gap:0.4rem}
+/* CHAT */
+.cb{background:var(--white);border:1px solid var(--bdr2);box-shadow:var(--sh);padding:1rem;position:relative;z-index:1}
+.cb::before{content:'';position:absolute;top:-8px;left:5px;right:-6px;bottom:6px;border:1.5px solid var(--fd);pointer-events:none;z-index:-1}
+.cb::after{content:'';position:absolute;top:6px;left:-6px;right:7px;bottom:-6px;border:1px solid var(--fm);pointer-events:none;z-index:-1}
+.cm{min-height:100px;max-height:260px;overflow-y:auto;margin-bottom:0.5rem}
+.cmb{padding:0.5rem 0.8rem;margin-bottom:0.4rem;font-size:0.75rem;line-height:1.5;font-weight:300;max-width:85%;white-space:pre-line}
+.cmb-u{background:var(--bg);border:1px solid var(--bdr2);margin-left:auto}
+.cmb-a{background:var(--lav);opacity:.9;border:1px solid rgba(0,0,0,.03)}
+.cr{display:flex;gap:0.3rem}
 
-/* === DATA === */
-.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1rem}
-.data-card{background:var(--white);border:1px solid var(--border-light);padding:1.5rem;text-align:center;box-shadow:0 1px 8px rgba(0,0,0,0.03);position:relative;z-index:1}
+/* DATA */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.8rem}
+.dc{background:var(--white);border:1px solid var(--bdr2);padding:1.5rem;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.02);position:relative;z-index:1}
 
 /* CLIENT */
-.cl-card{background:var(--white);border:1px solid var(--border-light);padding:1rem 1.2rem;margin-bottom:0.5rem;position:relative;box-shadow:0 1px 8px rgba(0,0,0,0.03);cursor:grab;z-index:1}
-.cl-card:active{cursor:grabbing}
-.cl-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
-.cl-card:nth-child(4n+1)::before{background:var(--pastel-blue)}
-.cl-card:nth-child(4n+2)::before{background:var(--pastel-purple)}
-.cl-card:nth-child(4n+3)::before{background:var(--pastel-pink)}
-.cl-card:nth-child(4n)::before{background:var(--pastel-mint)}
+.cl{background:var(--white);border:1px solid var(--bdr2);padding:0.8rem 1rem;margin-bottom:0.4rem;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.02);cursor:grab;z-index:1}
+.cl:active{cursor:grabbing}
+.cl::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.cl:nth-child(4n+1)::before{background:var(--blue)}
+.cl:nth-child(4n+2)::before{background:var(--purple)}
+.cl:nth-child(4n+3)::before{background:var(--pink)}
+.cl:nth-child(4n)::before{background:var(--mint)}
 
 @keyframes fi{from{opacity:0}to{opacity:1}}
-@keyframes su{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.fi{animation:fi .3s ease}
+@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fi .3s}
 
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--text);color:var(--white);padding:0.6rem 1.2rem;font-size:0.75rem;z-index:2000;animation:su .3s;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
-.footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border-light);text-align:center;font-size:0.6rem;color:var(--text-muted);letter-spacing:.08em}
+.toast{position:fixed;bottom:1rem;right:1rem;background:var(--text);color:var(--white);padding:0.5rem 1rem;font-size:0.7rem;z-index:2000;animation:su .25s;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.foot{margin-top:1.5rem;padding-top:0.8rem;border-top:1px solid var(--bdr2);text-align:center;font-size:0.55rem;color:var(--t3);letter-spacing:.08em}
 
-::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:0}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+
+/* Page decorations */
+.deco{position:fixed;pointer-events:none;z-index:0}
 </style>
 </head>
 <body>
-
-<!-- Page-level diagonal decorations -->
-<div style="position:fixed;top:3%;right:1.5%;width:120px;height:120px;border:1.5px solid rgba(26,26,26,0.06);transform:rotate(15deg);pointer-events:none;z-index:0"></div>
-<div style="position:fixed;top:5%;right:3%;width:60px;height:60px;border:1px solid rgba(212,197,249,0.25);transform:rotate(-8deg);pointer-events:none;z-index:0"></div>
-<div style="position:fixed;bottom:6%;left:1%;width:90px;height:90px;border:1.5px solid rgba(26,26,26,0.04);transform:rotate(-22deg);pointer-events:none;z-index:0"></div>
-<div style="position:fixed;bottom:10%;left:2.5%;width:40px;height:40px;border:1px solid rgba(199,240,219,0.3);transform:rotate(30deg);pointer-events:none;z-index:0"></div>
-<div style="position:fixed;top:40%;left:0.5%;width:1px;height:160px;background:rgba(26,26,26,0.08);pointer-events:none;z-index:0"></div>
-<div style="position:fixed;top:20%;right:0.5%;width:1px;height:100px;background:rgba(26,26,26,0.06);pointer-events:none;z-index:0"></div>
-<!-- Diagonal line accents -->
-<div style="position:fixed;top:0;left:30%;width:200px;height:1px;background:rgba(184,212,255,0.2);transform:rotate(-25deg);transform-origin:left;pointer-events:none;z-index:0"></div>
-<div style="position:fixed;bottom:15%;right:5%;width:150px;height:1px;background:rgba(255,200,221,0.2);transform:rotate(20deg);transform-origin:right;pointer-events:none;z-index:0"></div>
-<!-- Small accent squares -->
-<div style="position:fixed;top:60%;right:2%;width:8px;height:8px;background:var(--pastel-peach);opacity:0.3;transform:rotate(45deg);pointer-events:none;z-index:0"></div>
-<div style="position:fixed;top:30%;left:1.5%;width:6px;height:6px;background:var(--pastel-purple);opacity:0.25;pointer-events:none;z-index:0"></div>
+<div class="deco" style="top:3%;right:1.5%;width:100px;height:100px;border:1.5px solid rgba(26,26,26,.05);transform:rotate(15deg)"></div>
+<div class="deco" style="top:5%;right:3%;width:50px;height:50px;border:1px solid rgba(212,197,249,.2);transform:rotate(-8deg)"></div>
+<div class="deco" style="bottom:6%;left:1%;width:70px;height:70px;border:1.5px solid rgba(26,26,26,.03);transform:rotate(-22deg)"></div>
+<div class="deco" style="top:40%;left:.5%;width:1px;height:120px;background:rgba(26,26,26,.06)"></div>
+<div class="deco" style="top:20%;right:.5%;width:1px;height:80px;background:rgba(26,26,26,.04)"></div>
+<div class="deco" style="top:0;left:28%;width:160px;height:1px;background:rgba(184,212,255,.15);transform:rotate(-25deg);transform-origin:left"></div>
+<div class="deco" style="bottom:12%;right:4%;width:120px;height:1px;background:rgba(255,200,221,.15);transform:rotate(20deg);transform-origin:right"></div>
+<div class="deco" style="top:55%;right:1.5%;width:6px;height:6px;background:var(--peach);opacity:.25;transform:rotate(45deg)"></div>
+<div class="deco" style="top:28%;left:1%;width:5px;height:5px;background:var(--purple);opacity:.2"></div>
 
 <div id="root"></div>
-
 <script type="text/babel">
 const{useState,useEffect,useRef,useCallback,useMemo}=React;
 const gid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,5);
-const fmtTime=(m)=>{if(!m&&m!==0)return'0m';const h=Math.floor(m/60);const mm=Math.round(m%60);return h>0?h+'h'+mm.toString().padStart(2,'0')+'m':mm+'m';};
-const fmtTimer=(s)=>{const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const ss=s%60;return h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+':'+ss.toString().padStart(2,'0');};
-const fmtYen=(a)=>new Intl.NumberFormat('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}).format(a);
-const mRange=(d=new Date())=>({start:new Date(d.getFullYear(),d.getMonth(),1),end:new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59)});
+const fT=(m)=>{if(!m&&m!==0)return'0m';const h=Math.floor(m/60);const mm=Math.round(m%60);return h>0?h+'h'+mm.toString().padStart(2,'0')+'m':mm+'m'};
+const fTm=(s)=>{const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const ss=s%60;return h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+':'+ss.toString().padStart(2,'0')};
+const fY=(a)=>new Intl.NumberFormat('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}).format(a);
+const mR=(d=new Date())=>({s:new Date(d.getFullYear(),d.getMonth(),1),e:new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59)});
 const ld=(k,f)=>{try{const d=localStorage.getItem(k);return d?JSON.parse(d):f}catch{return f}};
-const sd=(k,d)=>{try{localStorage.setItem(k,JSON.stringify(d))}catch{}};
-
-const CATS=[{id:'routine',label:'Routine',c:'t-tag-routine'},{id:'strategic',label:'Strategic',c:'t-tag-strategic'},{id:'creative',label:'Creative',c:'t-tag-creative'},{id:'admin',label:'Admin',c:'t-tag-admin'}];
+const sv=(k,d)=>{try{localStorage.setItem(k,JSON.stringify(d))}catch{}};
+const CATS=[{id:'routine',l:'Routine',c:'tt-routine'},{id:'strategic',l:'Strategic',c:'tt-strategic'},{id:'creative',l:'Creative',c:'tt-creative'},{id:'admin',l:'Admin',c:'tt-admin'}];
 const REPS=[{id:'none',l:'なし'},{id:'daily',l:'毎日'},{id:'weekly',l:'毎週'},{id:'monthly',l:'毎月'}];
 const WDS=[{id:0,l:'日'},{id:1,l:'月'},{id:2,l:'火'},{id:3,l:'水'},{id:4,l:'木'},{id:5,l:'金'},{id:6,l:'土'}];
+
+function fmtDate(d){if(!d)return'';const today=new Date();today.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-today)/(864e5));if(diff===0)return'今日';if(diff===1)return'明日';if(diff===-1)return'昨日';if(diff<-1)return(dt.getMonth()+1)+'/'+dt.getDate();if(diff>1&&diff<=7)return(dt.getMonth()+1)+'/'+dt.getDate();return(dt.getMonth()+1)+'/'+dt.getDate();}
+function dateClass(d){if(!d)return'';const today=new Date();today.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-today)/(864e5));if(diff===0)return'today';if(diff<0)return'overdue';return'';}
 
 function migrate(raw){
   const r={};
@@ -278,324 +245,241 @@ function migrate(raw){
 
 function App(){
   const[tab,setTab]=useState('dashboard');
-  const[clients,setClients]=useState(()=>ld('timevalue-clients',[]));
-  const[tasks,setTasks]=useState(()=>ld('timevalue-tasks',[]));
-  const[timeLogs,setTimeLogs]=useState(()=>ld('timevalue-timeLogs',[]));
-  const[principles,setPrinciples]=useState(()=>ld('timevalue-principles',{main:'時間は最も貴重な資産である',sub:'価値ある時間を積み重ねる'}));
-  const[clientOrder,setClientOrder]=useState(()=>ld('timevalue-clientOrder',[]));
-  const[running,setRunning]=useState(()=>ld('timevalue-runningState',null));
+  const[clients,setCl]=useState(()=>ld('timevalue-clients',[]));
+  const[tasks,setTk]=useState(()=>ld('timevalue-tasks',[]));
+  const[timeLogs,setTl]=useState(()=>ld('timevalue-timeLogs',[]));
+  const[principles,setPr]=useState(()=>ld('timevalue-principles',{main:'独責開眼',sub:'責任を負うと見える世界が変わる'}));
+  const[clientOrder,setCo]=useState(()=>ld('timevalue-clientOrder',[]));
+  const[running,setRn]=useState(()=>ld('timevalue-runningState',null));
   const[toast,setToast]=useState(null);
 
-  useEffect(()=>sd('timevalue-clients',clients),[clients]);
-  useEffect(()=>sd('timevalue-tasks',tasks),[tasks]);
-  useEffect(()=>sd('timevalue-timeLogs',timeLogs),[timeLogs]);
-  useEffect(()=>sd('timevalue-principles',principles),[principles]);
-  useEffect(()=>sd('timevalue-clientOrder',clientOrder),[clientOrder]);
-  useEffect(()=>sd('timevalue-runningState',running),[running]);
+  useEffect(()=>sv('timevalue-clients',clients),[clients]);
+  useEffect(()=>sv('timevalue-tasks',tasks),[tasks]);
+  useEffect(()=>sv('timevalue-timeLogs',timeLogs),[timeLogs]);
+  useEffect(()=>sv('timevalue-principles',principles),[principles]);
+  useEffect(()=>sv('timevalue-clientOrder',clientOrder),[clientOrder]);
+  useEffect(()=>sv('timevalue-runningState',running),[running]);
 
-  const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2200)},[]);
-  const kpi=useMemo(()=>{const{start,end}=mRange();const ml=timeLogs.filter(l=>{const d=new Date(l.startTime);return d>=start&&d<=end});const tm=ml.reduce((s,l)=>s+(l.duration||0),0);const tr=clients.reduce((s,c)=>s+(c.monthlyRevenue||0),0);return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,clients]);
+  const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2000)},[]);
+  const kpi=useMemo(()=>{const{s,e}=mR();const ml=timeLogs.filter(l=>{const d=new Date(l.startTime);return d>=s&&d<=e});const tm=ml.reduce((a,l)=>a+(l.duration||0),0);const tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,clients]);
   const gcn=useCallback(cid=>{const c=clients.find(x=>x.id===cid);return c?c.name:'未分類'},[clients]);
   const oc=useMemo(()=>{if(!clientOrder.length)return clients;const o=[];clientOrder.forEach(id=>{const c=clients.find(x=>x.id===id);if(c)o.push(c)});clients.forEach(c=>{if(!o.find(x=>x.id===c.id))o.push(c)});return o},[clients,clientOrder]);
-  const gtt=useCallback(tid=>timeLogs.filter(l=>l.taskId===tid).reduce((s,l)=>s+(l.duration||0),0),[timeLogs]);
-  const startT=useCallback(tid=>{if(running){show('他のタイマーが実行中');return}setRunning({taskId:tid,startTime:new Date().toISOString()});show('タイマー開始')},[running,show]);
-  const stopT=useCallback(()=>{if(!running)return;const dur=Math.round((new Date()-new Date(running.startTime))/60000);if(dur>0)setTimeLogs(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime:new Date().toISOString(),duration:dur}]);setRunning(null);show('タイマー停止')},[running,show]);
+  const gtt=useCallback(tid=>timeLogs.filter(l=>l.taskId===tid).reduce((a,l)=>a+(l.duration||0),0),[timeLogs]);
+  const startT=useCallback(tid=>{if(running){show('他のタイマーが実行中');return}setRn({taskId:tid,startTime:new Date().toISOString()});show('開始')},[running,show]);
+  const stopT=useCallback(()=>{if(!running)return;const dur=Math.round((new Date()-new Date(running.startTime))/60000);if(dur>0)setTl(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime:new Date().toISOString(),duration:dur}]);setRn(null);show('停止')},[running,show]);
 
   const tabs=[{id:'dashboard',l:'Dashboard'},{id:'clients',l:'Clients'},{id:'report',l:'Report'},{id:'data',l:'Data'}];
-
   return(
     <div className="app fi">
-      <header className="header">
-        <div className="header-left">
-          <div style={{position:'relative'}}>
-            <div className="logo-frame"></div>
-            <div className="logo-frame2"></div>
-            <div className="logo">TimeValue</div>
-          </div>
-          <span className="logo-sub">Tracker</span>
-        </div>
-        <nav className="nav">
-          {tabs.map(t=><button key={t.id} className={'nav-btn'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}
-        </nav>
+      <header className="hd">
+        <div className="hd-left"><div style={{position:'relative'}}><div className="logo-f1"></div><div className="logo-f2"></div><div className="logo">TimeValue</div></div><span className="logo-s">Tracker</span></div>
+        <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
       </header>
-
-      {tab==='dashboard'&&<Dashboard kpi={kpi} principles={principles} setPrinciples={setPrinciples} tasks={tasks} setTasks={setTasks} clients={clients} timeLogs={timeLogs} setTimeLogs={setTimeLogs} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show}/>}
-      {tab==='clients'&&<Clients clients={clients} setClients={setClients} oc={oc} clientOrder={clientOrder} setClientOrder={setClientOrder} tasks={tasks} timeLogs={timeLogs} show={show}/>}
+      {tab==='dashboard'&&<Dash kpi={kpi} pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show}/>}
+      {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<Report tasks={tasks} clients={clients} timeLogs={timeLogs} gcn={gcn}/>}
-      {tab==='data'&&<Data clients={clients} setClients={setClients} tasks={tasks} setTasks={setTasks} timeLogs={timeLogs} setTimeLogs={setTimeLogs} principles={principles} setPrinciples={setPrinciples} clientOrder={clientOrder} setClientOrder={setClientOrder} running={running} setRunning={setRunning} show={show}/>}
-
-      <div className="footer">TimeValue Tracker v12</div>
+      {tab==='data'&&<DataV clients={clients} setCl={setCl} tasks={tasks} setTk={setTk} timeLogs={timeLogs} setTl={setTl} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
+      <div className="foot">TimeValue Tracker v12</div>
       {toast&&<div className="toast">{toast}</div>}
     </div>
   );
 }
 
-function Dashboard({kpi,principles,setPrinciples,tasks,setTasks,clients,timeLogs,setTimeLogs,running,startT,stopT,gcn,gtt,show}){
-  const[pOpen,setPOpen]=useState(false);
-  const[editP,setEditP]=useState(false);
-  const[pForm,setPForm]=useState(principles);
-  const[modal,setModal]=useState(false);
-  const[editTask,setEditTask]=useState(null);
-  const[addT,setAddT]=useState(null);
-  const[addM,setAddM]=useState('');
-  const[filter,setFilter]=useState('active');
-  const[expanded,setExpanded]=useState(null);
+function Dash({kpi,pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show}){
+  const[pO,setPO]=useState(false);
+  const[eP,setEP]=useState(false);
+  const[pF,setPF]=useState(pr);
+  const[modal,setMo]=useState(false);
+  const[et,setEt]=useState(null);
+  const[addT,setAT]=useState(null);
+  const[addM,setAM]=useState('');
+  const[filter,setFi]=useState('active');
+  const[exp,setExp]=useState(null);
 
   const ft=useMemo(()=>{if(filter==='active')return tasks.filter(t=>!t.completed);if(filter==='completed')return tasks.filter(t=>t.completed);return tasks},[tasks,filter]);
 
-  const saveP=()=>{setPrinciples(pForm);setEditP(false);show('更新しました')};
-  const saveTask=d=>{if(editTask){setTasks(p=>p.map(t=>t.id===editTask.id?{...t,...d}:t));show('更新')}else{setTasks(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setModal(false);setEditTask(null)};
-  const del=id=>{if(confirm('削除しますか？')){setTasks(p=>p.filter(t=>t.id!==id));show('削除')}};
-  const comp=id=>{setTasks(p=>p.map(t=>t.id===id?{...t,completed:true}:t));show('完了')};
-  const addTime=(tid)=>{const m=parseInt(addM);if(!m||m<=0)return;const n=new Date();setTimeLogs(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-m*60000).toISOString(),endTime:n.toISOString(),duration:m}]);setAddT(null);setAddM('');show(m+'分追加')};
+  // Group by client using clientOrder
+  const grouped=useMemo(()=>{
+    const groups=[];
+    const order=clientOrder.length?clientOrder:clients.map(c=>c.id);
+    // collect unique clientIds from filtered tasks
+    const cids=[...new Set(ft.map(t=>t.clientId))];
+    // order them
+    const sorted=[];
+    order.forEach(id=>{if(cids.includes(id))sorted.push(id)});
+    cids.forEach(id=>{if(!sorted.includes(id))sorted.push(id)});
+    sorted.forEach(cid=>{
+      const cTasks=ft.filter(t=>t.clientId===cid);
+      if(cTasks.length)groups.push({clientId:cid,clientName:gcn(cid),tasks:cTasks});
+    });
+    return groups;
+  },[ft,clientOrder,clients,gcn]);
+
+  const saveP=()=>{setPr(pF);setEP(false);show('更新')};
+  const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
+  const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
+  const comp=id=>{setTk(p=>p.map(t=>t.id===id?{...t,completed:true}:t));show('完了')};
+  const addTime=tid=>{const m=parseInt(addM);if(!m||m<=0)return;const n=new Date();setTl(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-m*60000).toISOString(),endTime:n.toISOString(),duration:m}]);setAT(null);setAM('');show(m+'分追加')};
 
   return(
     <div className="fi">
-      {/* KPI bar */}
-      <div className="kpi-bar">
-        <div className="kpi-item"><div className="kpi-lbl">Work</div><div className="kpi-val">{fmtTime(kpi.tm)}</div></div>
-        <div className="kpi-item"><div className="kpi-lbl">Revenue</div><div className="kpi-val">{fmtYen(kpi.tr)}</div></div>
-        <div className="kpi-item"><div className="kpi-lbl">Rate</div><div className="kpi-val">{fmtYen(Math.round(kpi.hr))}<span className="kpi-unit">/h</span></div></div>
+      <div className="kpi">
+        <div className="kpi-i"><div className="kpi-l">Work</div><div className="kpi-v">{fT(kpi.tm)}</div></div>
+        <div className="kpi-i"><div className="kpi-l">Revenue</div><div className="kpi-v">{fY(kpi.tr)}</div></div>
+        <div className="kpi-i"><div className="kpi-l">Rate</div><div className="kpi-v">{fY(Math.round(kpi.hr))}<span className="kpi-u">/h</span></div></div>
       </div>
 
-      {/* Principles collapsible */}
-      <div className={pOpen?'principles-bar principles-expanded':'principles-bar'} onClick={()=>{if(!editP)setPOpen(!pOpen)}}>
-        <span className="principles-tag">Motto</span>
-        {editP?(
+      <div className={'motto'+(pO?' open':'')} onClick={()=>{if(!eP)setPO(!pO)}}>
+        <span className="motto-tag">Motto</span>
+        {eP?(
           <div style={{flex:1}} onClick={e=>e.stopPropagation()}>
-            <div className="f-group"><input className="input" value={pForm.main} onChange={e=>setPForm({...pForm,main:e.target.value})} /></div>
-            <div className="f-group"><textarea className="txa" value={pForm.sub} onChange={e=>setPForm({...pForm,sub:e.target.value})} rows={3}/></div>
-            <div style={{display:'flex',gap:'0.3rem'}}><button className="btn btn-p btn-sm" onClick={saveP}>保存</button><button className="btn btn-sm" onClick={()=>setEditP(false)}>取消</button></div>
+            <div className="fg"><input className="inp" value={pF.main} onChange={e=>setPF({...pF,main:e.target.value})}/></div>
+            <div className="fg"><textarea className="txa" value={pF.sub} onChange={e=>setPF({...pF,sub:e.target.value})} rows={3}/></div>
+            <div style={{display:'flex',gap:'0.3rem'}}><button className="btn btn-p btn-s" onClick={saveP}>保存</button><button className="btn btn-s" onClick={()=>setEP(false)}>取消</button></div>
           </div>
-        ):(
-          <>
-            <span className="principles-text">{principles.main}</span>
-            {pOpen?<span className="principles-sub-text">{principles.sub}</span>:null}
-            {pOpen&&<button className="btn-t" onClick={e=>{e.stopPropagation();setEditP(true);setPForm(principles)}}>編集</button>}
-            <span className="principles-toggle">{pOpen?'−':'+'}</span>
-          </>
-        )}
+        ):(<>
+          <span className="motto-main">{pr.main}</span>
+          {pO?<span className="motto-sub">{pr.sub}</span>:<span className="motto-sub">{pr.sub}</span>}
+          {pO&&<button className="bt" onClick={e=>{e.stopPropagation();setEP(true);setPF(pr)}}>編集</button>}
+          <span className="motto-tog">{pO?'−':'+'}</span>
+        </>)}
       </div>
 
-      <div className="diag-accent"></div>
+      <div className="diag"></div>
 
-      {/* Main content */}
-      <div className="main-grid">
+      <div className="mg">
         <div>
-          <div className="sec-head">
-            <h2 className="sec-title">Tasks</h2>
-            <div className="sec-right">
-              <select className="sel" style={{width:'auto',padding:'0.2rem 0.5rem',fontSize:'0.68rem'}} value={filter} onChange={e=>setFilter(e.target.value)}>
+          <div className="sh">
+            <h2 className="st">Tasks</h2>
+            <div className="sr">
+              <select className="sel" style={{width:'auto',padding:'0.15rem 0.4rem',fontSize:'0.62rem'}} value={filter} onChange={e=>setFi(e.target.value)}>
                 <option value="active">アクティブ</option><option value="completed">完了済み</option><option value="all">すべて</option>
               </select>
-              <button className="btn btn-p btn-sm" onClick={()=>{setEditTask(null);setModal(true)}}>新規</button>
+              <button className="btn btn-p btn-s" onClick={()=>{setEt(null);setMo(true)}}>新規</button>
             </div>
           </div>
 
-          <div className="task-list">
-            {ft.length===0?<div className="task-row" style={{justifyContent:'center',color:'var(--text-muted)',padding:'1.5rem'}}>タスクがありません</div>:
-            ft.map(task=>{
-              const isRun=running&&running.taskId===task.id;
-              const cat=CATS.find(c=>c.id===task.category);
-              const tt=gtt(task.id);
-              const repL=REPS.find(r=>r.id===task.repeat);
-              const dayL=(task.repeatDays||[]).map(d=>WDS.find(w=>w.id===d)?.l).filter(Boolean).join('');
-              const isExp=expanded===task.id;
+          <div className="tl">
+            {grouped.length===0?<div className="tr" style={{justifyContent:'center',color:'var(--t3)',padding:'1.5rem'}}>タスクがありません</div>:
+            grouped.map(g=>(
+              <div className="cg" key={g.clientId}>
+                <div className="cg-head"><span>{g.clientName}</span><span className="cg-count">{g.tasks.length}件</span></div>
+                {g.tasks.map(task=>{
+                  const isR=running&&running.taskId===task.id;
+                  const cat=CATS.find(c=>c.id===task.category);
+                  const tt=gtt(task.id);
+                  const isE=exp===task.id;
+                  const dc=dateClass(task.dueDate);
+                  const dl=fmtDate(task.dueDate);
+                  const dtl=task.dueTime?(' '+task.dueTime):'';
 
-              return(<React.Fragment key={task.id}>
-                <div className={'task-row'+(task.completed?' done':'')+(isRun?' running':'')} onClick={()=>setExpanded(isExp?null:task.id)} style={{cursor:'pointer'}}>
-                  <span className="t-name">{task.name}</span>
-                  <span className="t-client">{gcn(task.clientId)}</span>
-                  {cat&&<span className={'t-tag '+cat.c}>{cat.label}</span>}
-                  {task.repeat&&task.repeat!=='none'&&<span className="t-repeat">{repL?.l}{dayL?'('+dayL+')':''}</span>}
-                  <span className="t-time">{fmtTime(tt)}</span>
-                  {!task.completed&&(isRun?
-                    <button className="btn-t btn-stop" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
-                    <button className="btn-t btn-start" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
-                  )}
-                </div>
-                {isExp&&!task.completed&&(
-                  <div className="task-expand">
-                    <button className="btn-t" onClick={()=>{setEditTask(task);setModal(true)}}>編集</button>
-                    <button className="btn-t" onClick={()=>comp(task.id)}>完了</button>
-                    {addT===task.id?(
-                      <div style={{display:'flex',gap:'2px',alignItems:'center',marginLeft:'auto'}}>
-                        <input className="input" style={{width:'50px',padding:'0.15rem 0.3rem',fontSize:'0.7rem'}} type="number" placeholder="分" value={addM} onChange={e=>setAddM(e.target.value)}/>
-                        <button className="btn-t" onClick={()=>addTime(task.id)}>追加</button>
-                        <button className="btn-t" onClick={()=>setAddT(null)}>取消</button>
+                  return(<React.Fragment key={task.id}>
+                    <div className={'tr'+(task.completed?' done':'')+(isR?' run':'')} onClick={()=>setExp(isE?null:task.id)}>
+                      <span className={'td-date '+dc}>{dl}{dtl}</span>
+                      <span className="tn">{task.name}</span>
+                      {cat&&<span className={'tt '+cat.c}>{cat.l}</span>}
+                      <span className="ttm">{fT(tt)}</span>
+                      {!task.completed&&(isR?
+                        <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
+                        <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
+                      )}
+                    </div>
+                    {isE&&!task.completed&&(
+                      <div className="te">
+                        <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
+                        <button className="bt" onClick={()=>comp(task.id)}>完了</button>
+                        {addT===task.id?(
+                          <div style={{display:'flex',gap:'2px',alignItems:'center',marginLeft:'auto'}}>
+                            <input className="inp" style={{width:'45px',padding:'0.1rem 0.3rem',fontSize:'0.65rem'}} type="number" placeholder="分" value={addM} onChange={e=>setAM(e.target.value)}/>
+                            <button className="bt" onClick={()=>addTime(task.id)}>追加</button>
+                            <button className="bt" onClick={()=>setAT(null)}>取消</button>
+                          </div>
+                        ):<button className="bt" style={{marginLeft:'auto'}} onClick={()=>setAT(task.id)}>時間追加</button>}
+                        <button className="bt bt-x" onClick={()=>del(task.id)}>削除</button>
                       </div>
-                    ):<button className="btn-t" style={{marginLeft:'auto'}} onClick={()=>setAddT(task.id)}>時間追加</button>}
-                    <button className="btn-t btn-del" onClick={()=>del(task.id)}>削除</button>
-                  </div>
-                )}
-                {isExp&&task.completed&&<div className="task-expand"><button className="btn-t btn-del" onClick={()=>del(task.id)}>削除</button></div>}
-              </React.Fragment>);
-            })}
+                    )}
+                    {isE&&task.completed&&<div className="te"><button className="bt bt-x" onClick={()=>del(task.id)}>削除</button></div>}
+                  </React.Fragment>);
+                })}
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="sidebar">
-          <div className="timer-w">
-            <TimerW running={running} stopT={stopT} tasks={tasks} gcn={gcn}/>
-          </div>
+        <div className="sb">
+          <div className="tw"><TimerW running={running} stopT={stopT} tasks={tasks} gcn={gcn}/></div>
         </div>
       </div>
 
-      {modal&&<TaskModal task={editTask} clients={clients} onSave={saveTask} onClose={()=>{setModal(false);setEditTask(null)}}/>}
+      {modal&&<TaskModal task={et} clients={clients} onSave={saveTask} onClose={()=>{setMo(false);setEt(null)}}/>}
     </div>
   );
 }
 
 function TimerW({running,stopT,tasks,gcn}){
-  const[el,setEl]=useState(0);
-  const ref=useRef(null);
-  useEffect(()=>{
-    if(running?.startTime){const u=()=>setEl(Math.floor((Date.now()-new Date(running.startTime).getTime())/1000));u();ref.current=setInterval(u,1000);return()=>clearInterval(ref.current)}
-    else{setEl(0);if(ref.current)clearInterval(ref.current)}
-  },[running]);
+  const[el,setEl]=useState(0);const ref=useRef(null);
+  useEffect(()=>{if(running?.startTime){const u=()=>setEl(Math.floor((Date.now()-new Date(running.startTime).getTime())/1000));u();ref.current=setInterval(u,1000);return()=>clearInterval(ref.current)}else{setEl(0);if(ref.current)clearInterval(ref.current)}},[running]);
   const rt=running?tasks.find(t=>t.id===running.taskId):null;
-  return(<>
-    <div className="timer-label">Timer</div>
-    {rt?(<div>
-      <div className="timer-task-name">{rt.name}</div>
-      <div className="timer-task-client">{gcn(rt.clientId)}</div>
-      <div className="timer-digits on">{fmtTimer(el)}</div>
-      <div className="timer-ctrls"><button className="btn btn-p btn-sm" onClick={stopT}>停止</button></div>
-    </div>):(<div style={{textAlign:'center',padding:'1rem 0'}}>
-      <div className="timer-digits off">00:00:00</div>
-      <div style={{fontSize:'0.68rem',color:'var(--text-muted)',marginTop:'0.3rem'}}>タスクから開始</div>
-    </div>)}
-  </>);
+  return(<><div className="tw-l">Timer</div>{rt?(<div><div className="tw-n">{rt.name}</div><div className="tw-c">{gcn(rt.clientId)}</div><div className="tw-d on">{fTm(el)}</div><div className="tw-ctr"><button className="btn btn-p btn-s" onClick={stopT}>停止</button></div></div>):(<div style={{textAlign:'center',padding:'.5rem 0'}}><div className="tw-d off">00:00:00</div><div style={{fontSize:'.6rem',color:'var(--t3)',marginTop:'.2rem'}}>タスクから開始</div></div>)}</>);
 }
 
 function TaskModal({task,clients,onSave,onClose}){
   const[f,sF]=useState({name:task?.name||'',clientId:task?.clientId||(clients[0]?.id||''),category:task?.category||'routine',repeat:task?.repeat||'none',repeatDays:task?.repeatDays||[],dueDate:task?.dueDate||'',dueTime:task?.dueTime||'',notes:task?.notes||''});
   const td=d=>sF(p=>({...p,repeatDays:p.repeatDays.includes(d)?p.repeatDays.filter(x=>x!==d):[...p.repeatDays,d].sort()}));
-  return(
-    <div className="modal-bg" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
-      <div className="modal-title">{task?'タスクを編集':'新規タスク'}</div>
-      <div className="f-group"><label className="f-label">タスク名</label><input className="input" value={f.name} onChange={e=>sF({...f,name:e.target.value})} autoFocus/></div>
-      <div className="f-row">
-        <div className="f-group"><label className="f-label">取引先</label><select className="sel" value={f.clientId} onChange={e=>sF({...f,clientId:e.target.value})}><option value="">未分類</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-        <div className="f-group"><label className="f-label">カテゴリー</label><select className="sel" value={f.category} onChange={e=>sF({...f,category:e.target.value})}>{CATS.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select></div>
-      </div>
-      <div className="f-row">
-        <div className="f-group"><label className="f-label">期日</label><input className="input" type="date" value={f.dueDate} onChange={e=>sF({...f,dueDate:e.target.value})}/></div>
-        <div className="f-group"><label className="f-label">時刻</label><input className="input" type="time" value={f.dueTime} onChange={e=>sF({...f,dueTime:e.target.value})}/></div>
-      </div>
-      <div className="f-group"><label className="f-label">繰り返し</label><select className="sel" value={f.repeat} onChange={e=>sF({...f,repeat:e.target.value})}>{REPS.map(r=><option key={r.id} value={r.id}>{r.l}</option>)}</select></div>
-      {f.repeat==='weekly'&&<div className="f-group"><label className="f-label">曜日</label><div className="wd-pick">{WDS.map(w=><button key={w.id} type="button" className={'wd-btn'+(f.repeatDays.includes(w.id)?' on':'')} onClick={()=>td(w.id)}>{w.l}</button>)}</div></div>}
-      <div className="f-group"><label className="f-label">メモ</label><textarea className="txa" value={f.notes} onChange={e=>sF({...f,notes:e.target.value})}/></div>
-      <div className="modal-foot"><button className="btn" onClick={onClose}>キャンセル</button><button className="btn btn-p" onClick={()=>{if(f.name.trim())onSave(f)}}>{task?'更新':'作成'}</button></div>
-    </div></div>
-  );
+  return(<div className="mo-bg" onClick={onClose}><div className="mo" onClick={e=>e.stopPropagation()}>
+    <div className="mo-t">{task?'タスクを編集':'新規タスク'}</div>
+    <div className="fg"><label className="fl">タスク名</label><input className="inp" value={f.name} onChange={e=>sF({...f,name:e.target.value})} autoFocus/></div>
+    <div className="fr"><div className="fg"><label className="fl">取引先</label><select className="sel" value={f.clientId} onChange={e=>sF({...f,clientId:e.target.value})}><option value="">未分類</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div><div className="fg"><label className="fl">カテゴリー</label><select className="sel" value={f.category} onChange={e=>sF({...f,category:e.target.value})}>{CATS.map(c=><option key={c.id} value={c.id}>{c.l}</option>)}</select></div></div>
+    <div className="fr"><div className="fg"><label className="fl">期日</label><input className="inp" type="date" value={f.dueDate} onChange={e=>sF({...f,dueDate:e.target.value})}/></div><div className="fg"><label className="fl">時刻</label><input className="inp" type="time" value={f.dueTime} onChange={e=>sF({...f,dueTime:e.target.value})}/></div></div>
+    <div className="fg"><label className="fl">繰り返し</label><select className="sel" value={f.repeat} onChange={e=>sF({...f,repeat:e.target.value})}>{REPS.map(r=><option key={r.id} value={r.id}>{r.l}</option>)}</select></div>
+    {f.repeat==='weekly'&&<div className="fg"><label className="fl">曜日</label><div className="wd">{WDS.map(w=><button key={w.id} type="button" className={'wd-b'+(f.repeatDays.includes(w.id)?' on':'')} onClick={()=>td(w.id)}>{w.l}</button>)}</div></div>}
+    <div className="fg"><label className="fl">メモ</label><textarea className="txa" value={f.notes} onChange={e=>sF({...f,notes:e.target.value})}/></div>
+    <div className="mo-f"><button className="btn" onClick={onClose}>キャンセル</button><button className="btn btn-p" onClick={()=>{if(f.name.trim())onSave(f)}}>{task?'更新':'作成'}</button></div>
+  </div></div>);
 }
 
-function Clients({clients,setClients,oc,clientOrder,setClientOrder,tasks,timeLogs,show}){
-  const[modal,setModal]=useState(false);
-  const[ec,setEc]=useState(null);
-  const di=useRef(null),doi=useRef(null);
-  const save=d=>{if(ec){setClients(p=>p.map(c=>c.id===ec.id?{...c,...d}:c));show('更新')}else{const n={id:gid(),...d};setClients(p=>[...p,n]);setClientOrder(p=>[...p,n.id]);show('追加')}setModal(false);setEc(null)};
-  const del=id=>{if(confirm('削除しますか？')){setClients(p=>p.filter(c=>c.id!==id));setClientOrder(p=>p.filter(i=>i!==id));show('削除')}};
-  const gcs=cid=>{const{start,end}=mRange();const ct=tasks.filter(t=>t.clientId===cid);const cl=timeLogs.filter(l=>{const t=tasks.find(x=>x.id===l.taskId);return t&&t.clientId===cid});const ml=cl.filter(l=>{const d=new Date(l.startTime);return d>=start&&d<=end});return{tc:ct.length,tm:ml.reduce((s,l)=>s+(l.duration||0),0)}};
-
-  return(
-    <div className="fi">
-      <div className="sec-head"><h2 className="sec-title">Clients</h2><button className="btn btn-p btn-sm" onClick={()=>{setEc(null);setModal(true)}}>新規</button></div>
-      <div style={{position:'relative'}}>
-        <div style={{position:'absolute',top:'-10px',left:'-10px',right:'14px',bottom:'14px',border:'1.5px solid var(--frame-dark)',pointerEvents:'none',zIndex:0}}></div>
-        <div style={{position:'absolute',top:'8px',left:'10px',right:'-10px',bottom:'-8px',border:'1px solid var(--frame-mid)',pointerEvents:'none',zIndex:0}}></div>
-        {oc.length===0?<div className="cl-card" style={{textAlign:'center',color:'var(--text-muted)'}}>取引先がありません</div>:
-        oc.map((c,i)=>{const s=gcs(c.id);return(
-          <div key={c.id} className="cl-card" draggable onDragStart={()=>{di.current=i}} onDragEnter={()=>{doi.current=i}} onDragEnd={()=>{const it=[...oc];const dr=it[di.current];it.splice(di.current,1);it.splice(doi.current,0,dr);setClientOrder(it.map(x=>x.id))}} onDragOver={e=>e.preventDefault()}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <div><span style={{fontFamily:'var(--font-heading)',fontWeight:700,fontSize:'0.95rem'}}>{c.name}</span><span style={{fontSize:'0.75rem',color:'var(--text-light)',marginLeft:'1rem'}}>{fmtYen(c.monthlyRevenue||0)}/mo</span></div>
-              <div style={{display:'flex',gap:'0.2rem'}}><button className="btn-t" onClick={()=>{setEc(c);setModal(true)}}>編集</button><button className="btn-t btn-del" onClick={()=>del(c.id)}>削除</button></div>
-            </div>
-            <div style={{fontSize:'0.68rem',color:'var(--text-muted)',marginTop:'0.2rem'}}>{s.tc} tasks / 今月: {fmtTime(s.tm)}</div>
-          </div>
-        )})}
-      </div>
-      {modal&&<div className="modal-bg" onClick={()=>{setModal(false);setEc(null)}}><div className="modal" onClick={e=>e.stopPropagation()}>
-        <CForm c={ec} onSave={save} onClose={()=>{setModal(false);setEc(null)}}/>
-      </div></div>}
-    </div>
-  );
+function Clients({clients,setCl,oc,co,setCo,tasks,timeLogs,show}){
+  const[mo,setMo]=useState(false);const[ec,setEc]=useState(null);const di=useRef(null),doi=useRef(null);
+  const save=d=>{if(ec){setCl(p=>p.map(c=>c.id===ec.id?{...c,...d}:c));show('更新')}else{const n={id:gid(),...d};setCl(p=>[...p,n]);setCo(p=>[...p,n.id]);show('追加')}setMo(false);setEc(null)};
+  const del=id=>{if(confirm('削除？')){setCl(p=>p.filter(c=>c.id!==id));setCo(p=>p.filter(i=>i!==id));show('削除')}};
+  const gcs=cid=>{const{s,e}=mR();const ct=tasks.filter(t=>t.clientId===cid);const cl=timeLogs.filter(l=>{const t=tasks.find(x=>x.id===l.taskId);return t&&t.clientId===cid});const ml=cl.filter(l=>{const d=new Date(l.startTime);return d>=s&&d<=e});return{tc:ct.length,tm:ml.reduce((a,l)=>a+(l.duration||0),0)}};
+  return(<div className="fi">
+    <div className="sh"><h2 className="st">Clients</h2><button className="btn btn-p btn-s" onClick={()=>{setEc(null);setMo(true)}}>新規</button></div>
+    <div style={{position:'relative'}}><div style={{position:'absolute',top:'-8px',left:'-8px',right:'12px',bottom:'12px',border:'1.5px solid var(--fd)',pointerEvents:'none',zIndex:0}}></div><div style={{position:'absolute',top:'8px',left:'8px',right:'-8px',bottom:'-8px',border:'1px solid var(--fm)',pointerEvents:'none',zIndex:0}}></div>
+    {oc.length===0?<div className="cl" style={{textAlign:'center',color:'var(--t3)'}}>なし</div>:oc.map((c,i)=>{const s=gcs(c.id);return(<div key={c.id} className="cl" draggable onDragStart={()=>{di.current=i}} onDragEnter={()=>{doi.current=i}} onDragEnd={()=>{const it=[...oc];const dr=it[di.current];it.splice(di.current,1);it.splice(doi.current,0,dr);setCo(it.map(x=>x.id))}} onDragOver={e=>e.preventDefault()}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><span style={{fontWeight:700,fontSize:'.85rem'}}>{c.name}</span><span style={{fontSize:'.7rem',color:'var(--t2)',marginLeft:'.8rem'}}>{fY(c.monthlyRevenue||0)}/mo</span></div><div style={{display:'flex',gap:'2px'}}><button className="bt" onClick={()=>{setEc(c);setMo(true)}}>編集</button><button className="bt bt-x" onClick={()=>del(c.id)}>削除</button></div></div>
+      <div style={{fontSize:'.6rem',color:'var(--t3)',marginTop:'.15rem'}}>{s.tc} tasks / 今月: {fT(s.tm)}</div>
+    </div>)})}</div>
+    {mo&&<div className="mo-bg" onClick={()=>{setMo(false);setEc(null)}}><div className="mo" onClick={e=>e.stopPropagation()}><CForm c={ec} onSave={save} onClose={()=>{setMo(false);setEc(null)}}/></div></div>}
+  </div>);
 }
-function CForm({c,onSave,onClose}){
-  const[f,sF]=useState({name:c?.name||'',monthlyRevenue:c?.monthlyRevenue||0});
-  return(<><div className="modal-title">{c?'編集':'新規取引先'}</div>
-    <div className="f-group"><label className="f-label">取引先名</label><input className="input" value={f.name} onChange={e=>sF({...f,name:e.target.value})} autoFocus/></div>
-    <div className="f-group"><label className="f-label">月額報酬（円）</label><input className="input" type="number" value={f.monthlyRevenue} onChange={e=>sF({...f,monthlyRevenue:parseInt(e.target.value)||0})}/></div>
-    <div className="modal-foot"><button className="btn" onClick={onClose}>キャンセル</button><button className="btn btn-p" onClick={()=>{if(f.name.trim())onSave(f)}}>{c?'更新':'追加'}</button></div>
-  </>);
-}
+function CForm({c,onSave,onClose}){const[f,sF]=useState({name:c?.name||'',monthlyRevenue:c?.monthlyRevenue||0});return(<><div className="mo-t">{c?'編集':'新規取引先'}</div><div className="fg"><label className="fl">名前</label><input className="inp" value={f.name} onChange={e=>sF({...f,name:e.target.value})} autoFocus/></div><div className="fg"><label className="fl">月額報酬</label><input className="inp" type="number" value={f.monthlyRevenue} onChange={e=>sF({...f,monthlyRevenue:parseInt(e.target.value)||0})}/></div><div className="mo-f"><button className="btn" onClick={onClose}>取消</button><button className="btn btn-p" onClick={()=>{if(f.name.trim())onSave(f)}}>{c?'更新':'追加'}</button></div></>);}
 
 function Report({tasks,clients,timeLogs,gcn}){
-  const[per,setPer]=useState('month');
-  const[cf,setCf]=useState('all');
-  const[msgs,setMsgs]=useState([]);
-  const[cin,setCin]=useState('');
-  const[cld,setCld]=useState(false);
-
-  const fl=useMemo(()=>{let l=[...timeLogs];const n=new Date();if(per==='week'){const w=new Date(n-7*864e5);l=l.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){const{start,end}=mRange();l=l.filter(x=>{const d=new Date(x.startTime);return d>=start&&d<=end})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf]);
-
+  const[per,setPer]=useState('month');const[cf,setCf]=useState('all');const[msgs,setMs]=useState([]);const[cin,setCin]=useState('');const[cld,setCld]=useState(false);
+  const fl=useMemo(()=>{let l=[...timeLogs];const n=new Date();if(per==='week'){const w=new Date(n-7*864e5);l=l.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){const{s,e}=mR();l=l.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf]);
   const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,last:l.startTime};m[t.id].tm+=l.duration||0;if(new Date(l.startTime)>new Date(m[t.id].last))m[t.id].last=l.startTime});return Object.values(m).sort((a,b)=>new Date(b.last)-new Date(a.last))},[fl,tasks,gcn]);
-  const ttl=fl.reduce((s,l)=>s+(l.duration||0),0);
-
-  const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMsgs(p=>[...p,{role:'user',content:um}]);setCld(true);
-    const ctx=`作業レポート:\n- 期間:${per==='week'?'1週間':per==='month'?'今月':'全期間'}\n- 総時間:${fmtTime(ttl)}\n- タスク数:${ts.length}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fmtTime(t.tm)).join('\n')}`;
-    try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'プロフェッショナルなワークコーチとして日本語で内省を促してください。\n\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMsgs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMsgs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
-
-  return(
-    <div className="fi">
-      <div className="sec-head"><h2 className="sec-title">Report</h2><span style={{fontSize:'0.72rem',color:'var(--text-muted)'}}>Total: {fmtTime(ttl)}</span></div>
-      <div className="rep-filters">
-        <div className="f-group" style={{marginBottom:0}}><label className="f-label">期間</label><select className="sel" style={{width:'auto',fontSize:'0.75rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div>
-        <div className="f-group" style={{marginBottom:0}}><label className="f-label">取引先</label><select className="sel" style={{width:'auto',fontSize:'0.75rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-      </div>
-      <div style={{position:'relative',marginBottom:'2rem'}}>
-        <div style={{position:'absolute',top:'-10px',left:'-10px',right:'14px',bottom:'14px',border:'1.5px solid var(--frame-dark)',pointerEvents:'none'}}></div>
-        <div style={{position:'absolute',top:'8px',left:'10px',right:'-10px',bottom:'-8px',border:'1px solid var(--frame-mid)',pointerEvents:'none'}}></div>
-        {ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--border-light)',padding:'0.6rem',boxShadow:'var(--shadow)',position:'relative',zIndex:1}}>
-          <table className="rep-table"><thead><tr><th>タスク</th><th>取引先</th><th>カテゴリー</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>
-            {ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'0.72rem',color:'var(--text-muted)'}}>{t.cn}</td><td>{cat&&<span className={'t-tag '+cat.c}>{cat.label}</span>}</td><td style={{textAlign:'right',fontFamily:'var(--font-heading)',fontWeight:600}}>{fmtTime(t.tm)}</td></tr>)})}
-          </tbody></table>
-        </div>:<div style={{textAlign:'center',color:'var(--text-muted)',padding:'2rem',background:'var(--white)',border:'1px solid var(--border-light)',position:'relative',zIndex:1}}>データなし</div>}
-      </div>
-      <div className="chat-box">
-        <div className="timer-label">AI Reflection</div>
-        <div className="chat-msgs">
-          {msgs.length===0&&<div style={{textAlign:'center',color:'var(--text-muted)',fontSize:'0.75rem',padding:'1.5rem 0'}}>作業データについて質問しましょう</div>}
-          {msgs.map((m,i)=><div key={i} className={'chat-b '+(m.role==='user'?'chat-b-u':'chat-b-a')}>{m.content}</div>)}
-          {cld&&<div className="chat-b chat-b-a" style={{opacity:0.5}}>...</div>}
-        </div>
-        <div className="chat-row"><input className="input" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-sm" onClick={send} disabled={cld}>送信</button></div>
-      </div>
-    </div>
-  );
+  const ttl=fl.reduce((a,l)=>a+(l.duration||0),0);
+  const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(ttl)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
+  return(<div className="fi">
+    <div className="sh"><h2 className="st">Report</h2><span style={{fontSize:'.65rem',color:'var(--t3)'}}>Total: {fT(ttl)}</span></div>
+    <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div><div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div></div>
+    <div style={{position:'relative',marginBottom:'1.5rem'}}><div style={{position:'absolute',top:'-8px',left:'-8px',right:'12px',bottom:'12px',border:'1.5px solid var(--fd)',pointerEvents:'none'}}></div><div style={{position:'absolute',top:'8px',left:'8px',right:'-8px',bottom:'-8px',border:'1px solid var(--fm)',pointerEvents:'none'}}></div>
+    {ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--bdr2)',padding:'.5rem',boxShadow:'var(--sh)',position:'relative',zIndex:1}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>カテゴリー</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.65rem',color:'var(--t3)'}}>{t.cn}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.5rem',background:'var(--white)',border:'1px solid var(--bdr2)',position:'relative',zIndex:1}}>データなし</div>}</div>
+    <div className="cb"><div className="tw-l">AI Reflection</div><div className="cm">{msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.7rem',padding:'1rem 0'}}>質問しましょう</div>}{msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}{cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}</div><div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div></div>
+  </div>);
 }
 
-function Data({clients,setClients,tasks,setTasks,timeLogs,setTimeLogs,principles,setPrinciples,clientOrder,setClientOrder,running,setRunning,show}){
+function DataV({clients,setCl,tasks,setTk,timeLogs,setTl,pr,setPr,co,setCo,running,setRn,show}){
   const fRef=useRef(null);
-  const exp=()=>{const d={clients,tasks,timeLogs,principles,clientOrder,runningState:running,exportDate:new Date().toISOString(),version:'v12'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
-  const imp=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setClients(d.clients);if(d.tasks)setTasks(d.tasks);if(d.timeLogs)setTimeLogs(d.timeLogs);if(d.principles)setPrinciples(d.principles);if(d.clientOrder)setClientOrder(d.clientOrder);if(d.runningState!==undefined)setRunning(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
-  const st={c:clients.length,t:tasks.length,a:tasks.filter(t=>!t.completed).length,l:timeLogs.length,m:timeLogs.reduce((s,l)=>s+(l.duration||0),0)};
-
-  return(
-    <div className="fi">
-      <div className="sec-head"><h2 className="sec-title">Data</h2></div>
-      <div className="kpi-bar" style={{marginBottom:'1.5rem'}}>
-        <div className="kpi-item" style={{borderTop:'3px solid var(--pastel-blue)'}}><div className="kpi-lbl">Clients</div><div className="kpi-val">{st.c}</div></div>
-        <div className="kpi-item" style={{borderTop:'3px solid var(--pastel-purple)'}}><div className="kpi-lbl">Tasks</div><div className="kpi-val">{st.a}<span className="kpi-unit">/{st.t}</span></div></div>
-        <div className="kpi-item" style={{borderTop:'3px solid var(--pastel-mint)'}}><div className="kpi-lbl">Time</div><div className="kpi-val">{fmtTime(st.m)}</div></div>
-      </div>
-      <div className="data-grid">
-        <div className="data-card"><div style={{fontFamily:'var(--font-heading)',fontWeight:700,marginBottom:'0.4rem'}}>Export</div><div style={{fontSize:'0.72rem',color:'var(--text-muted)',marginBottom:'1rem'}}>JSONダウンロード</div><button className="btn btn-p" onClick={exp}>エクスポート</button></div>
-        <div className="data-card"><div style={{fontFamily:'var(--font-heading)',fontWeight:700,marginBottom:'0.4rem'}}>Import</div><div style={{fontSize:'0.72rem',color:'var(--text-muted)',marginBottom:'1rem'}}>JSONから復元</div><input ref={fRef} type="file" accept=".json" onChange={imp} style={{display:'none'}}/><button className="btn" onClick={()=>fRef.current?.click()}>インポート</button></div>
-      </div>
-    </div>
-  );
+  const exp=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v12'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
+  const imp=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
+  const s={c:clients.length,t:tasks.length,a:tasks.filter(t=>!t.completed).length,l:timeLogs.length,m:timeLogs.reduce((a,l)=>a+(l.duration||0),0)};
+  return(<div className="fi">
+    <div className="sh"><h2 className="st">Data</h2></div>
+    <div className="kpi" style={{marginBottom:'1rem'}}><div className="kpi-i" style={{borderTop:'2px solid var(--blue)'}}><div className="kpi-l">Clients</div><div className="kpi-v">{s.c}</div></div><div className="kpi-i" style={{borderTop:'2px solid var(--purple)'}}><div className="kpi-l">Tasks</div><div className="kpi-v">{s.a}<span className="kpi-u">/{s.t}</span></div></div><div className="kpi-i" style={{borderTop:'2px solid var(--mint)'}}><div className="kpi-l">Time</div><div className="kpi-v">{fT(s.m)}</div></div></div>
+    <div className="dg"><div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Export</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSONダウンロード</div><button className="btn btn-p" onClick={exp}>エクスポート</button></div><div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Import</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSONから復元</div><input ref={fRef} type="file" accept=".json" onChange={imp} style={{display:'none'}}/><button className="btn" onClick={()=>fRef.current?.click()}>インポート</button></div></div>
+  </div>);
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
