@@ -36,19 +36,27 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .nav-b:hover{color:var(--text)}
 .nav-b.on{color:var(--text);background:var(--bg);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 
-/* HERO COLLAGE */
-.hero{position:relative;margin-bottom:1rem;height:200px;overflow:hidden}
-.hero-img{position:absolute;object-fit:cover;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-.hero-img.main{top:10px;left:5%;width:55%;height:180px;z-index:2}
-.hero-img.side{top:0;right:8%;width:30%;height:140px;z-index:3}
-.hero-img.small{bottom:5px;left:35%;width:22%;height:90px;z-index:4}
-/* Overlapping frames on hero */
-.hero-frame{position:absolute;border:1.5px solid;pointer-events:none;z-index:5}
-.hero-line{position:absolute;pointer-events:none;z-index:5}
-.hero-overlay{position:absolute;inset:0;z-index:6;pointer-events:none}
-.hero-text{position:absolute;bottom:16px;right:24px;z-index:7;text-align:right}
-.hero-text .motto-display{font-size:1.6rem;font-weight:900;color:var(--white);text-shadow:0 2px 20px rgba(0,0,0,.5);line-height:1.3}
-.hero-text .motto-sub-display{font-size:.7rem;font-weight:300;color:rgba(255,255,255,.8);text-shadow:0 1px 8px rgba(0,0,0,.4);margin-top:.2rem}
+/* HERO COLLAGE - editorial magazine style */
+.hero{position:relative;margin-bottom:.8rem;height:260px;overflow:visible}
+/* Photo layers */
+.h-img{position:absolute;object-fit:cover;display:block}
+.h-img.p1{top:15px;left:8%;width:42%;height:220px;z-index:2;box-shadow:4px 6px 24px rgba(0,0,0,.12)}
+.h-img.p2{top:0;left:38%;width:32%;height:180px;z-index:3;box-shadow:3px 4px 18px rgba(0,0,0,.1);transform:rotate(.5deg)}
+.h-img.p3{bottom:0;right:10%;width:24%;height:150px;z-index:4;box-shadow:2px 4px 16px rgba(0,0,0,.1);transform:rotate(-.3deg)}
+.h-img.p4{bottom:15px;left:3%;width:12%;height:70px;z-index:5;box-shadow:1px 2px 10px rgba(0,0,0,.08);opacity:.85}
+/* White frames crossing over photos */
+.h-fr{position:absolute;border:1.5px solid rgba(255,255,255,.7);pointer-events:none}
+.h-fr.f1{top:8px;left:6%;width:46%;height:230px;z-index:6}
+.h-fr.f2{top:-8px;left:35%;width:35%;height:192px;z-index:6}
+.h-fr.f3{bottom:-5px;right:8%;width:27%;height:158px;z-index:6}
+/* Accent lines */
+.h-ac{position:absolute;pointer-events:none;z-index:7}
+/* Colored tint blocks */
+.h-tint{position:absolute;pointer-events:none;z-index:1}
+/* Motto overlay */
+.h-motto{position:absolute;bottom:20px;right:6%;z-index:8;text-align:right;max-width:260px}
+.h-motto-main{font-size:1.5rem;font-weight:900;color:var(--white);text-shadow:0 2px 16px rgba(0,0,0,.55),0 0 40px rgba(0,0,0,.2);line-height:1.25;letter-spacing:.05em}
+.h-motto-sub{font-size:.62rem;font-weight:300;color:rgba(255,255,255,.75);text-shadow:0 1px 8px rgba(0,0,0,.4);margin-top:.15rem;letter-spacing:.04em}
 
 /* MOTTO BAR */
 .motto{display:flex;align-items:center;gap:1rem;margin-bottom:.6rem;padding:.4rem 1rem;background:var(--white);border:1px solid var(--bdr2);cursor:pointer;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.02)}
@@ -230,22 +238,12 @@ const REPS=[{id:'none',l:'なし'},{id:'daily',l:'毎日'},{id:'weekly',l:'毎�
 const WDS=[{id:0,l:'日'},{id:1,l:'月'},{id:2,l:'火'},{id:3,l:'水'},{id:4,l:'木'},{id:5,l:'金'},{id:6,l:'土'}];
 
 // Unsplash architectural/urban photos - curated collection
-const HERO_PHOTOS=[
-  'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80',
-  'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&q=80',
-  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80',
-  'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80',
-  'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&q=80',
-  'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=1200&q=80',
-  'https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=1200&q=80',
-  'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1200&q=80',
-];
-const SIDE_PHOTOS=[
-  'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=600&q=80',
-  'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=80',
-  'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=600&q=80',
-  'https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=600&q=80',
-  'https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=600&q=80',
+const PHOTOS=[
+  ['https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80','https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=700&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=600&q=80','https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=900&q=80','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=700&q=80','https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1514565131-fce0801e5785?w=900&q=80','https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=700&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=600&q=80','https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=900&q=80','https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=700&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=600&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=300&q=80'],
+  ['https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=900&q=80','https://images.unsplash.com/photo-1486325212027-8081e485255e?w=700&q=80','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=300&q=80'],
 ];
 
 function fmtDate(d){if(!d)return'';const today=new Date();today.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-today)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
@@ -271,9 +269,8 @@ function App(){
   const[clientOrder,setCo]=useState(()=>ld('timevalue-clientOrder',[]));
   const[running,setRn]=useState(()=>ld('timevalue-runningState',null));
   const[toast,setToast]=useState(null);
-  // Pick random photos on mount
-  const[photoIdx]=useState(()=>Math.floor(Math.random()*HERO_PHOTOS.length));
-  const[sideIdx]=useState(()=>Math.floor(Math.random()*SIDE_PHOTOS.length));
+  // Pick random photo set on mount
+  const[pSet]=useState(()=>Math.floor(Math.random()*PHOTOS.length));
 
   useEffect(()=>sv('timevalue-clients',clients),[clients]);
   useEffect(()=>sv('timevalue-tasks',tasks),[tasks]);
@@ -296,7 +293,7 @@ function App(){
         <div className="hd-left"><div style={{position:'relative'}}><div className="logo-f1"></div><div className="logo-f2"></div><div className="logo">TimeValue</div></div><span className="logo-s">Tracker</span></div>
         <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
       </header>
-      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} photoIdx={photoIdx} sideIdx={sideIdx}/>}
+      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} photos={PHOTOS[pSet]}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
       <div className="foot">TimeValue Tracker v12</div>
@@ -305,7 +302,7 @@ function App(){
   );
 }
 
-function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,photoIdx,sideIdx}){
+function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,photos}){
   const[pO,setPO]=useState(false);
   const[eP,setEP]=useState(false);
   const[pF,setPF]=useState(pr);
@@ -347,24 +344,33 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
 
   return(
     <div className="fi">
-      {/* Hero collage */}
+      {/* Hero collage - editorial magazine style */}
       <div className="hero">
-        <img className="hero-img main" src={HERO_PHOTOS[photoIdx]} alt="" style={{borderRadius:0}}/>
-        <img className="hero-img side" src={SIDE_PHOTOS[sideIdx]} alt="" style={{borderRadius:0}}/>
-        {/* Overlapping frames */}
-        <div className="hero-frame" style={{top:'5px',left:'3%',width:'58%',height:'185px',borderColor:'rgba(255,255,255,.6)'}}></div>
-        <div className="hero-frame" style={{top:'-5px',right:'6%',width:'33%',height:'145px',borderColor:'rgba(255,255,255,.4)'}}></div>
-        <div className="hero-frame" style={{bottom:'0',left:'33%',width:'25%',height:'95px',borderColor:'rgba(255,255,255,.35)'}}></div>
+        {/* Tint blocks behind photos */}
+        <div className="h-tint" style={{top:0,left:'15%',width:'35%',height:'60%',background:'rgba(184,212,255,.12)'}}></div>
+        <div className="h-tint" style={{bottom:0,right:'5%',width:'28%',height:'50%',background:'rgba(212,197,249,.08)'}}></div>
+        {/* 4 photos at different sizes, overlapping */}
+        <img className="h-img p1" src={photos[0]} alt=""/>
+        <img className="h-img p2" src={photos[1]} alt=""/>
+        <img className="h-img p3" src={photos[2]} alt=""/>
+        <img className="h-img p4" src={photos[3]} alt=""/>
+        {/* White frames crossing over photos */}
+        <div className="h-fr f1"></div>
+        <div className="h-fr f2"></div>
+        <div className="h-fr f3"></div>
         {/* Small accent lines */}
-        <div className="hero-line" style={{top:'20px',left:'1%',width:'25px',height:'2px',background:'rgba(184,212,255,.6)'}}></div>
-        <div className="hero-line" style={{bottom:'30px',left:'28%',width:'18px',height:'2px',background:'rgba(26,26,26,.2)'}}></div>
-        <div className="hero-line" style={{top:'60px',right:'4%',width:'2px',height:'30px',background:'rgba(26,26,26,.15)'}}></div>
-        {/* Small squares */}
-        <div className="hero-frame" style={{bottom:'10px',left:'8%',width:'40px',height:'40px',borderColor:'rgba(212,197,249,.4)',transform:'rotate(5deg)'}}></div>
-        {/* Motto overlay */}
-        <div className="hero-text">
-          <div className="motto-display">{pr.main}</div>
-          <div className="motto-sub-display">{pr.sub.split('\n')[0]}</div>
+        <div className="h-ac" style={{top:'12px',left:'2%',width:'22px',height:'2px',background:'rgba(184,212,255,.5)'}}></div>
+        <div className="h-ac" style={{top:'40px',left:'2.5%',width:'14px',height:'2px',background:'rgba(26,26,26,.15)'}}></div>
+        <div className="h-ac" style={{bottom:'35px',left:'22%',width:'16px',height:'2px',background:'rgba(26,26,26,.18)'}}></div>
+        <div className="h-ac" style={{top:'50px',right:'3%',width:'2px',height:'28px',background:'rgba(26,26,26,.12)'}}></div>
+        <div className="h-ac" style={{bottom:'50px',right:'5%',width:'2px',height:'20px',background:'rgba(212,197,249,.3)'}}></div>
+        {/* Small accent squares */}
+        <div className="h-ac" style={{bottom:'20px',left:'1%',width:'8px',height:'8px',background:'rgba(184,212,255,.25)'}}></div>
+        <div className="h-ac" style={{top:'5px',right:'38%',width:'6px',height:'6px',background:'rgba(255,200,221,.2)',transform:'rotate(45deg)'}}></div>
+        {/* Motto overlay on the composition */}
+        <div className="h-motto">
+          <div className="h-motto-main">{pr.main}</div>
+          <div className="h-motto-sub">{pr.sub.split('\n')[0]}</div>
         </div>
       </div>
 
