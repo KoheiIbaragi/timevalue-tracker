@@ -11,216 +11,213 @@
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --blue:#b8d4ff;--purple:#d4c5f9;--pink:#ffc8dd;
-  --mint:#c7f0db;--peach:#ffd6a5;--lav:#e7c6ff;
-  --bg:#f4f2ef;--text:#1a1a1a;--t2:#5a5a5a;--t3:#999;
-  --white:#fff;--bdr:#ddd8d0;--bdr2:#eae6e0;
-  --fd:rgba(26,26,26,0.14);--fm:rgba(26,26,26,0.07);
-  --sh:0 2px 16px rgba(0,0,0,0.05);
+  --bg:#f5f3f0;--white:#fff;--text:#1a1a1a;--t2:#666;--t3:#aaa;
+  --bdr:#e0dcd6;--bdr2:#eae7e2;
+  --blue:#b8d4ff;--purple:#d4c5f9;--pink:#ffc8dd;--mint:#c7f0db;--peach:#ffd6a5;--lav:#e7c6ff;
+  --fd:rgba(26,26,26,.12);--fm:rgba(26,26,26,.06);
   --f:'Noto Sans JP',sans-serif;
-  --glass:rgba(244,242,239,0.88);
-  --glass2:rgba(244,242,239,0.92);
 }
 html{font-size:14px;scroll-behavior:smooth}
-body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh;overflow-x:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh}
 
-/* === FULL BACKGROUND IMAGE === */
-.bg-photo{position:fixed;inset:0;z-index:0;overflow:hidden}
-.bg-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.85) contrast(1.05)}
-.bg-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(244,242,239,.3) 0%,rgba(244,242,239,.7) 35%,rgba(244,242,239,.92) 55%,rgba(244,242,239,.98) 70%,var(--bg) 85%)}
-
-/* === FLOATING MOTTO (parallax-like, fixed behind content) === */
-.bg-motto{position:fixed;top:10vh;left:5%;z-index:1;pointer-events:none;opacity:.06;transition:opacity .3s}
-.bg-motto-text{font-size:12vw;font-weight:900;line-height:.9;letter-spacing:.08em;color:var(--text);white-space:nowrap}
-
-/* === FIXED DIAGONAL ACCENTS === */
-.fix-deco{position:fixed;pointer-events:none;z-index:0}
-
-/* === MAIN APP === */
-.app{position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:0 2.5rem}
+/* === LAYOUT === */
+.app{max-width:1400px;margin:0 auto;padding:0 2.5rem}
 @media(max-width:1024px){.app{padding:0 1rem}}
 
-/* === HEADER - glass effect, sticky === */
-.hd{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.8rem 0;backdrop-filter:blur(16px);background:rgba(244,242,239,.75);border-bottom:1px solid rgba(0,0,0,.04)}
-.hd-left{display:flex;align-items:baseline;gap:.6rem;position:relative}
-.logo{font-size:1.4rem;font-weight:900;letter-spacing:-.03em}
-.logo-s{font-size:.55rem;font-weight:300;color:var(--t3);letter-spacing:.2em;text-transform:uppercase}
-.logo-f1{position:absolute;top:-10px;left:-16px;width:46px;height:46px;border:1.5px solid var(--fd);transform:rotate(10deg);pointer-events:none}
-.logo-f2{position:absolute;top:-3px;left:-10px;width:30px;height:30px;border:1px solid var(--purple);opacity:.4;transform:rotate(-5deg);pointer-events:none}
-.nav{display:flex;gap:2px;background:rgba(255,255,255,.7);border:1px solid var(--bdr2);border-radius:5px;padding:2px;box-shadow:0 1px 6px rgba(0,0,0,.03);backdrop-filter:blur(8px)}
-.nav-b{padding:.3rem .9rem;font-family:var(--f);font-size:.68rem;font-weight:400;color:var(--t3);background:0;border:0;border-radius:3px;cursor:pointer;transition:all .2s}
+/* === HEADER === */
+.hd{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;background:var(--bg);border-bottom:1px solid var(--bdr2)}
+.logo{font-size:1.3rem;font-weight:900;letter-spacing:-.02em}
+.logo-sub{font-size:.5rem;font-weight:300;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-left:.5rem}
+.nav{display:flex;gap:1px;background:var(--bdr2);border-radius:4px;padding:1px}
+.nav-b{padding:.3rem .85rem;font-family:var(--f);font-size:.65rem;font-weight:400;color:var(--t3);background:var(--bg);border:0;cursor:pointer;transition:all .15s}
+.nav-b:first-child{border-radius:3px 0 0 3px}
+.nav-b:last-child{border-radius:0 3px 3px 0}
 .nav-b:hover{color:var(--text)}
-.nav-b.on{color:var(--text);background:rgba(255,255,255,.8);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.nav-b.on{color:var(--white);background:var(--text);font-weight:500}
 
-/* === HERO ZONE (transparent, shows background photo) === */
-.hero-zone{height:38vh;min-height:240px;display:flex;align-items:flex-end;padding-bottom:1.5rem;position:relative}
-.hero-motto{position:relative;z-index:2}
-.hero-motto-main{font-size:2.8rem;font-weight:900;line-height:1.1;letter-spacing:.06em;color:var(--white);text-shadow:0 3px 30px rgba(0,0,0,.4),0 0 80px rgba(0,0,0,.15)}
-.hero-motto-sub{font-size:.75rem;font-weight:300;color:rgba(255,255,255,.75);text-shadow:0 1px 10px rgba(0,0,0,.5);margin-top:.3rem;letter-spacing:.05em}
-.hero-edit{margin-top:.4rem;font-family:var(--f);font-size:.5rem;padding:.15rem .5rem;background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);cursor:pointer;backdrop-filter:blur(4px);transition:all .2s}
-.hero-edit:hover{background:rgba(255,255,255,.25);color:#fff}
-/* Floating photo fragments on the right side */
-.hero-frag{position:absolute;z-index:1;box-shadow:0 4px 24px rgba(0,0,0,.15)}
-.hero-frag img{width:100%;height:100%;object-fit:cover;display:block}
-.hero-frag.fr1{right:5%;top:10%;width:180px;height:120px;transform:rotate(2deg)}
-.hero-frag.fr2{right:18%;bottom:5%;width:130px;height:95px;transform:rotate(-1.5deg)}
-.hero-frag.fr3{right:0;bottom:20%;width:80px;height:60px;transform:rotate(3deg);opacity:.7}
-/* Frame overlaps on fragments */
-.hero-frag::after{content:'';position:absolute;inset:-6px;border:1.5px solid rgba(255,255,255,.5);pointer-events:none}
-/* Diagonal gradient bar */
-.h-div{position:relative;height:5px;overflow:hidden;margin-bottom:.5rem}
-.h-div::before{content:'';position:absolute;inset:0 -3%;background:linear-gradient(90deg,var(--purple),var(--blue),var(--pink),var(--peach),var(--mint));transform:skewX(-25deg)}
+/* === HERO === */
+.hero{display:grid;grid-template-columns:1fr auto;align-items:end;gap:2rem;padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--bdr2);margin-bottom:1rem;position:relative}
+.hero-left{}
+.hero-motto{font-size:2.6rem;font-weight:900;line-height:1.05;letter-spacing:.04em;margin-bottom:.3rem}
+.hero-sub{font-size:.72rem;font-weight:300;color:var(--t2);letter-spacing:.03em}
+.hero-edit-btn{font-family:var(--f);font-size:.5rem;color:var(--t3);background:0;border:0;cursor:pointer;margin-top:.3rem;padding:0;text-decoration:underline;text-underline-offset:2px}
+.hero-edit-btn:hover{color:var(--text)}
+/* Photo accent - small, intentional */
+.hero-photo{position:relative;width:200px;height:130px;flex-shrink:0}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.95) contrast(1.05)}
+.hero-photo::before{content:'';position:absolute;top:-6px;left:-6px;right:8px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
+.hero-photo::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
+/* Accent elements near photo */
+.hero-acc{position:absolute;pointer-events:none}
+@media(max-width:768px){.hero{grid-template-columns:1fr}.hero-photo{display:none}}
 
-/* === CONTENT AREA (glass card) === */
-.content{background:var(--glass2);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.6);box-shadow:0 -4px 40px rgba(0,0,0,.04);padding:1.2rem 2rem;min-height:60vh;position:relative}
-.content::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;height:calc(100% + 20px);border:1.5px solid var(--fd);pointer-events:none}
-.content::after{content:'';position:absolute;top:8px;left:8px;right:-8px;height:calc(100% - 16px);border:1px solid var(--fm);pointer-events:none}
-@media(max-width:1024px){.content{padding:1rem}}
+/* === DIAGONAL RULE === */
+.rule{position:relative;height:3px;overflow:hidden;margin-bottom:1rem}
+.rule::before{content:'';position:absolute;inset:0 -3%;background:linear-gradient(90deg,var(--purple),var(--blue),var(--pink),var(--peach),var(--mint));transform:skewX(-25deg)}
 
-/* === GRID === */
-.mg{display:grid;grid-template-columns:1fr 260px;gap:1.2rem;align-items:start}
+/* === MAIN GRID === */
+.mg{display:grid;grid-template-columns:1fr 240px;gap:1.5rem;align-items:start}
 @media(max-width:1024px){.mg{grid-template-columns:1fr}}
 
-.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
-.st{font-size:.95rem;font-weight:700;position:relative;padding-left:.7rem}
-.st::before{content:'';position:absolute;left:0;top:.15em;width:2.5px;height:.9em;background:var(--purple)}
-.sr{display:flex;gap:.3rem;align-items:center}
+/* === SECTION === */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.st{font-size:.85rem;font-weight:700;position:relative;padding-left:.65rem}
+.st::before{content:'';position:absolute;left:0;top:.1em;width:2.5px;height:.85em;background:var(--purple)}
 
-/* CLIENT GROUP */
-.cg{margin-bottom:.5rem}
-.cg-head{display:flex;align-items:center;justify-content:space-between;padding:.25rem .7rem;background:rgba(255,255,255,.6);border:1px solid var(--bdr2);border-bottom:0;font-size:.7rem;font-weight:600;backdrop-filter:blur(4px)}
-.cg-count{font-size:.58rem;font-weight:300;color:var(--t3)}
+/* === CLIENT GROUP === */
+.cg{margin-bottom:.4rem}
+.cg-head{display:flex;align-items:center;justify-content:space-between;padding:.2rem .6rem;background:var(--white);border:1px solid var(--bdr2);border-bottom:0;font-size:.68rem;font-weight:600}
+.cg-cnt{font-size:.55rem;font-weight:300;color:var(--t3)}
 
-/* TASK ROW */
-.tl{position:relative}
-.tr{display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.7);border:1px solid var(--bdr2);border-top:0;padding:.35rem .7rem;position:relative;z-index:1;transition:all .12s;font-size:.78rem;cursor:pointer;backdrop-filter:blur(4px)}
+/* === TASK LIST === */
+.tl{position:relative;margin-bottom:.5rem}
+.tl::before{content:'';position:absolute;top:-7px;left:-7px;right:10px;bottom:10px;border:1.5px solid var(--fd);pointer-events:none;z-index:0}
+.tl::after{content:'';position:absolute;top:7px;left:7px;right:-7px;bottom:-7px;border:1px solid var(--fm);pointer-events:none;z-index:0}
+
+.tr{display:flex;align-items:center;gap:.4rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:.3rem .6rem;position:relative;z-index:1;transition:all .1s;cursor:pointer;font-size:.76rem}
 .tr:first-child,.cg-head+.tr{border-top:1px solid var(--bdr2)}
-.tr:hover{background:rgba(255,255,255,.9);box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.tr:hover{background:#faf9f7}
 .tr.run{border-left:3px solid #5a8f6e}
-.tr.done{opacity:.35}
+.tr.done{opacity:.3}
 .tr.done .tn{text-decoration:line-through}
 
-.td-date{font-size:.6rem;color:var(--purple);font-weight:500;min-width:38px;flex-shrink:0}
+.td-date{font-size:.58rem;font-weight:500;min-width:36px;flex-shrink:0;color:var(--purple)}
 .td-date.overdue{color:#c77}
 .td-date.today{color:#5a8f6e;font-weight:600}
-.tn{font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem}
-.tt{display:inline-block;padding:.08rem .4rem;font-size:.52rem;font-weight:500;border-radius:1px;flex-shrink:0}
+.tn{font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt{display:inline-block;padding:.06rem .35rem;font-size:.5rem;font-weight:500;border-radius:1px;flex-shrink:0}
 .tt-routine{background:var(--blue);color:#3a6db5}
 .tt-strategic{background:var(--purple);color:#6b5a9e}
 .tt-creative{background:var(--pink);color:#b5577a}
 .tt-admin{background:var(--peach);color:#b58040}
 
-/* Editable time */
-.ttm{font-size:.7rem;font-weight:600;flex-shrink:0;min-width:30px;text-align:right;cursor:pointer;padding:.1rem .3rem;border-radius:2px;transition:background .15s}
-.ttm:hover{background:rgba(212,197,249,.2)}
-.ttm-edit{width:50px;font-family:var(--f);font-size:.65rem;font-weight:500;padding:.1rem .3rem;border:1px solid var(--purple);background:var(--white);outline:0;text-align:right}
+/* Time display - clickable to edit */
+.ttm{font-size:.68rem;font-weight:600;flex-shrink:0;min-width:28px;text-align:right;cursor:pointer;padding:.08rem .25rem;transition:background .15s}
+.ttm:hover{background:rgba(212,197,249,.15)}
+/* Time edit: h:m format */
+.ttm-ed{display:flex;align-items:center;gap:1px;flex-shrink:0}
+.ttm-ed input{width:28px;font-family:var(--f);font-size:.65rem;font-weight:600;padding:.08rem .15rem;border:1px solid var(--purple);background:var(--white);outline:0;text-align:center}
+.ttm-ed span{font-size:.55rem;color:var(--t3)}
 
-.bt{font-family:var(--f);font-size:.56rem;padding:.13rem .4rem;border:1px solid var(--bdr);background:rgba(255,255,255,.8);color:var(--t2);cursor:pointer;transition:all .12s}
+/* Action buttons */
+.bt{font-family:var(--f);font-size:.54rem;padding:.12rem .38rem;border:1px solid var(--bdr);background:var(--white);color:var(--t2);cursor:pointer;transition:all .1s}
 .bt:hover{background:var(--bg);color:var(--text)}
 .bt-go{background:var(--mint);color:#3a7d5c;border-color:rgba(58,125,92,.12);font-weight:600}
 .bt-go:hover{background:#a8e6c3}
 .bt-st{background:var(--pink);color:#b5577a;border-color:rgba(181,87,122,.12);font-weight:600}
 .bt-st:hover{background:#ffacc7}
 .bt-x{color:#c77;border:0;background:0}
-.te{display:flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.5);border:1px solid var(--bdr2);border-top:0;padding:.2rem .7rem;position:relative;z-index:1;font-size:.58rem}
 
-/* SIDEBAR - sticky timer */
-.sb{position:relative}
-.sb-inner{position:sticky;top:70px}
-.tw{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);padding:1rem;box-shadow:var(--sh);position:relative;z-index:1;backdrop-filter:blur(8px)}
-.tw::before{content:'';position:absolute;top:-8px;right:-8px;width:34px;height:34px;border:1.5px solid var(--fd);transform:rotate(12deg);pointer-events:none}
-.tw::after{content:'';position:absolute;bottom:-6px;left:-6px;width:22px;height:22px;border:1px solid var(--lav);opacity:.4;transform:rotate(-8deg);pointer-events:none}
-.tw-l{font-size:.5rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.6rem}
-.tw-n{font-size:.78rem;font-weight:600;margin-bottom:.1rem}
-.tw-c{font-size:.6rem;color:var(--t3);margin-bottom:.4rem}
-.tw-d{font-size:1.8rem;font-weight:700;text-align:center;padding:.3rem 0;letter-spacing:.05em}
+/* Expand row */
+.te{display:flex;align-items:center;gap:.3rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:.18rem .6rem;position:relative;z-index:1;font-size:.55rem}
+
+/* === SIDEBAR === */
+.sb-inner{position:sticky;top:55px}
+.tw{background:var(--white);border:1px solid var(--bdr2);padding:.8rem;position:relative;z-index:1}
+.tw::before{content:'';position:absolute;top:-6px;right:-6px;width:28px;height:28px;border:1.5px solid var(--fd);transform:rotate(12deg);pointer-events:none}
+.tw::after{content:'';position:absolute;bottom:-5px;left:-5px;width:18px;height:18px;border:1px solid rgba(212,197,249,.3);transform:rotate(-8deg);pointer-events:none}
+.tw-l{font-size:.48rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.5rem}
+.tw-n{font-size:.72rem;font-weight:600;margin-bottom:.05rem}
+.tw-c{font-size:.55rem;color:var(--t3);margin-bottom:.3rem}
+.tw-d{font-size:1.6rem;font-weight:700;text-align:center;padding:.2rem 0;letter-spacing:.04em}
 .tw-d.on{color:#5a8f6e}
-.tw-d.off{opacity:.15}
-.tw-ctr{display:flex;justify-content:center;margin-top:.3rem}
+.tw-d.off{opacity:.12}
+.tw-ctr{display:flex;justify-content:center;margin-top:.2rem}
 
-/* BUTTONS */
-.btn{font-family:var(--f);font-size:.7rem;font-weight:400;padding:.4rem 1rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);cursor:pointer;transition:all .2s}
+/* Side photo accent */
+.side-photo{margin-top:.8rem;position:relative;width:100%;height:100px;overflow:hidden}
+.side-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.9)}
+.side-photo::before{content:'';position:absolute;top:-5px;left:-5px;right:7px;bottom:7px;border:1.5px solid var(--fd);pointer-events:none;z-index:1}
+.side-photo::after{content:'';position:absolute;top:5px;left:7px;right:-5px;bottom:-5px;border:1px solid var(--fm);pointer-events:none;z-index:1}
+
+/* === BUTTONS === */
+.btn{font-family:var(--f);font-size:.68rem;font-weight:400;padding:.35rem .9rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);cursor:pointer;transition:all .2s}
 .btn:hover{background:var(--text);color:var(--white);border-color:var(--text)}
 .btn-p{background:var(--text);color:var(--white);border-color:var(--text)}
 .btn-p:hover{background:#444}
-.btn-s{padding:.25rem .65rem;font-size:.65rem}
+.btn-s{padding:.22rem .55rem;font-size:.62rem}
 
-/* FORMS */
-.inp,.sel,.txa{font-family:var(--f);font-size:.78rem;font-weight:300;padding:.5rem .7rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);width:100%;outline:0;transition:border-color .2s}
+/* === FORMS === */
+.inp,.sel,.txa{font-family:var(--f);font-size:.76rem;font-weight:300;padding:.45rem .65rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);width:100%;outline:0;transition:border-color .2s}
 .inp:focus,.sel:focus,.txa:focus{border-color:var(--t3)}
-.txa{resize:vertical;min-height:50px;line-height:1.5}
-.fl{display:block;font-size:.6rem;font-weight:500;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
-.fg{margin-bottom:.7rem}
-.fr{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.txa{resize:vertical;min-height:45px;line-height:1.5}
+.fl{display:block;font-size:.55rem;font-weight:500;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem}
+.fg{margin-bottom:.6rem}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
 .wd{display:flex;gap:2px}
-.wd-b{width:28px;height:28px;border:1px solid var(--bdr);background:var(--white);color:var(--t2);font-size:.6rem;cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;font-family:var(--f)}
-.wd-b:hover{border-color:var(--t3)}
+.wd-b{width:26px;height:26px;border:1px solid var(--bdr);background:var(--white);color:var(--t2);font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--f);transition:all .1s}
 .wd-b.on{background:var(--text);color:var(--white);border-color:var(--text);font-weight:600}
 
-/* MODAL */
-.mo-bg{position:fixed;inset:0;background:rgba(26,26,26,.35);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fi .15s}
-.mo{background:var(--white);width:90%;max-width:480px;max-height:85vh;overflow-y:auto;padding:1.5rem;position:relative;box-shadow:0 16px 50px rgba(0,0,0,.15);animation:su .2s}
-.mo::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;bottom:14px;border:1.5px solid var(--fd);pointer-events:none}
-.mo::after{content:'';position:absolute;top:8px;left:8px;right:-8px;bottom:-8px;border:1px solid var(--fm);pointer-events:none}
-.mo-t{font-size:1rem;font-weight:700;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bdr2)}
-.mo-f{display:flex;gap:.4rem;justify-content:flex-end;margin-top:1rem;padding-top:.6rem;border-top:1px solid var(--bdr2)}
+/* === MODAL === */
+.mo-bg{position:fixed;inset:0;background:rgba(26,26,26,.3);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fi .12s}
+.mo{background:var(--white);width:90%;max-width:460px;max-height:85vh;overflow-y:auto;padding:1.4rem;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.12);animation:su .18s}
+.mo::before{content:'';position:absolute;top:-8px;left:-8px;right:12px;bottom:12px;border:1.5px solid var(--fd);pointer-events:none}
+.mo::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
+.mo-t{font-size:.95rem;font-weight:700;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--bdr2)}
+.mo-f{display:flex;gap:.4rem;justify-content:flex-end;margin-top:.8rem;padding-top:.5rem;border-top:1px solid var(--bdr2)}
 
-/* REPORT KPI */
-.kpi{display:flex;background:rgba(255,255,255,.85);border:1px solid var(--bdr2);box-shadow:var(--sh);position:relative;margin-bottom:.8rem;backdrop-filter:blur(8px)}
-.kpi::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;bottom:10px;border:1.5px solid var(--fd);pointer-events:none}
-.kpi::after{content:'';position:absolute;top:7px;left:10px;right:-10px;bottom:-7px;border:1px solid var(--fm);pointer-events:none}
-.kpi-i{flex:1;padding:.6rem 1.2rem;position:relative;z-index:1}
+/* === MOTTO EDIT === */
+.motto-ed{background:var(--white);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.8rem;animation:su .15s}
+
+/* === KPI === */
+.kpi{display:flex;background:var(--white);border:1px solid var(--bdr2);position:relative;margin-bottom:.7rem}
+.kpi::before{content:'';position:absolute;top:-7px;left:-7px;right:10px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
+.kpi::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
+.kpi-i{flex:1;padding:.5rem 1rem;position:relative;z-index:1}
 .kpi-i+.kpi-i{border-left:1px solid var(--bdr2)}
 .kpi-i:nth-child(1){border-top:2px solid var(--blue)}
 .kpi-i:nth-child(2){border-top:2px solid var(--purple)}
 .kpi-i:nth-child(3){border-top:2px solid var(--mint)}
-.kpi-l{font-size:.55rem;font-weight:500;color:var(--t3);letter-spacing:.12em;text-transform:uppercase}
-.kpi-v{font-size:1.3rem;font-weight:700;line-height:1.2}
-.kpi-u{font-size:.65rem;font-weight:300;color:var(--t2);margin-left:.15rem}
+.kpi-l{font-size:.5rem;font-weight:500;color:var(--t3);letter-spacing:.12em;text-transform:uppercase}
+.kpi-v{font-size:1.2rem;font-weight:700;line-height:1.2}
+.kpi-u{font-size:.6rem;font-weight:300;color:var(--t2);margin-left:.1rem}
 
-/* REPORT TABLE */
-.rf{display:flex;gap:.6rem;margin-bottom:.8rem;flex-wrap:wrap;align-items:end}
+/* REPORT */
+.rf{display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:end}
 .rtbl{width:100%;border-collapse:collapse}
-.rtbl th{font-size:.6rem;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:.4rem .7rem;border-bottom:2px solid var(--bdr)}
-.rtbl td{font-size:.75rem;font-weight:300;padding:.4rem .7rem;border-bottom:1px solid var(--bdr2)}
+.rtbl th{font-size:.55rem;font-weight:500;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:.35rem .6rem;border-bottom:2px solid var(--bdr)}
+.rtbl td{font-size:.72rem;font-weight:300;padding:.35rem .6rem;border-bottom:1px solid var(--bdr2)}
 
-/* AI CHAT */
-.cb{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);box-shadow:var(--sh);padding:1rem;position:relative;z-index:1;backdrop-filter:blur(8px)}
-.cb::before{content:'';position:absolute;top:-8px;left:5px;right:-6px;bottom:6px;border:1.5px solid var(--fd);pointer-events:none;z-index:-1}
-.cb::after{content:'';position:absolute;top:6px;left:-6px;right:7px;bottom:-6px;border:1px solid var(--fm);pointer-events:none;z-index:-1}
-.cm{min-height:80px;max-height:240px;overflow-y:auto;margin-bottom:.5rem}
-.cmb{padding:.5rem .8rem;margin-bottom:.4rem;font-size:.75rem;line-height:1.5;font-weight:300;max-width:85%;white-space:pre-line}
+/* CHAT */
+.cb{background:var(--white);border:1px solid var(--bdr2);padding:.8rem;position:relative;z-index:1}
+.cb::before{content:'';position:absolute;top:-6px;left:4px;right:-5px;bottom:5px;border:1.5px solid var(--fd);pointer-events:none;z-index:-1}
+.cm{min-height:60px;max-height:200px;overflow-y:auto;margin-bottom:.4rem}
+.cmb{padding:.4rem .7rem;margin-bottom:.3rem;font-size:.72rem;line-height:1.5;font-weight:300;max-width:85%;white-space:pre-line}
 .cmb-u{background:var(--bg);border:1px solid var(--bdr2);margin-left:auto}
 .cmb-a{background:var(--lav);opacity:.9;border:1px solid rgba(0,0,0,.03)}
 .cr{display:flex;gap:.3rem}
 
 /* DATA */
-.dg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
-.dc{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);padding:1.2rem;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.02)}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem}
+.dc{background:var(--white);border:1px solid var(--bdr2);padding:1rem;text-align:center}
 
-/* CLIENT */
-.cl{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.4rem;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.02);cursor:grab;z-index:1;backdrop-filter:blur(4px)}
-.cl:active{cursor:grabbing}
+/* CLIENT CARD */
+.cl{background:var(--white);border:1px solid var(--bdr2);padding:.7rem .9rem;margin-bottom:.3rem;position:relative;cursor:grab;z-index:1}
 .cl::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
 .cl:nth-child(4n+1)::before{background:var(--blue)}
 .cl:nth-child(4n+2)::before{background:var(--purple)}
 .cl:nth-child(4n+3)::before{background:var(--pink)}
 .cl:nth-child(4n)::before{background:var(--mint)}
 
-/* MOTTO EDIT */
-.motto-edit-bar{background:rgba(255,255,255,.85);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.6rem;backdrop-filter:blur(8px)}
+/* Fixed decorative elements */
+.deco{position:fixed;pointer-events:none;z-index:0}
 
 @keyframes fi{from{opacity:0}to{opacity:1}}
-@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fi{animation:fi .4s}
-.toast{position:fixed;bottom:1rem;right:1rem;background:var(--text);color:var(--white);padding:.5rem 1rem;font-size:.7rem;z-index:2000;animation:su .25s;box-shadow:0 4px 16px rgba(0,0,0,.15)}
-.foot{padding:1.5rem 0 1rem;text-align:center;font-size:.55rem;color:var(--t3);letter-spacing:.08em}
-::-webkit-scrollbar{width:4px}
+@keyframes su{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fi .3s}
+.toast{position:fixed;bottom:1rem;right:1rem;background:var(--text);color:var(--white);padding:.45rem .9rem;font-size:.65rem;z-index:2000;animation:su .2s}
+.foot{padding:1.2rem 0 .8rem;text-align:center;font-size:.5rem;color:var(--t3);letter-spacing:.08em}
+::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:0}
-::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+::-webkit-scrollbar-thumb{background:var(--bdr)}
 </style>
 </head>
 <body>
+<!-- Sparse decorative elements -->
+<div class="deco" style="top:15%;right:1.5%;width:70px;height:70px;border:1.5px solid rgba(26,26,26,.03);transform:rotate(18deg)"></div>
+<div class="deco" style="bottom:10%;left:1%;width:50px;height:50px;border:1px solid rgba(212,197,249,.1);transform:rotate(-12deg)"></div>
+<div class="deco" style="top:50%;left:.5%;width:1px;height:80px;background:rgba(26,26,26,.04)"></div>
+<div class="deco" style="top:30%;right:.5%;width:1px;height:60px;background:rgba(26,26,26,.03)"></div>
 
 <div id="root"></div>
 <script type="text/babel">
@@ -236,20 +233,19 @@ const CATS=[{id:'routine',l:'Routine',c:'tt-routine'},{id:'strategic',l:'Strateg
 const REPS=[{id:'none',l:'なし'},{id:'daily',l:'毎日'},{id:'weekly',l:'毎週'},{id:'monthly',l:'毎月'}];
 const WDS=[{id:0,l:'日'},{id:1,l:'月'},{id:2,l:'火'},{id:3,l:'水'},{id:4,l:'木'},{id:5,l:'金'},{id:6,l:'土'}];
 
-// Background photos - large dramatic cityscapes
-const BG_PHOTOS=[
-  'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1920&q=80',
-  'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&q=80',
-  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&q=80',
-  'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1920&q=80',
-  'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80',
-  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&q=80',
+const PHOTOS=[
+  'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=600&q=80',
+  'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80',
+  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80',
+  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&q=80',
+  'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&q=80',
+  'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80',
+  'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80',
+  'https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=600&q=80',
 ];
-// Fragment photos for floating pieces
-const FRAG_PHOTOS=[
+const SIDE=[
   'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&q=80',
   'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&q=80',
-  'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=400&q=80',
   'https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=400&q=80',
   'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400&q=80',
   'https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=400&q=80',
@@ -257,20 +253,13 @@ const FRAG_PHOTOS=[
 
 function fmtDate(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
 function dateClass(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'today';if(diff<0)return'overdue';return'';}
-
-// Calculate next due date for recurring tasks
 function nextDue(task){
   const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):new Date();
   if(task.repeat==='daily'){const n=new Date(base);n.setDate(n.getDate()+1);return n.toISOString().split('T')[0];}
-  if(task.repeat==='weekly'&&task.repeatDays?.length){
-    const today=new Date();today.setHours(0,0,0,0);
-    for(let i=1;i<=7;i++){const d=new Date(today);d.setDate(d.getDate()+i);if(task.repeatDays.includes(d.getDay()))return d.toISOString().split('T')[0];}
-    return task.dueDate;
-  }
+  if(task.repeat==='weekly'&&task.repeatDays?.length){const today=new Date();today.setHours(0,0,0,0);for(let i=1;i<=7;i++){const d=new Date(today);d.setDate(d.getDate()+i);if(task.repeatDays.includes(d.getDay()))return d.toISOString().split('T')[0];}return task.dueDate;}
   if(task.repeat==='monthly'){const n=new Date(base);n.setMonth(n.getMonth()+1);return n.toISOString().split('T')[0];}
   return task.dueDate;
 }
-
 function migrate(raw){
   const r={};
   if(raw.clients)r.clients=raw.clients.map(c=>({id:c.client_id||c.id||gid(),name:c.name||'',monthlyRevenue:c.monthly_fee??c.monthlyRevenue??0}));
@@ -291,8 +280,8 @@ function App(){
   const[clientOrder,setCo]=useState(()=>ld('timevalue-clientOrder',[]));
   const[running,setRn]=useState(()=>ld('timevalue-runningState',null));
   const[toast,setToast]=useState(null);
-  const[bgIdx]=useState(()=>Math.floor(Math.random()*BG_PHOTOS.length));
-  const[fragIdx]=useState(()=>{const a=[];while(a.length<3){const i=Math.floor(Math.random()*FRAG_PHOTOS.length);if(!a.includes(i))a.push(i);}return a;});
+  const[pi]=useState(()=>Math.floor(Math.random()*PHOTOS.length));
+  const[si]=useState(()=>Math.floor(Math.random()*SIDE.length));
 
   useEffect(()=>sv('timevalue-clients',clients),[clients]);
   useEffect(()=>sv('timevalue-tasks',tasks),[tasks]);
@@ -309,32 +298,22 @@ function App(){
   const stopT=useCallback(()=>{if(!running)return;const dur=Math.round((new Date()-new Date(running.startTime))/60000);if(dur>0)setTl(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime:new Date().toISOString(),duration:dur}]);setRn(null);show('停止')},[running,show]);
 
   const tabs=[{id:'dashboard',l:'Dashboard'},{id:'clients',l:'Clients'},{id:'report',l:'Report'}];
-  return(<>
-    {/* Full background */}
-    <div className="bg-photo"><img src={BG_PHOTOS[bgIdx]} alt=""/></div>
-    {/* Background motto watermark */}
-    <div className="bg-motto"><div className="bg-motto-text">{principles.main}</div></div>
-    {/* Fixed decorative lines */}
-    <div style={{position:'fixed',bottom:'8%',right:'2%',width:'80px',height:'80px',border:'1.5px solid rgba(26,26,26,.04)',transform:'rotate(15deg)',pointerEvents:'none',zIndex:0}}></div>
-    <div style={{position:'fixed',top:'45%',left:'.5%',width:'1px',height:'100px',background:'rgba(26,26,26,.05)',pointerEvents:'none',zIndex:0}}></div>
-    <div style={{position:'fixed',top:'25%',right:'.5%',width:'1px',height:'70px',background:'rgba(26,26,26,.04)',pointerEvents:'none',zIndex:0}}></div>
-
+  return(
     <div className="app">
       <header className="hd">
-        <div className="hd-left"><div style={{position:'relative'}}><div className="logo-f1"></div><div className="logo-f2"></div><div className="logo">TimeValue</div></div><span className="logo-s">Tracker</span></div>
+        <div style={{display:'flex',alignItems:'baseline'}}><div className="logo">TimeValue</div><span className="logo-sub">Tracker</span></div>
         <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
       </header>
-
-      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} frags={fragIdx}/>}
-      {tab==='clients'&&<div className="content fi"><Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/></div>}
-      {tab==='report'&&<div className="content fi"><ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/></div>}
+      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
+      {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
+      {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
       <div className="foot">TimeValue Tracker v13</div>
+      {toast&&<div className="toast">{toast}</div>}
     </div>
-    {toast&&<div className="toast">{toast}</div>}
-  </>);
+  );
 }
 
-function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,frags}){
+function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
   const[eP,setEP]=useState(false);
   const[pF,setPF]=useState(pr);
   const[modal,setMo]=useState(false);
@@ -342,14 +321,15 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const[filter,setFi]=useState('active');
   const[exp,setExp]=useState(null);
   const[editTime,setEditTime]=useState(null);
-  const[editTimeVal,setEditTimeVal]=useState('');
+  const[etH,setEtH]=useState(0);
+  const[etM,setEtM]=useState(0);
 
   const ft=useMemo(()=>{
     let list;
     if(filter==='active')list=tasks.filter(t=>!t.completed);
     else if(filter==='completed')list=tasks.filter(t=>t.completed);
     else list=[...tasks];
-    return list.sort((a,b)=>{const da=a.dueDate||'9999';const db=b.dueDate||'9999';if(da!==db)return da.localeCompare(db);const ta=a.dueTime||'99:99';const tb=b.dueTime||'99:99';return ta.localeCompare(tb)});
+    return list.sort((a,b)=>{const da=a.dueDate||'9999';const db=b.dueDate||'9999';if(da!==db)return da.localeCompare(db);return(a.dueTime||'99:99').localeCompare(b.dueTime||'99:99')});
   },[tasks,filter]);
 
   const grouped=useMemo(()=>{
@@ -362,110 +342,109 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const saveP=()=>{setPr(pF);setEP(false);show('更新')};
   const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
-
-  // Complete task with auto-generation for recurring
   const comp=id=>{
-    const task=tasks.find(t=>t.id===id);
-    if(!task)return;
+    const task=tasks.find(t=>t.id===id);if(!task)return;
     setTk(p=>{
       let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:Date.now()}:t);
       if(task.repeat&&task.repeat!=='none'){
         const nd=nextDue(task);
-        const newTask={...task,id:gid(),dueDate:nd,completed:false,isActive:true,lastCompleted:task.lastCompleted,createdAt:new Date().toISOString()};
-        updated=[...updated,newTask];
-        show('完了 → 次回 '+fmtDate(nd)+' 作成');
+        updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,lastCompleted:task.lastCompleted,createdAt:new Date().toISOString()}];
+        show('完了 → 次回 '+fmtDate(nd));
       }else{show('完了');}
       return updated;
     });
   };
 
-  // Edit total time for a task
-  const startEditTime=(tid,e)=>{e.stopPropagation();const tt=gtt(tid);setEditTime(tid);setEditTimeVal(String(tt));};
-  const saveEditTime=(tid)=>{
-    const newMin=parseInt(editTimeVal);if(isNaN(newMin)||newMin<0){setEditTime(null);return;}
+  const startEditTime=(tid,e)=>{e.stopPropagation();const tt=gtt(tid);setEditTime(tid);setEtH(Math.floor(tt/60));setEtM(Math.round(tt%60));};
+  const saveEditTime=tid=>{
+    const newMin=(parseInt(etH)||0)*60+(parseInt(etM)||0);
     const currentMin=gtt(tid);const diff=newMin-currentMin;
-    if(diff!==0){const n=new Date();setTl(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-Math.abs(diff)*60000).toISOString(),endTime:n.toISOString(),duration:diff}]);show((diff>0?'+':'')+diff+'分 調整');}
+    if(diff!==0){const n=new Date();setTl(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-Math.abs(diff)*60000).toISOString(),endTime:n.toISOString(),duration:diff}]);show((diff>0?'+':'')+diff+'分');}
     setEditTime(null);
   };
 
   return(
     <div className="fi">
-      {/* Hero zone - shows background photo through */}
-      <div className="hero-zone">
-        <div className="hero-motto">
-          <div className="hero-motto-main">{pr.main}</div>
-          <div className="hero-motto-sub">{pr.sub.split('\n')[0]}</div>
-          <button className="hero-edit" onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
+      <div className="hero">
+        <div className="hero-left">
+          <div className="hero-motto">{pr.main}</div>
+          <div className="hero-sub">{pr.sub.split('\n')[0]}</div>
+          <button className="hero-edit-btn" onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
         </div>
-        {/* Floating photo fragments */}
-        <div className="hero-frag fr1"><img src={FRAG_PHOTOS[frags[0]]} alt=""/></div>
-        <div className="hero-frag fr2"><img src={FRAG_PHOTOS[frags[1]]} alt=""/></div>
-        <div className="hero-frag fr3"><img src={FRAG_PHOTOS[frags[2]]} alt=""/></div>
+        <div className="hero-photo">
+          <img src={PHOTOS[pi]} alt=""/>
+          <div className="hero-acc" style={{top:'-10px',right:'-12px',width:'18px',height:'18px',border:'1px solid var(--fd)',transform:'rotate(8deg)'}}></div>
+          <div className="hero-acc" style={{bottom:'-8px',left:'-8px',width:'12px',height:'12px',border:'1px solid rgba(212,197,249,.25)',transform:'rotate(-6deg)'}}></div>
+        </div>
       </div>
 
-      <div className="h-div"></div>
-
-      {/* Motto edit */}
-      {eP&&<div className="motto-edit-bar fi">
+      {eP&&<div className="motto-ed fi">
         <div className="fg"><label className="fl">Motto</label><input className="inp" value={pF.main} onChange={e=>setPF({...pF,main:e.target.value})}/></div>
         <div className="fg"><label className="fl">Sub</label><textarea className="txa" value={pF.sub} onChange={e=>setPF({...pF,sub:e.target.value})} rows={2}/></div>
         <div style={{display:'flex',gap:'.3rem'}}><button className="btn btn-p btn-s" onClick={saveP}>保存</button><button className="btn btn-s" onClick={()=>setEP(false)}>取消</button></div>
       </div>}
 
-      {/* Content */}
-      <div className="content">
-        <div className="mg">
-          <div>
-            <div className="sh">
-              <h2 className="st">Tasks</h2>
-              <div className="sr">
-                <select className="sel" style={{width:'auto',padding:'.15rem .4rem',fontSize:'.62rem'}} value={filter} onChange={e=>setFi(e.target.value)}>
-                  <option value="active">アクティブ</option><option value="completed">完了済み</option><option value="all">すべて</option>
-                </select>
-                <button className="btn btn-p btn-s" onClick={()=>{setEt(null);setMo(true)}}>新規</button>
-              </div>
-            </div>
-            <div className="tl">
-              {grouped.length===0?<div className="tr" style={{justifyContent:'center',color:'var(--t3)',padding:'1.5rem'}}>タスクがありません</div>:
-              grouped.map(g=>(
-                <div className="cg" key={g.clientId}>
-                  <div className="cg-head"><span>{g.clientName}</span><span className="cg-count">{g.tasks.length}件</span></div>
-                  {g.tasks.map(task=>{
-                    const isR=running&&running.taskId===task.id;
-                    const cat=CATS.find(c=>c.id===task.category);
-                    const tt=gtt(task.id);
-                    const isE=exp===task.id;
-                    const dc=dateClass(task.dueDate);
-                    const dl=fmtDate(task.dueDate);
-                    const dtl=task.dueTime?(' '+task.dueTime):'';
-                    const isET=editTime===task.id;
-                    return(<React.Fragment key={task.id}>
-                      <div className={'tr'+(task.completed?' done':'')+(isR?' run':'')} onClick={()=>setExp(isE?null:task.id)}>
-                        <span className={'td-date '+dc}>{dl}{dtl}</span>
-                        <span className="tn">{task.name}</span>
-                        {cat&&<span className={'tt '+cat.c}>{cat.l}</span>}
-                        {isET?(<input className="ttm-edit" type="number" value={editTimeVal} onChange={e=>setEditTimeVal(e.target.value)} onBlur={()=>saveEditTime(task.id)} onKeyDown={e=>{if(e.key==='Enter')saveEditTime(task.id);if(e.key==='Escape')setEditTime(null)}} onClick={e=>e.stopPropagation()} autoFocus/>):(<span className="ttm" onClick={e=>!task.completed&&startEditTime(task.id,e)}>{fT(tt)}</span>)}
-                        {!task.completed&&(isR?
-                          <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
-                          <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
-                        )}
-                      </div>
-                      {isE&&!task.completed&&(
-                        <div className="te">
-                          <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
-                          <button className="bt" onClick={()=>comp(task.id)}>完了</button>
-                          <button className="bt bt-x" style={{marginLeft:'auto'}} onClick={()=>del(task.id)}>削除</button>
-                        </div>
-                      )}
-                      {isE&&task.completed&&<div className="te"><button className="bt bt-x" onClick={()=>del(task.id)}>削除</button></div>}
-                    </React.Fragment>);
-                  })}
-                </div>
-              ))}
+      <div className="rule"></div>
+
+      <div className="mg">
+        <div>
+          <div className="sh">
+            <h2 className="st">Tasks</h2>
+            <div style={{display:'flex',gap:'.3rem',alignItems:'center'}}>
+              <select className="sel" style={{width:'auto',padding:'.12rem .35rem',fontSize:'.58rem'}} value={filter} onChange={e=>setFi(e.target.value)}>
+                <option value="active">アクティブ</option><option value="completed">完了済み</option><option value="all">すべて</option>
+              </select>
+              <button className="btn btn-p btn-s" onClick={()=>{setEt(null);setMo(true)}}>新規</button>
             </div>
           </div>
-          <div className="sb"><div className="sb-inner"><div className="tw"><TimerW running={running} stopT={stopT} tasks={tasks} gcn={gcn}/></div></div></div>
+          <div className="tl">
+            {grouped.length===0?<div className="tr" style={{justifyContent:'center',color:'var(--t3)',padding:'1.2rem'}}>タスクがありません</div>:
+            grouped.map(g=>(
+              <div className="cg" key={g.clientId}>
+                <div className="cg-head"><span>{g.clientName}</span><span className="cg-cnt">{g.tasks.length}件</span></div>
+                {g.tasks.map(task=>{
+                  const isR=running&&running.taskId===task.id;
+                  const cat=CATS.find(c=>c.id===task.category);
+                  const tt=gtt(task.id);
+                  const isE=exp===task.id;
+                  const isET=editTime===task.id;
+                  return(<React.Fragment key={task.id}>
+                    <div className={'tr'+(task.completed?' done':'')+(isR?' run':'')} onClick={()=>setExp(isE?null:task.id)}>
+                      <span className={'td-date '+dateClass(task.dueDate)}>{fmtDate(task.dueDate)}{task.dueTime?' '+task.dueTime:''}</span>
+                      <span className="tn">{task.name}</span>
+                      {cat&&<span className={'tt '+cat.c}>{cat.l}</span>}
+                      {isET?(
+                        <div className="ttm-ed" onClick={e=>e.stopPropagation()}>
+                          <input value={etH} onChange={e=>setEtH(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveEditTime(task.id);if(e.key==='Escape')setEditTime(null)}} autoFocus/>
+                          <span>h</span>
+                          <input value={etM} onChange={e=>setEtM(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveEditTime(task.id);if(e.key==='Escape')setEditTime(null)}}/>
+                          <span>m</span>
+                          <button className="bt" onClick={()=>saveEditTime(task.id)} style={{marginLeft:'2px'}}>OK</button>
+                        </div>
+                      ):(
+                        <span className="ttm" onClick={e=>!task.completed&&startEditTime(task.id,e)}>{fT(tt)}</span>
+                      )}
+                      {!task.completed&&(isR?
+                        <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
+                        <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
+                      )}
+                    </div>
+                    {isE&&!task.completed&&<div className="te">
+                      <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
+                      <button className="bt" onClick={()=>comp(task.id)}>完了</button>
+                      <button className="bt bt-x" style={{marginLeft:'auto'}} onClick={()=>del(task.id)}>削除</button>
+                    </div>}
+                    {isE&&task.completed&&<div className="te"><button className="bt bt-x" onClick={()=>del(task.id)}>削除</button></div>}
+                  </React.Fragment>);
+                })}
+              </div>
+            ))}
+          </div>
         </div>
+        <div><div className="sb-inner">
+          <div className="tw"><TimerW running={running} stopT={stopT} tasks={tasks} gcn={gcn}/></div>
+          <div className="side-photo"><img src={SIDE[si]} alt=""/></div>
+        </div></div>
       </div>
       {modal&&<TaskModal task={et} clients={clients} onSave={saveTask} onClose={()=>{setMo(false);setEt(null)}}/>}
     </div>
@@ -476,7 +455,7 @@ function TimerW({running,stopT,tasks,gcn}){
   const[el,setEl]=useState(0);const ref=useRef(null);
   useEffect(()=>{if(running?.startTime){const u=()=>setEl(Math.floor((Date.now()-new Date(running.startTime).getTime())/1000));u();ref.current=setInterval(u,1000);return()=>clearInterval(ref.current)}else{setEl(0);if(ref.current)clearInterval(ref.current)}},[running]);
   const rt=running?tasks.find(t=>t.id===running.taskId):null;
-  return(<><div className="tw-l">Timer</div>{rt?(<div><div className="tw-n">{rt.name}</div><div className="tw-c">{gcn(rt.clientId)}</div><div className="tw-d on">{fTm(el)}</div><div className="tw-ctr"><button className="btn btn-p btn-s" onClick={stopT}>停止</button></div></div>):(<div style={{textAlign:'center',padding:'.5rem 0'}}><div className="tw-d off">00:00:00</div><div style={{fontSize:'.6rem',color:'var(--t3)',marginTop:'.2rem'}}>タスクから開始</div></div>)}</>);
+  return(<><div className="tw-l">Timer</div>{rt?(<div><div className="tw-n">{rt.name}</div><div className="tw-c">{gcn(rt.clientId)}</div><div className="tw-d on">{fTm(el)}</div><div className="tw-ctr"><button className="btn btn-p btn-s" onClick={stopT}>停止</button></div></div>):(<div style={{textAlign:'center',padding:'.4rem 0'}}><div className="tw-d off">00:00:00</div><div style={{fontSize:'.55rem',color:'var(--t3)',marginTop:'.15rem'}}>タスクから開始</div></div>)}</>);
 }
 
 function TaskModal({task,clients,onSave,onClose}){
@@ -499,11 +478,11 @@ function Clients({clients,setCl,oc,co,setCo,tasks,timeLogs,show}){
   const save=d=>{if(ec){setCl(p=>p.map(c=>c.id===ec.id?{...c,...d}:c));show('更新')}else{const n={id:gid(),...d};setCl(p=>[...p,n]);setCo(p=>[...p,n.id]);show('追加')}setMo(false);setEc(null)};
   const del=id=>{if(confirm('削除？')){setCl(p=>p.filter(c=>c.id!==id));setCo(p=>p.filter(i=>i!==id));show('削除')}};
   const gcs=cid=>{const{s,e}=mR();const ct=tasks.filter(t=>t.clientId===cid);const cl=timeLogs.filter(l=>{const t=tasks.find(x=>x.id===l.taskId);return t&&t.clientId===cid});const ml=cl.filter(l=>{const d=new Date(l.startTime);return d>=s&&d<=e});return{tc:ct.length,tm:ml.reduce((a,l)=>a+(l.duration||0),0)}};
-  return(<div className="fi">
+  return(<div className="fi" style={{padding:'1.5rem 0'}}>
     <div className="sh"><h2 className="st">Clients</h2><button className="btn btn-p btn-s" onClick={()=>{setEc(null);setMo(true)}}>新規</button></div>
     {oc.length===0?<div className="cl" style={{textAlign:'center',color:'var(--t3)'}}>なし</div>:oc.map((c,i)=>{const s=gcs(c.id);return(<div key={c.id} className="cl" draggable onDragStart={()=>{di.current=i}} onDragEnter={()=>{doi.current=i}} onDragEnd={()=>{const it=[...oc];const dr=it[di.current];it.splice(di.current,1);it.splice(doi.current,0,dr);setCo(it.map(x=>x.id))}} onDragOver={e=>e.preventDefault()}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><span style={{fontWeight:700,fontSize:'.85rem'}}>{c.name}</span><span style={{fontSize:'.7rem',color:'var(--t2)',marginLeft:'.8rem'}}>{fY(c.monthlyRevenue||0)}/mo</span></div><div style={{display:'flex',gap:'2px'}}><button className="bt" onClick={()=>{setEc(c);setMo(true)}}>編集</button><button className="bt bt-x" onClick={()=>del(c.id)}>削除</button></div></div>
-      <div style={{fontSize:'.6rem',color:'var(--t3)',marginTop:'.15rem'}}>{s.tc} tasks / 今月: {fT(s.tm)}</div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><span style={{fontWeight:700,fontSize:'.82rem'}}>{c.name}</span><span style={{fontSize:'.65rem',color:'var(--t2)',marginLeft:'.7rem'}}>{fY(c.monthlyRevenue||0)}/mo</span></div><div style={{display:'flex',gap:'2px'}}><button className="bt" onClick={()=>{setEc(c);setMo(true)}}>編集</button><button className="bt bt-x" onClick={()=>del(c.id)}>削除</button></div></div>
+      <div style={{fontSize:'.55rem',color:'var(--t3)',marginTop:'.1rem'}}>{s.tc} tasks / 今月: {fT(s.tm)}</div>
     </div>)})}
     {mo&&<div className="mo-bg" onClick={()=>{setMo(false);setEc(null)}}><div className="mo" onClick={e=>e.stopPropagation()}><CForm c={ec} onSave={save} onClose={()=>{setMo(false);setEc(null)}}/></div></div>}
   </div>);
@@ -518,13 +497,13 @@ function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,se
   const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
   const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v13'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
   const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
-  return(<div className="fi">
+  return(<div className="fi" style={{padding:'1.5rem 0'}}>
     <div className="sh"><h2 className="st">Report</h2></div>
-    <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div><div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div></div>
+    <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div><div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div></div>
     <div className="kpi"><div className="kpi-i"><div className="kpi-l">Work</div><div className="kpi-v">{fT(kpi.tm)}</div></div><div className="kpi-i"><div className="kpi-l">Revenue</div><div className="kpi-v">{fY(kpi.tr)}</div></div><div className="kpi-i"><div className="kpi-l">Rate</div><div className="kpi-v">{fY(Math.round(kpi.hr))}<span className="kpi-u">/h</span></div></div></div>
-    <div style={{marginBottom:'1.5rem'}}>{ts.length>0?<div style={{background:'rgba(255,255,255,.7)',border:'1px solid var(--bdr2)',padding:'.5rem',boxShadow:'var(--sh)'}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>カテゴリー</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.65rem',color:'var(--t3)'}}>{t.cn}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.5rem',background:'rgba(255,255,255,.7)',border:'1px solid var(--bdr2)'}}>データなし</div>}</div>
-    <div className="cb" style={{marginBottom:'1.5rem'}}><div className="tw-l">AI Reflection</div><div className="cm">{msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.7rem',padding:'1rem 0'}}>質問しましょう</div>}{msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}{cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}</div><div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div></div>
-    <div className="dg"><div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Export</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSON</div><button className="btn btn-p" onClick={expData}>エクスポート</button></div><div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Import</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSON</div><input ref={fRef} type="file" accept=".json" onChange={impData} style={{display:'none'}}/><button className="btn" onClick={()=>fRef.current?.click()}>インポート</button></div></div>
+    <div style={{marginBottom:'1.2rem'}}>{ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--bdr2)',padding:'.4rem'}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>Cat</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.cn}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.2rem',background:'var(--white)',border:'1px solid var(--bdr2)'}}>データなし</div>}</div>
+    <div className="cb" style={{marginBottom:'1.2rem'}}><div className="tw-l">AI Reflection</div><div className="cm">{msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.65rem',padding:'.8rem 0'}}>質問しましょう</div>}{msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}{cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}</div><div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div></div>
+    <div className="dg"><div className="dc"><div style={{fontWeight:700,marginBottom:'.2rem',fontSize:'.8rem'}}>Export</div><button className="btn btn-p btn-s" style={{marginTop:'.3rem'}} onClick={expData}>エクスポート</button></div><div className="dc"><div style={{fontWeight:700,marginBottom:'.2rem',fontSize:'.8rem'}}>Import</div><input ref={fRef} type="file" accept=".json" onChange={impData} style={{display:'none'}}/><button className="btn btn-s" style={{marginTop:'.3rem'}} onClick={()=>fRef.current?.click()}>インポート</button></div></div>
   </div>);
 }
 
