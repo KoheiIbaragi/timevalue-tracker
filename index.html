@@ -18,72 +18,67 @@
   --fd:rgba(26,26,26,0.14);--fm:rgba(26,26,26,0.07);
   --sh:0 2px 16px rgba(0,0,0,0.05);
   --f:'Noto Sans JP',sans-serif;
+  --glass:rgba(244,242,239,0.88);
+  --glass2:rgba(244,242,239,0.92);
 }
-html{font-size:14px}
+html{font-size:14px;scroll-behavior:smooth}
 body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh;overflow-x:hidden}
-.app{max-width:1440px;margin:0 auto;padding:1.2rem 2.5rem;position:relative;z-index:1}
-@media(max-width:1024px){.app{padding:1rem 1rem}}
 
-/* HEADER */
-.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+/* === FULL BACKGROUND IMAGE === */
+.bg-photo{position:fixed;inset:0;z-index:0;overflow:hidden}
+.bg-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.85) contrast(1.05)}
+.bg-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(244,242,239,.3) 0%,rgba(244,242,239,.7) 35%,rgba(244,242,239,.92) 55%,rgba(244,242,239,.98) 70%,var(--bg) 85%)}
+
+/* === FLOATING MOTTO (parallax-like, fixed behind content) === */
+.bg-motto{position:fixed;top:10vh;left:5%;z-index:1;pointer-events:none;opacity:.06;transition:opacity .3s}
+.bg-motto-text{font-size:12vw;font-weight:900;line-height:.9;letter-spacing:.08em;color:var(--text);white-space:nowrap}
+
+/* === FIXED DIAGONAL ACCENTS === */
+.fix-deco{position:fixed;pointer-events:none;z-index:0}
+
+/* === MAIN APP === */
+.app{position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:0 2.5rem}
+@media(max-width:1024px){.app{padding:0 1rem}}
+
+/* === HEADER - glass effect, sticky === */
+.hd{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.8rem 0;backdrop-filter:blur(16px);background:rgba(244,242,239,.75);border-bottom:1px solid rgba(0,0,0,.04)}
 .hd-left{display:flex;align-items:baseline;gap:.6rem;position:relative}
 .logo{font-size:1.4rem;font-weight:900;letter-spacing:-.03em}
 .logo-s{font-size:.55rem;font-weight:300;color:var(--t3);letter-spacing:.2em;text-transform:uppercase}
 .logo-f1{position:absolute;top:-10px;left:-16px;width:46px;height:46px;border:1.5px solid var(--fd);transform:rotate(10deg);pointer-events:none}
 .logo-f2{position:absolute;top:-3px;left:-10px;width:30px;height:30px;border:1px solid var(--purple);opacity:.4;transform:rotate(-5deg);pointer-events:none}
-.nav{display:flex;gap:2px;background:var(--white);border:1px solid var(--bdr2);border-radius:5px;padding:2px;box-shadow:0 1px 6px rgba(0,0,0,.03)}
+.nav{display:flex;gap:2px;background:rgba(255,255,255,.7);border:1px solid var(--bdr2);border-radius:5px;padding:2px;box-shadow:0 1px 6px rgba(0,0,0,.03);backdrop-filter:blur(8px)}
 .nav-b{padding:.3rem .9rem;font-family:var(--f);font-size:.68rem;font-weight:400;color:var(--t3);background:0;border:0;border-radius:3px;cursor:pointer;transition:all .2s}
 .nav-b:hover{color:var(--text)}
-.nav-b.on{color:var(--text);background:var(--bg);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.nav-b.on{color:var(--text);background:rgba(255,255,255,.8);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 
-/* HERO - Editorial Diagonal Collage */
-.hero{position:relative;margin-bottom:.6rem;height:280px;overflow:hidden}
-/* Base photo layers with clip-path diagonal cuts */
-.h-img{position:absolute;object-fit:cover;display:block;transition:opacity .5s}
-.h-img.p1{top:0;left:0;width:65%;height:100%;z-index:2;clip-path:polygon(0 0,85% 0,70% 100%,0 100%)}
-.h-img.p2{top:0;right:0;width:55%;height:65%;z-index:3;clip-path:polygon(25% 0,100% 0,100% 100%,10% 100%)}
-.h-img.p3{bottom:0;right:0;width:40%;height:55%;z-index:4;clip-path:polygon(15% 0,100% 0,100% 100%,0 100%)}
-.h-img.p4{bottom:20px;left:5%;width:15%;height:30%;z-index:5;clip-path:polygon(0 8%,100% 0,95% 100%,5% 92%)}
-/* Geometric color planes */
-.h-plane{position:absolute;pointer-events:none}
-.h-plane.pl1{top:0;left:55%;width:20%;height:40%;background:var(--bg);z-index:2;clip-path:polygon(30% 0,100% 0,70% 100%,0 100%)}
-.h-plane.pl2{bottom:0;left:45%;width:18%;height:35%;background:rgba(212,197,249,.15);z-index:1}
-.h-plane.pl3{top:10px;right:0;width:8%;height:25%;background:rgba(184,212,255,.12);z-index:1}
-/* White crossing frames */
-.h-fr{position:absolute;border:1.5px solid rgba(255,255,255,.65);pointer-events:none;z-index:6}
-.h-fr.f1{top:10px;left:3%;width:58%;height:260px;transform:rotate(-.3deg)}
-.h-fr.f2{top:-5px;right:5%;width:36%;height:180px;transform:rotate(.4deg)}
-.h-fr.f3{bottom:5px;right:15%;width:22%;height:130px}
-/* Dark accent frame */
-.h-dfr{position:absolute;border:1px solid rgba(26,26,26,.1);pointer-events:none;z-index:6}
-.h-dfr.d1{top:20px;left:8%;width:45%;height:200px;transform:rotate(.2deg)}
-/* Accent elements */
-.h-ac{position:absolute;pointer-events:none;z-index:7}
-/* Diagonal gradient overlay */
-.h-grad{position:absolute;bottom:0;right:0;width:45%;height:100%;z-index:5;background:linear-gradient(135deg,transparent 30%,rgba(26,26,26,.3) 100%);pointer-events:none}
-/* Motto */
-.h-motto{position:absolute;bottom:22px;right:5%;z-index:8;text-align:right;max-width:280px}
-.h-motto-main{font-size:1.8rem;font-weight:900;color:var(--white);text-shadow:0 2px 20px rgba(0,0,0,.5),0 0 60px rgba(0,0,0,.15);line-height:1.2;letter-spacing:.08em}
-.h-motto-sub{font-size:.6rem;font-weight:300;color:rgba(255,255,255,.7);text-shadow:0 1px 10px rgba(0,0,0,.5);margin-top:.2rem;letter-spacing:.06em}
-/* Diagonal divider line after hero */
-.h-div{position:relative;height:6px;margin-bottom:.5rem;overflow:hidden}
-.h-div::before{content:'';position:absolute;top:0;left:-3%;right:-3%;height:100%;background:linear-gradient(90deg,var(--purple) 0%,var(--blue) 25%,var(--pink) 50%,var(--peach) 75%,var(--mint) 100%);transform:skewX(-25deg)}
+/* === HERO ZONE (transparent, shows background photo) === */
+.hero-zone{height:38vh;min-height:240px;display:flex;align-items:flex-end;padding-bottom:1.5rem;position:relative}
+.hero-motto{position:relative;z-index:2}
+.hero-motto-main{font-size:2.8rem;font-weight:900;line-height:1.1;letter-spacing:.06em;color:var(--white);text-shadow:0 3px 30px rgba(0,0,0,.4),0 0 80px rgba(0,0,0,.15)}
+.hero-motto-sub{font-size:.75rem;font-weight:300;color:rgba(255,255,255,.75);text-shadow:0 1px 10px rgba(0,0,0,.5);margin-top:.3rem;letter-spacing:.05em}
+.hero-edit{margin-top:.4rem;font-family:var(--f);font-size:.5rem;padding:.15rem .5rem;background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);cursor:pointer;backdrop-filter:blur(4px);transition:all .2s}
+.hero-edit:hover{background:rgba(255,255,255,.25);color:#fff}
+/* Floating photo fragments on the right side */
+.hero-frag{position:absolute;z-index:1;box-shadow:0 4px 24px rgba(0,0,0,.15)}
+.hero-frag img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-frag.fr1{right:5%;top:10%;width:180px;height:120px;transform:rotate(2deg)}
+.hero-frag.fr2{right:18%;bottom:5%;width:130px;height:95px;transform:rotate(-1.5deg)}
+.hero-frag.fr3{right:0;bottom:20%;width:80px;height:60px;transform:rotate(3deg);opacity:.7}
+/* Frame overlaps on fragments */
+.hero-frag::after{content:'';position:absolute;inset:-6px;border:1.5px solid rgba(255,255,255,.5);pointer-events:none}
+/* Diagonal gradient bar */
+.h-div{position:relative;height:5px;overflow:hidden;margin-bottom:.5rem}
+.h-div::before{content:'';position:absolute;inset:0 -3%;background:linear-gradient(90deg,var(--purple),var(--blue),var(--pink),var(--peach),var(--mint));transform:skewX(-25deg)}
 
-/* MOTTO BAR */
-.motto{display:flex;align-items:center;gap:1rem;margin-bottom:.6rem;padding:.4rem 1rem;background:var(--white);border:1px solid var(--bdr2);cursor:pointer;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.02)}
-.motto::before{content:'';position:absolute;top:-5px;left:6px;right:-5px;bottom:4px;border:1px solid var(--fm);pointer-events:none}
-.motto-tag{font-size:.5rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;flex-shrink:0}
-.motto-main{font-size:.85rem;font-weight:700;flex-shrink:0}
-.motto-sub{font-size:.65rem;color:var(--t2);font-weight:300;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.motto-tog{font-size:.6rem;color:var(--t3);flex-shrink:0}
-.motto.open{flex-wrap:wrap;padding:.8rem 1rem}
-.motto.open .motto-sub{white-space:pre-line;overflow:visible;flex-basis:100%;margin-top:.3rem}
+/* === CONTENT AREA (glass card) === */
+.content{background:var(--glass2);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.6);box-shadow:0 -4px 40px rgba(0,0,0,.04);padding:1.2rem 2rem;min-height:60vh;position:relative}
+.content::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;height:calc(100% + 20px);border:1.5px solid var(--fd);pointer-events:none}
+.content::after{content:'';position:absolute;top:8px;left:8px;right:-8px;height:calc(100% - 16px);border:1px solid var(--fm);pointer-events:none}
+@media(max-width:1024px){.content{padding:1rem}}
 
-.diag{position:relative;overflow:hidden;height:3px;margin:.4rem 0 .8rem}
-.diag::before{content:'';position:absolute;top:0;left:-5%;right:-5%;bottom:0;background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 30%,var(--pink) 60%,var(--peach) 100%);transform:skewX(-20deg)}
-
-/* GRID */
-.mg{display:grid;grid-template-columns:1fr 280px;gap:1.2rem;align-items:start}
+/* === GRID === */
+.mg{display:grid;grid-template-columns:1fr 260px;gap:1.2rem;align-items:start}
 @media(max-width:1024px){.mg{grid-template-columns:1fr}}
 
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
@@ -93,17 +88,14 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 
 /* CLIENT GROUP */
 .cg{margin-bottom:.5rem}
-.cg-head{display:flex;align-items:center;justify-content:space-between;padding:.25rem .7rem;background:var(--white);border:1px solid var(--bdr2);border-bottom:0;font-size:.7rem;font-weight:600}
+.cg-head{display:flex;align-items:center;justify-content:space-between;padding:.25rem .7rem;background:rgba(255,255,255,.6);border:1px solid var(--bdr2);border-bottom:0;font-size:.7rem;font-weight:600;backdrop-filter:blur(4px)}
 .cg-count{font-size:.58rem;font-weight:300;color:var(--t3)}
 
-/* TASK LIST */
+/* TASK ROW */
 .tl{position:relative}
-.tl::before{content:'';position:absolute;top:-8px;left:-8px;right:12px;bottom:12px;border:1.5px solid var(--fd);pointer-events:none;z-index:0}
-.tl::after{content:'';position:absolute;top:8px;left:8px;right:-8px;bottom:-8px;border:1px solid var(--fm);pointer-events:none;z-index:0}
-
-.tr{display:flex;align-items:center;gap:.5rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:.35rem .7rem;position:relative;z-index:1;transition:all .12s;font-size:.78rem;cursor:pointer}
+.tr{display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.7);border:1px solid var(--bdr2);border-top:0;padding:.35rem .7rem;position:relative;z-index:1;transition:all .12s;font-size:.78rem;cursor:pointer;backdrop-filter:blur(4px)}
 .tr:first-child,.cg-head+.tr{border-top:1px solid var(--bdr2)}
-.tr:hover{background:#faf9f7;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.tr:hover{background:rgba(255,255,255,.9);box-shadow:0 1px 8px rgba(0,0,0,.04)}
 .tr.run{border-left:3px solid #5a8f6e}
 .tr.done{opacity:.35}
 .tr.done .tn{text-decoration:line-through}
@@ -117,23 +109,25 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .tt-strategic{background:var(--purple);color:#6b5a9e}
 .tt-creative{background:var(--pink);color:#b5577a}
 .tt-admin{background:var(--peach);color:#b58040}
-.ttm{font-size:.7rem;font-weight:600;flex-shrink:0;min-width:30px;text-align:right}
-.ta{display:flex;gap:2px;flex-shrink:0}
 
-.bt{font-family:var(--f);font-size:.56rem;padding:.13rem .4rem;border:1px solid var(--bdr);background:var(--white);color:var(--t2);cursor:pointer;transition:all .12s}
+/* Editable time */
+.ttm{font-size:.7rem;font-weight:600;flex-shrink:0;min-width:30px;text-align:right;cursor:pointer;padding:.1rem .3rem;border-radius:2px;transition:background .15s}
+.ttm:hover{background:rgba(212,197,249,.2)}
+.ttm-edit{width:50px;font-family:var(--f);font-size:.65rem;font-weight:500;padding:.1rem .3rem;border:1px solid var(--purple);background:var(--white);outline:0;text-align:right}
+
+.bt{font-family:var(--f);font-size:.56rem;padding:.13rem .4rem;border:1px solid var(--bdr);background:rgba(255,255,255,.8);color:var(--t2);cursor:pointer;transition:all .12s}
 .bt:hover{background:var(--bg);color:var(--text)}
 .bt-go{background:var(--mint);color:#3a7d5c;border-color:rgba(58,125,92,.12);font-weight:600}
 .bt-go:hover{background:#a8e6c3}
 .bt-st{background:var(--pink);color:#b5577a;border-color:rgba(181,87,122,.12);font-weight:600}
 .bt-st:hover{background:#ffacc7}
 .bt-x{color:#c77;border:0;background:0}
+.te{display:flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.5);border:1px solid var(--bdr2);border-top:0;padding:.2rem .7rem;position:relative;z-index:1;font-size:.58rem}
 
-.te{display:flex;align-items:center;gap:.3rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:.2rem .7rem;position:relative;z-index:1;font-size:.58rem}
-
-/* SIDEBAR */
+/* SIDEBAR - sticky timer */
 .sb{position:relative}
-.sb::before{content:'';position:absolute;top:0;left:-.6rem;width:1px;height:100%;background:var(--bdr2)}
-.tw{background:var(--white);border:1px solid var(--bdr2);padding:1rem;box-shadow:var(--sh);position:relative;z-index:1}
+.sb-inner{position:sticky;top:70px}
+.tw{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);padding:1rem;box-shadow:var(--sh);position:relative;z-index:1;backdrop-filter:blur(8px)}
 .tw::before{content:'';position:absolute;top:-8px;right:-8px;width:34px;height:34px;border:1.5px solid var(--fd);transform:rotate(12deg);pointer-events:none}
 .tw::after{content:'';position:absolute;bottom:-6px;left:-6px;width:22px;height:22px;border:1px solid var(--lav);opacity:.4;transform:rotate(-8deg);pointer-events:none}
 .tw-l{font-size:.5rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.6rem}
@@ -171,8 +165,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .mo-t{font-size:1rem;font-weight:700;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bdr2)}
 .mo-f{display:flex;gap:.4rem;justify-content:flex-end;margin-top:1rem;padding-top:.6rem;border-top:1px solid var(--bdr2)}
 
-/* KPI */
-.kpi{display:flex;background:var(--white);border:1px solid var(--bdr2);box-shadow:var(--sh);position:relative;margin-bottom:.8rem}
+/* REPORT KPI */
+.kpi{display:flex;background:rgba(255,255,255,.85);border:1px solid var(--bdr2);box-shadow:var(--sh);position:relative;margin-bottom:.8rem;backdrop-filter:blur(8px)}
 .kpi::before{content:'';position:absolute;top:-10px;left:-10px;right:14px;bottom:10px;border:1.5px solid var(--fd);pointer-events:none}
 .kpi::after{content:'';position:absolute;top:7px;left:10px;right:-10px;bottom:-7px;border:1px solid var(--fm);pointer-events:none}
 .kpi-i{flex:1;padding:.6rem 1.2rem;position:relative;z-index:1}
@@ -184,14 +178,14 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .kpi-v{font-size:1.3rem;font-weight:700;line-height:1.2}
 .kpi-u{font-size:.65rem;font-weight:300;color:var(--t2);margin-left:.15rem}
 
-/* REPORT */
+/* REPORT TABLE */
 .rf{display:flex;gap:.6rem;margin-bottom:.8rem;flex-wrap:wrap;align-items:end}
 .rtbl{width:100%;border-collapse:collapse}
 .rtbl th{font-size:.6rem;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:.4rem .7rem;border-bottom:2px solid var(--bdr)}
 .rtbl td{font-size:.75rem;font-weight:300;padding:.4rem .7rem;border-bottom:1px solid var(--bdr2)}
 
-/* CHAT */
-.cb{background:var(--white);border:1px solid var(--bdr2);box-shadow:var(--sh);padding:1rem;position:relative;z-index:1}
+/* AI CHAT */
+.cb{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);box-shadow:var(--sh);padding:1rem;position:relative;z-index:1;backdrop-filter:blur(8px)}
 .cb::before{content:'';position:absolute;top:-8px;left:5px;right:-6px;bottom:6px;border:1.5px solid var(--fd);pointer-events:none;z-index:-1}
 .cb::after{content:'';position:absolute;top:6px;left:-6px;right:7px;bottom:-6px;border:1px solid var(--fm);pointer-events:none;z-index:-1}
 .cm{min-height:80px;max-height:240px;overflow-y:auto;margin-bottom:.5rem}
@@ -200,12 +194,12 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .cmb-a{background:var(--lav);opacity:.9;border:1px solid rgba(0,0,0,.03)}
 .cr{display:flex;gap:.3rem}
 
-/* DATA in report */
+/* DATA */
 .dg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
-.dc{background:var(--white);border:1px solid var(--bdr2);padding:1.2rem;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.02);position:relative;z-index:1}
+.dc{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);padding:1.2rem;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.02)}
 
 /* CLIENT */
-.cl{background:var(--white);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.4rem;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.02);cursor:grab;z-index:1}
+.cl{background:rgba(255,255,255,.8);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.4rem;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.02);cursor:grab;z-index:1;backdrop-filter:blur(4px)}
 .cl:active{cursor:grabbing}
 .cl::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
 .cl:nth-child(4n+1)::before{background:var(--blue)}
@@ -213,26 +207,20 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .cl:nth-child(4n+3)::before{background:var(--pink)}
 .cl:nth-child(4n)::before{background:var(--mint)}
 
+/* MOTTO EDIT */
+.motto-edit-bar{background:rgba(255,255,255,.85);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.6rem;backdrop-filter:blur(8px)}
+
 @keyframes fi{from{opacity:0}to{opacity:1}}
 @keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fi{animation:fi .3s}
+.fi{animation:fi .4s}
 .toast{position:fixed;bottom:1rem;right:1rem;background:var(--text);color:var(--white);padding:.5rem 1rem;font-size:.7rem;z-index:2000;animation:su .25s;box-shadow:0 4px 16px rgba(0,0,0,.15)}
-.foot{margin-top:1.5rem;padding-top:.8rem;border-top:1px solid var(--bdr2);text-align:center;font-size:.55rem;color:var(--t3);letter-spacing:.08em}
+.foot{padding:1.5rem 0 1rem;text-align:center;font-size:.55rem;color:var(--t3);letter-spacing:.08em}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:0}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
-.deco{position:fixed;pointer-events:none;z-index:0}
 </style>
 </head>
 <body>
-<div class="deco" style="top:3%;right:1.5%;width:100px;height:100px;border:1.5px solid rgba(26,26,26,.05);transform:rotate(15deg)"></div>
-<div class="deco" style="top:5%;right:3%;width:50px;height:50px;border:1px solid rgba(212,197,249,.2);transform:rotate(-8deg)"></div>
-<div class="deco" style="bottom:6%;left:1%;width:70px;height:70px;border:1.5px solid rgba(26,26,26,.03);transform:rotate(-22deg)"></div>
-<div class="deco" style="top:40%;left:.5%;width:1px;height:120px;background:rgba(26,26,26,.06)"></div>
-<div class="deco" style="top:20%;right:.5%;width:1px;height:80px;background:rgba(26,26,26,.04)"></div>
-<div class="deco" style="top:0;left:28%;width:160px;height:1px;background:rgba(184,212,255,.15);transform:rotate(-25deg);transform-origin:left"></div>
-<div class="deco" style="bottom:12%;right:4%;width:120px;height:1px;background:rgba(255,200,221,.15);transform:rotate(20deg);transform-origin:right"></div>
-<div class="deco" style="top:55%;right:1.5%;width:6px;height:6px;background:var(--peach);opacity:.25;transform:rotate(45deg)"></div>
 
 <div id="root"></div>
 <script type="text/babel">
@@ -248,18 +236,40 @@ const CATS=[{id:'routine',l:'Routine',c:'tt-routine'},{id:'strategic',l:'Strateg
 const REPS=[{id:'none',l:'なし'},{id:'daily',l:'毎日'},{id:'weekly',l:'毎週'},{id:'monthly',l:'毎月'}];
 const WDS=[{id:0,l:'日'},{id:1,l:'月'},{id:2,l:'火'},{id:3,l:'水'},{id:4,l:'木'},{id:5,l:'金'},{id:6,l:'土'}];
 
-// Curated architectural photo sets [main, overlap, corner, accent]
-const PHOTOS=[
-  ['https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=700&q=80','https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=500&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=900&q=80','https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=700&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=500&q=80','https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1514565131-fce0801e5785?w=900&q=80','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=700&q=80','https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=500&q=80','https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=900&q=80','https://images.unsplash.com/photo-1486325212027-8081e485255e?w=700&q=80','https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=500&q=80','https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=900&q=80','https://images.unsplash.com/photo-1514565131-fce0801e5785?w=700&q=80','https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=500&q=80','https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=300&q=80'],
-  ['https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=900&q=80','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=700&q=80','https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80','https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=300&q=80'],
+// Background photos - large dramatic cityscapes
+const BG_PHOTOS=[
+  'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1920&q=80',
+  'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&q=80',
+  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&q=80',
+  'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1920&q=80',
+  'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80',
+  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&q=80',
+];
+// Fragment photos for floating pieces
+const FRAG_PHOTOS=[
+  'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&q=80',
+  'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&q=80',
+  'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=400&q=80',
+  'https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=400&q=80',
+  'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400&q=80',
+  'https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=400&q=80',
 ];
 
-function fmtDate(d){if(!d)return'';const today=new Date();today.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-today)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
-function dateClass(d){if(!d)return'';const today=new Date();today.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-today)/864e5);if(diff===0)return'today';if(diff<0)return'overdue';return'';}
+function fmtDate(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
+function dateClass(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'today';if(diff<0)return'overdue';return'';}
+
+// Calculate next due date for recurring tasks
+function nextDue(task){
+  const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):new Date();
+  if(task.repeat==='daily'){const n=new Date(base);n.setDate(n.getDate()+1);return n.toISOString().split('T')[0];}
+  if(task.repeat==='weekly'&&task.repeatDays?.length){
+    const today=new Date();today.setHours(0,0,0,0);
+    for(let i=1;i<=7;i++){const d=new Date(today);d.setDate(d.getDate()+i);if(task.repeatDays.includes(d.getDay()))return d.toISOString().split('T')[0];}
+    return task.dueDate;
+  }
+  if(task.repeat==='monthly'){const n=new Date(base);n.setMonth(n.getMonth()+1);return n.toISOString().split('T')[0];}
+  return task.dueDate;
+}
 
 function migrate(raw){
   const r={};
@@ -268,7 +278,7 @@ function migrate(raw){
   if(raw.timeLogs)r.timeLogs=raw.timeLogs.map(l=>({id:l.time_log_id||l.id||gid(),taskId:l.task_id||l.taskId||'',startTime:l.start_ts?new Date(l.start_ts).toISOString():(l.startTime||new Date().toISOString()),endTime:l.end_ts?new Date(l.end_ts).toISOString():(l.endTime||new Date().toISOString()),duration:l.duration_sec?Math.round(l.duration_sec/60):(l.duration||0)}));
   if(raw.principles){const p=raw.principles;r.principles={main:p.motto||p.main||'',sub:(p.subCopy||p.sub||'')+(p.principles?'\n'+p.principles:'')};}
   if(raw.clientOrder)r.clientOrder=raw.clientOrder;
-  if(raw.runningState){const rs=raw.runningState;r.runningState=rs.task_id?{taskId:rs.task_id,startTime:rs.start_ts?new Date(rs.start_ts).toISOString():null}:null;}
+  if(raw.runningState){const rs=raw.runningState;r.runningState=rs?.task_id?{taskId:rs.task_id,startTime:rs.start_ts?new Date(rs.start_ts).toISOString():null}:rs;}
   return r;
 }
 
@@ -281,8 +291,8 @@ function App(){
   const[clientOrder,setCo]=useState(()=>ld('timevalue-clientOrder',[]));
   const[running,setRn]=useState(()=>ld('timevalue-runningState',null));
   const[toast,setToast]=useState(null);
-  // Pick random photo set on mount
-  const[pSet]=useState(()=>Math.floor(Math.random()*PHOTOS.length));
+  const[bgIdx]=useState(()=>Math.floor(Math.random()*BG_PHOTOS.length));
+  const[fragIdx]=useState(()=>{const a=[];while(a.length<3){const i=Math.floor(Math.random()*FRAG_PHOTOS.length);if(!a.includes(i))a.push(i);}return a;});
 
   useEffect(()=>sv('timevalue-clients',clients),[clients]);
   useEffect(()=>sv('timevalue-tasks',tasks),[tasks]);
@@ -299,50 +309,52 @@ function App(){
   const stopT=useCallback(()=>{if(!running)return;const dur=Math.round((new Date()-new Date(running.startTime))/60000);if(dur>0)setTl(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime:new Date().toISOString(),duration:dur}]);setRn(null);show('停止')},[running,show]);
 
   const tabs=[{id:'dashboard',l:'Dashboard'},{id:'clients',l:'Clients'},{id:'report',l:'Report'}];
-  return(
-    <div className="app fi">
+  return(<>
+    {/* Full background */}
+    <div className="bg-photo"><img src={BG_PHOTOS[bgIdx]} alt=""/></div>
+    {/* Background motto watermark */}
+    <div className="bg-motto"><div className="bg-motto-text">{principles.main}</div></div>
+    {/* Fixed decorative lines */}
+    <div style={{position:'fixed',bottom:'8%',right:'2%',width:'80px',height:'80px',border:'1.5px solid rgba(26,26,26,.04)',transform:'rotate(15deg)',pointerEvents:'none',zIndex:0}}></div>
+    <div style={{position:'fixed',top:'45%',left:'.5%',width:'1px',height:'100px',background:'rgba(26,26,26,.05)',pointerEvents:'none',zIndex:0}}></div>
+    <div style={{position:'fixed',top:'25%',right:'.5%',width:'1px',height:'70px',background:'rgba(26,26,26,.04)',pointerEvents:'none',zIndex:0}}></div>
+
+    <div className="app">
       <header className="hd">
         <div className="hd-left"><div style={{position:'relative'}}><div className="logo-f1"></div><div className="logo-f2"></div><div className="logo">TimeValue</div></div><span className="logo-s">Tracker</span></div>
         <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
       </header>
-      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} photos={PHOTOS[pSet]}/>}
-      {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
-      {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
-      <div className="foot">TimeValue Tracker v12</div>
-      {toast&&<div className="toast">{toast}</div>}
+
+      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} frags={fragIdx}/>}
+      {tab==='clients'&&<div className="content fi"><Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/></div>}
+      {tab==='report'&&<div className="content fi"><ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/></div>}
+      <div className="foot">TimeValue Tracker v13</div>
     </div>
-  );
+    {toast&&<div className="toast">{toast}</div>}
+  </>);
 }
 
-function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,photos}){
+function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,frags}){
   const[eP,setEP]=useState(false);
   const[pF,setPF]=useState(pr);
   const[modal,setMo]=useState(false);
   const[et,setEt]=useState(null);
-  const[addT,setAT]=useState(null);
-  const[addM,setAM]=useState('');
   const[filter,setFi]=useState('active');
   const[exp,setExp]=useState(null);
+  const[editTime,setEditTime]=useState(null);
+  const[editTimeVal,setEditTimeVal]=useState('');
 
   const ft=useMemo(()=>{
     let list;
     if(filter==='active')list=tasks.filter(t=>!t.completed);
     else if(filter==='completed')list=tasks.filter(t=>t.completed);
     else list=[...tasks];
-    // Sort by dueDate
-    return list.sort((a,b)=>{
-      const da=a.dueDate||'9999';const db=b.dueDate||'9999';
-      if(da!==db)return da.localeCompare(db);
-      const ta=a.dueTime||'99:99';const tb=b.dueTime||'99:99';
-      return ta.localeCompare(tb);
-    });
+    return list.sort((a,b)=>{const da=a.dueDate||'9999';const db=b.dueDate||'9999';if(da!==db)return da.localeCompare(db);const ta=a.dueTime||'99:99';const tb=b.dueTime||'99:99';return ta.localeCompare(tb)});
   },[tasks,filter]);
 
   const grouped=useMemo(()=>{
-    const groups=[];
-    const order=clientOrder.length?clientOrder:clients.map(c=>c.id);
-    const cids=[...new Set(ft.map(t=>t.clientId))];
-    const sorted=[];order.forEach(id=>{if(cids.includes(id))sorted.push(id)});cids.forEach(id=>{if(!sorted.includes(id))sorted.push(id)});
+    const groups=[];const order=clientOrder.length?clientOrder:clients.map(c=>c.id);
+    const cids=[...new Set(ft.map(t=>t.clientId))];const sorted=[];order.forEach(id=>{if(cids.includes(id))sorted.push(id)});cids.forEach(id=>{if(!sorted.includes(id))sorted.push(id)});
     sorted.forEach(cid=>{const cTasks=ft.filter(t=>t.clientId===cid);if(cTasks.length)groups.push({clientId:cid,clientName:gcn(cid),tasks:cTasks})});
     return groups;
   },[ft,clientOrder,clients,gcn]);
@@ -350,116 +362,109 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const saveP=()=>{setPr(pF);setEP(false);show('更新')};
   const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
-  const comp=id=>{setTk(p=>p.map(t=>t.id===id?{...t,completed:true}:t));show('完了')};
-  const addTime=tid=>{const m=parseInt(addM);if(!m||m<=0)return;const n=new Date();setTl(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-m*60000).toISOString(),endTime:n.toISOString(),duration:m}]);setAT(null);setAM('');show(m+'分追加')};
+
+  // Complete task with auto-generation for recurring
+  const comp=id=>{
+    const task=tasks.find(t=>t.id===id);
+    if(!task)return;
+    setTk(p=>{
+      let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:Date.now()}:t);
+      if(task.repeat&&task.repeat!=='none'){
+        const nd=nextDue(task);
+        const newTask={...task,id:gid(),dueDate:nd,completed:false,isActive:true,lastCompleted:task.lastCompleted,createdAt:new Date().toISOString()};
+        updated=[...updated,newTask];
+        show('完了 → 次回 '+fmtDate(nd)+' 作成');
+      }else{show('完了');}
+      return updated;
+    });
+  };
+
+  // Edit total time for a task
+  const startEditTime=(tid,e)=>{e.stopPropagation();const tt=gtt(tid);setEditTime(tid);setEditTimeVal(String(tt));};
+  const saveEditTime=(tid)=>{
+    const newMin=parseInt(editTimeVal);if(isNaN(newMin)||newMin<0){setEditTime(null);return;}
+    const currentMin=gtt(tid);const diff=newMin-currentMin;
+    if(diff!==0){const n=new Date();setTl(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-Math.abs(diff)*60000).toISOString(),endTime:n.toISOString(),duration:diff}]);show((diff>0?'+':'')+diff+'分 調整');}
+    setEditTime(null);
+  };
 
   return(
     <div className="fi">
-      {/* Hero - Editorial Diagonal Collage */}
-      <div className="hero">
-        {/* Geometric color planes behind */}
-        <div className="h-plane pl1"></div>
-        <div className="h-plane pl2"></div>
-        <div className="h-plane pl3"></div>
-        {/* Photos with diagonal clip-paths */}
-        <img className="h-img p1" src={photos[0]} alt=""/>
-        <img className="h-img p2" src={photos[1]} alt=""/>
-        <img className="h-img p3" src={photos[2]} alt=""/>
-        <img className="h-img p4" src={photos[3]} alt=""/>
-        {/* Gradient overlay for text readability */}
-        <div className="h-grad"></div>
-        {/* White frames crossing diagonally */}
-        <div className="h-fr f1"></div>
-        <div className="h-fr f2"></div>
-        <div className="h-fr f3"></div>
-        {/* Dark accent frame */}
-        <div className="h-dfr d1"></div>
-        {/* Small accent lines */}
-        <div className="h-ac" style={{top:'8px',left:'1%',width:'20px',height:'1.5px',background:'rgba(184,212,255,.5)'}}></div>
-        <div className="h-ac" style={{top:'30px',left:'1.5%',width:'12px',height:'1.5px',background:'rgba(26,26,26,.15)'}}></div>
-        <div className="h-ac" style={{bottom:'60px',left:'20%',width:'14px',height:'1.5px',background:'rgba(255,255,255,.4)'}}></div>
-        <div className="h-ac" style={{top:'80px',right:'2%',width:'1.5px',height:'24px',background:'rgba(26,26,26,.1)'}}></div>
-        <div className="h-ac" style={{bottom:'40px',right:'42%',width:'1.5px',height:'18px',background:'rgba(255,255,255,.35)'}}></div>
-        {/* Small colored squares */}
-        <div className="h-ac" style={{bottom:'25px',left:'1.5%',width:'7px',height:'7px',background:'rgba(184,212,255,.3)'}}></div>
-        <div className="h-ac" style={{top:'55px',left:'62%',width:'5px',height:'5px',background:'rgba(255,200,221,.25)',transform:'rotate(45deg)'}}></div>
-        <div className="h-ac" style={{top:'15px',right:'35%',width:'6px',height:'6px',background:'rgba(212,197,249,.2)'}}></div>
-        {/* Motto */}
-        <div className="h-motto">
-          <div className="h-motto-main">{pr.main}</div>
-          <div className="h-motto-sub">{pr.sub.split('\n')[0]}</div>
-          <button className="bt" style={{marginTop:'.3rem',fontSize:'.5rem',opacity:.6,background:'rgba(255,255,255,.15)',color:'#fff',border:'1px solid rgba(255,255,255,.3)'}} onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
+      {/* Hero zone - shows background photo through */}
+      <div className="hero-zone">
+        <div className="hero-motto">
+          <div className="hero-motto-main">{pr.main}</div>
+          <div className="hero-motto-sub">{pr.sub.split('\n')[0]}</div>
+          <button className="hero-edit" onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
         </div>
+        {/* Floating photo fragments */}
+        <div className="hero-frag fr1"><img src={FRAG_PHOTOS[frags[0]]} alt=""/></div>
+        <div className="hero-frag fr2"><img src={FRAG_PHOTOS[frags[1]]} alt=""/></div>
+        <div className="hero-frag fr3"><img src={FRAG_PHOTOS[frags[2]]} alt=""/></div>
       </div>
-      {eP&&<div className="motto" style={{marginBottom:'.5rem'}}>
-        <span className="motto-tag">Motto Edit</span>
-        <div style={{flex:1}}>
-          <div className="fg"><input className="inp" value={pF.main} onChange={e=>setPF({...pF,main:e.target.value})}/></div>
-          <div className="fg"><textarea className="txa" value={pF.sub} onChange={e=>setPF({...pF,sub:e.target.value})} rows={3}/></div>
-          <div style={{display:'flex',gap:'.3rem'}}><button className="btn btn-p btn-s" onClick={saveP}>保存</button><button className="btn btn-s" onClick={()=>setEP(false)}>取消</button></div>
-        </div>
-      </div>}
+
       <div className="h-div"></div>
 
+      {/* Motto edit */}
+      {eP&&<div className="motto-edit-bar fi">
+        <div className="fg"><label className="fl">Motto</label><input className="inp" value={pF.main} onChange={e=>setPF({...pF,main:e.target.value})}/></div>
+        <div className="fg"><label className="fl">Sub</label><textarea className="txa" value={pF.sub} onChange={e=>setPF({...pF,sub:e.target.value})} rows={2}/></div>
+        <div style={{display:'flex',gap:'.3rem'}}><button className="btn btn-p btn-s" onClick={saveP}>保存</button><button className="btn btn-s" onClick={()=>setEP(false)}>取消</button></div>
+      </div>}
 
-      <div className="mg">
-        <div>
-          <div className="sh">
-            <h2 className="st">Tasks</h2>
-            <div className="sr">
-              <select className="sel" style={{width:'auto',padding:'.15rem .4rem',fontSize:'.62rem'}} value={filter} onChange={e=>setFi(e.target.value)}>
-                <option value="active">アクティブ</option><option value="completed">完了済み</option><option value="all">すべて</option>
-              </select>
-              <button className="btn btn-p btn-s" onClick={()=>{setEt(null);setMo(true)}}>新規</button>
+      {/* Content */}
+      <div className="content">
+        <div className="mg">
+          <div>
+            <div className="sh">
+              <h2 className="st">Tasks</h2>
+              <div className="sr">
+                <select className="sel" style={{width:'auto',padding:'.15rem .4rem',fontSize:'.62rem'}} value={filter} onChange={e=>setFi(e.target.value)}>
+                  <option value="active">アクティブ</option><option value="completed">完了済み</option><option value="all">すべて</option>
+                </select>
+                <button className="btn btn-p btn-s" onClick={()=>{setEt(null);setMo(true)}}>新規</button>
+              </div>
+            </div>
+            <div className="tl">
+              {grouped.length===0?<div className="tr" style={{justifyContent:'center',color:'var(--t3)',padding:'1.5rem'}}>タスクがありません</div>:
+              grouped.map(g=>(
+                <div className="cg" key={g.clientId}>
+                  <div className="cg-head"><span>{g.clientName}</span><span className="cg-count">{g.tasks.length}件</span></div>
+                  {g.tasks.map(task=>{
+                    const isR=running&&running.taskId===task.id;
+                    const cat=CATS.find(c=>c.id===task.category);
+                    const tt=gtt(task.id);
+                    const isE=exp===task.id;
+                    const dc=dateClass(task.dueDate);
+                    const dl=fmtDate(task.dueDate);
+                    const dtl=task.dueTime?(' '+task.dueTime):'';
+                    const isET=editTime===task.id;
+                    return(<React.Fragment key={task.id}>
+                      <div className={'tr'+(task.completed?' done':'')+(isR?' run':'')} onClick={()=>setExp(isE?null:task.id)}>
+                        <span className={'td-date '+dc}>{dl}{dtl}</span>
+                        <span className="tn">{task.name}</span>
+                        {cat&&<span className={'tt '+cat.c}>{cat.l}</span>}
+                        {isET?(<input className="ttm-edit" type="number" value={editTimeVal} onChange={e=>setEditTimeVal(e.target.value)} onBlur={()=>saveEditTime(task.id)} onKeyDown={e=>{if(e.key==='Enter')saveEditTime(task.id);if(e.key==='Escape')setEditTime(null)}} onClick={e=>e.stopPropagation()} autoFocus/>):(<span className="ttm" onClick={e=>!task.completed&&startEditTime(task.id,e)}>{fT(tt)}</span>)}
+                        {!task.completed&&(isR?
+                          <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
+                          <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
+                        )}
+                      </div>
+                      {isE&&!task.completed&&(
+                        <div className="te">
+                          <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
+                          <button className="bt" onClick={()=>comp(task.id)}>完了</button>
+                          <button className="bt bt-x" style={{marginLeft:'auto'}} onClick={()=>del(task.id)}>削除</button>
+                        </div>
+                      )}
+                      {isE&&task.completed&&<div className="te"><button className="bt bt-x" onClick={()=>del(task.id)}>削除</button></div>}
+                    </React.Fragment>);
+                  })}
+                </div>
+              ))}
             </div>
           </div>
-          <div className="tl">
-            {grouped.length===0?<div className="tr" style={{justifyContent:'center',color:'var(--t3)',padding:'1.5rem'}}>タスクがありません</div>:
-            grouped.map(g=>(
-              <div className="cg" key={g.clientId}>
-                <div className="cg-head"><span>{g.clientName}</span><span className="cg-count">{g.tasks.length}件</span></div>
-                {g.tasks.map(task=>{
-                  const isR=running&&running.taskId===task.id;
-                  const cat=CATS.find(c=>c.id===task.category);
-                  const tt=gtt(task.id);
-                  const isE=exp===task.id;
-                  const dc=dateClass(task.dueDate);
-                  const dl=fmtDate(task.dueDate);
-                  const dtl=task.dueTime?(' '+task.dueTime):'';
-                  return(<React.Fragment key={task.id}>
-                    <div className={'tr'+(task.completed?' done':'')+(isR?' run':'')} onClick={()=>setExp(isE?null:task.id)}>
-                      <span className={'td-date '+dc}>{dl}{dtl}</span>
-                      <span className="tn">{task.name}</span>
-                      {cat&&<span className={'tt '+cat.c}>{cat.l}</span>}
-                      <span className="ttm">{fT(tt)}</span>
-                      {!task.completed&&(isR?
-                        <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
-                        <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
-                      )}
-                    </div>
-                    {isE&&!task.completed&&(
-                      <div className="te">
-                        <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
-                        <button className="bt" onClick={()=>comp(task.id)}>完了</button>
-                        {addT===task.id?(
-                          <div style={{display:'flex',gap:'2px',alignItems:'center',marginLeft:'auto'}}>
-                            <input className="inp" style={{width:'45px',padding:'.1rem .3rem',fontSize:'.65rem'}} type="number" placeholder="分" value={addM} onChange={e=>setAM(e.target.value)}/>
-                            <button className="bt" onClick={()=>addTime(task.id)}>追加</button>
-                            <button className="bt" onClick={()=>setAT(null)}>取消</button>
-                          </div>
-                        ):<button className="bt" style={{marginLeft:'auto'}} onClick={()=>setAT(task.id)}>時間追加</button>}
-                        <button className="bt bt-x" onClick={()=>del(task.id)}>削除</button>
-                      </div>
-                    )}
-                    {isE&&task.completed&&<div className="te"><button className="bt bt-x" onClick={()=>del(task.id)}>削除</button></div>}
-                  </React.Fragment>);
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="sb">
-          <div className="tw"><TimerW running={running} stopT={stopT} tasks={tasks} gcn={gcn}/></div>
+          <div className="sb"><div className="sb-inner"><div className="tw"><TimerW running={running} stopT={stopT} tasks={tasks} gcn={gcn}/></div></div></div>
         </div>
       </div>
       {modal&&<TaskModal task={et} clients={clients} onSave={saveTask} onClose={()=>{setMo(false);setEt(null)}}/>}
@@ -496,95 +501,30 @@ function Clients({clients,setCl,oc,co,setCo,tasks,timeLogs,show}){
   const gcs=cid=>{const{s,e}=mR();const ct=tasks.filter(t=>t.clientId===cid);const cl=timeLogs.filter(l=>{const t=tasks.find(x=>x.id===l.taskId);return t&&t.clientId===cid});const ml=cl.filter(l=>{const d=new Date(l.startTime);return d>=s&&d<=e});return{tc:ct.length,tm:ml.reduce((a,l)=>a+(l.duration||0),0)}};
   return(<div className="fi">
     <div className="sh"><h2 className="st">Clients</h2><button className="btn btn-p btn-s" onClick={()=>{setEc(null);setMo(true)}}>新規</button></div>
-    <div style={{position:'relative'}}><div style={{position:'absolute',top:'-8px',left:'-8px',right:'12px',bottom:'12px',border:'1.5px solid var(--fd)',pointerEvents:'none',zIndex:0}}></div><div style={{position:'absolute',top:'8px',left:'8px',right:'-8px',bottom:'-8px',border:'1px solid var(--fm)',pointerEvents:'none',zIndex:0}}></div>
     {oc.length===0?<div className="cl" style={{textAlign:'center',color:'var(--t3)'}}>なし</div>:oc.map((c,i)=>{const s=gcs(c.id);return(<div key={c.id} className="cl" draggable onDragStart={()=>{di.current=i}} onDragEnter={()=>{doi.current=i}} onDragEnd={()=>{const it=[...oc];const dr=it[di.current];it.splice(di.current,1);it.splice(doi.current,0,dr);setCo(it.map(x=>x.id))}} onDragOver={e=>e.preventDefault()}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><span style={{fontWeight:700,fontSize:'.85rem'}}>{c.name}</span><span style={{fontSize:'.7rem',color:'var(--t2)',marginLeft:'.8rem'}}>{fY(c.monthlyRevenue||0)}/mo</span></div><div style={{display:'flex',gap:'2px'}}><button className="bt" onClick={()=>{setEc(c);setMo(true)}}>編集</button><button className="bt bt-x" onClick={()=>del(c.id)}>削除</button></div></div>
       <div style={{fontSize:'.6rem',color:'var(--t3)',marginTop:'.15rem'}}>{s.tc} tasks / 今月: {fT(s.tm)}</div>
-    </div>)})}</div>
+    </div>)})}
     {mo&&<div className="mo-bg" onClick={()=>{setMo(false);setEc(null)}}><div className="mo" onClick={e=>e.stopPropagation()}><CForm c={ec} onSave={save} onClose={()=>{setMo(false);setEc(null)}}/></div></div>}
   </div>);
 }
 function CForm({c,onSave,onClose}){const[f,sF]=useState({name:c?.name||'',monthlyRevenue:c?.monthlyRevenue||0});return(<><div className="mo-t">{c?'編集':'新規取引先'}</div><div className="fg"><label className="fl">名前</label><input className="inp" value={f.name} onChange={e=>sF({...f,name:e.target.value})} autoFocus/></div><div className="fg"><label className="fl">月額報酬</label><input className="inp" type="number" value={f.monthlyRevenue} onChange={e=>sF({...f,monthlyRevenue:parseInt(e.target.value)||0})}/></div><div className="mo-f"><button className="btn" onClick={onClose}>取消</button><button className="btn btn-p" onClick={()=>{if(f.name.trim())onSave(f)}}>{c?'更新':'追加'}</button></div></>);}
 
-// REPORT PAGE (with KPI + data export/import)
 function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,setCo,running,setRn,show}){
-  const[per,setPer]=useState('month');
-  const[cf,setCf]=useState('all');
-  const[msgs,setMs]=useState([]);
-  const[cin,setCin]=useState('');
-  const[cld,setCld]=useState(false);
-  const fRef=useRef(null);
-
-  // KPI with filter
-  const kpi=useMemo(()=>{
-    const{s,e}=mR();
-    let logs=[...timeLogs];
-    if(per==='week'){const w=new Date(new Date()-7*864e5);logs=logs.filter(x=>new Date(x.startTime)>=w)}
-    else if(per==='month'){logs=logs.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}
-    if(cf!=='all')logs=logs.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});
-    const tm=logs.reduce((a,l)=>a+(l.duration||0),0);
-    let tr=0;
-    if(cf==='all')tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);
-    else{const c=clients.find(x=>x.id===cf);tr=c?c.monthlyRevenue||0:0;}
-    return{tm,tr,hr:tm>0?(tr/(tm/60)):0};
-  },[timeLogs,tasks,clients,per,cf]);
-
-  const fl=useMemo(()=>{
-    let l=[...timeLogs];const n=new Date();
-    if(per==='week'){const w=new Date(n-7*864e5);l=l.filter(x=>new Date(x.startTime)>=w)}
-    else if(per==='month'){const{s,e}=mR();l=l.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}
-    if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});
-    return l;
-  },[timeLogs,tasks,per,cf]);
-
-  const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,last:l.startTime};m[t.id].tm+=l.duration||0;if(new Date(l.startTime)>new Date(m[t.id].last))m[t.id].last=l.startTime});return Object.values(m).sort((a,b)=>b.tm-a.tm)},[fl,tasks,gcn]);
-
+  const[per,setPer]=useState('month');const[cf,setCf]=useState('all');const[msgs,setMs]=useState([]);const[cin,setCin]=useState('');const[cld,setCld]=useState(false);const fRef=useRef(null);
+  const kpi=useMemo(()=>{const{s,e}=mR();let logs=[...timeLogs];if(per==='week'){const w=new Date(new Date()-7*864e5);logs=logs.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){logs=logs.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')logs=logs.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});const tm=logs.reduce((a,l)=>a+(l.duration||0),0);let tr=0;if(cf==='all')tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);else{const c=clients.find(x=>x.id===cf);tr=c?c.monthlyRevenue||0:0;}return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,tasks,clients,per,cf]);
+  const fl=useMemo(()=>{let l=[...timeLogs];const n=new Date();if(per==='week'){const w=new Date(n-7*864e5);l=l.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){const{s,e}=mR();l=l.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf]);
+  const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>b.tm-a.tm)},[fl,tasks,gcn]);
   const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
-
-  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v12'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
+  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v13'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
   const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
-
   return(<div className="fi">
     <div className="sh"><h2 className="st">Report</h2></div>
-
-    <div className="rf">
-      <div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div>
-      <div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-    </div>
-
-    {/* KPI moved here */}
-    <div className="kpi">
-      <div className="kpi-i"><div className="kpi-l">Work</div><div className="kpi-v">{fT(kpi.tm)}</div></div>
-      <div className="kpi-i"><div className="kpi-l">Revenue</div><div className="kpi-v">{fY(kpi.tr)}</div></div>
-      <div className="kpi-i"><div className="kpi-l">Rate</div><div className="kpi-v">{fY(Math.round(kpi.hr))}<span className="kpi-u">/h</span></div></div>
-    </div>
-
-    <div style={{position:'relative',marginBottom:'1.5rem'}}>
-      <div style={{position:'absolute',top:'-8px',left:'-8px',right:'12px',bottom:'12px',border:'1.5px solid var(--fd)',pointerEvents:'none'}}></div>
-      <div style={{position:'absolute',top:'8px',left:'8px',right:'-8px',bottom:'-8px',border:'1px solid var(--fm)',pointerEvents:'none'}}></div>
-      {ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--bdr2)',padding:'.5rem',boxShadow:'var(--sh)',position:'relative',zIndex:1}}>
-        <table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>カテゴリー</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>
-          {ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.65rem',color:'var(--t3)'}}>{t.cn}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}
-        </tbody></table>
-      </div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.5rem',background:'var(--white)',border:'1px solid var(--bdr2)',position:'relative',zIndex:1}}>データなし</div>}
-    </div>
-
-    {/* AI Chat */}
-    <div className="cb" style={{marginBottom:'1.5rem'}}>
-      <div className="tw-l">AI Reflection</div>
-      <div className="cm">
-        {msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.7rem',padding:'1rem 0'}}>質問しましょう</div>}
-        {msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}
-        {cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}
-      </div>
-      <div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div>
-    </div>
-
-    {/* Data export/import moved here */}
-    <div className="dg">
-      <div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Export</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSONダウンロード</div><button className="btn btn-p" onClick={expData}>エクスポート</button></div>
-      <div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Import</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSONから復元</div><input ref={fRef} type="file" accept=".json" onChange={impData} style={{display:'none'}}/><button className="btn" onClick={()=>fRef.current?.click()}>インポート</button></div>
-    </div>
+    <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div><div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.7rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div></div>
+    <div className="kpi"><div className="kpi-i"><div className="kpi-l">Work</div><div className="kpi-v">{fT(kpi.tm)}</div></div><div className="kpi-i"><div className="kpi-l">Revenue</div><div className="kpi-v">{fY(kpi.tr)}</div></div><div className="kpi-i"><div className="kpi-l">Rate</div><div className="kpi-v">{fY(Math.round(kpi.hr))}<span className="kpi-u">/h</span></div></div></div>
+    <div style={{marginBottom:'1.5rem'}}>{ts.length>0?<div style={{background:'rgba(255,255,255,.7)',border:'1px solid var(--bdr2)',padding:'.5rem',boxShadow:'var(--sh)'}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>カテゴリー</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.65rem',color:'var(--t3)'}}>{t.cn}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.5rem',background:'rgba(255,255,255,.7)',border:'1px solid var(--bdr2)'}}>データなし</div>}</div>
+    <div className="cb" style={{marginBottom:'1.5rem'}}><div className="tw-l">AI Reflection</div><div className="cm">{msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.7rem',padding:'1rem 0'}}>質問しましょう</div>}{msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}{cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}</div><div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div></div>
+    <div className="dg"><div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Export</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSON</div><button className="btn btn-p" onClick={expData}>エクスポート</button></div><div className="dc"><div style={{fontWeight:700,marginBottom:'.3rem'}}>Import</div><div style={{fontSize:'.65rem',color:'var(--t3)',marginBottom:'.8rem'}}>JSON</div><input ref={fRef} type="file" accept=".json" onChange={impData} style={{display:'none'}}/><button className="btn" onClick={()=>fRef.current?.click()}>インポート</button></div></div>
   </div>);
 }
 
