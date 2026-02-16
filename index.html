@@ -32,18 +32,24 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .nav-b:hover{color:var(--text)}
 .nav-b.on{color:var(--white);background:var(--text);font-weight:500}
 
-/* HERO - compact with gradient accent strip */
-.hero{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;padding:1.8rem 0 1.2rem;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:0;right:-30px;width:280px;height:100%;background:linear-gradient(135deg,rgba(184,212,255,.08),rgba(212,197,249,.12),rgba(255,200,221,.08));transform:skewX(-12deg);pointer-events:none}
-.hero-left{flex:1;min-width:0}
-.hero-motto{font-size:2.2rem;font-weight:900;line-height:1.05;letter-spacing:.04em;margin-bottom:.2rem}
-.hero-sub{font-size:.68rem;font-weight:300;color:var(--t2);letter-spacing:.03em}
-.hero-edit-btn{font-family:var(--f);font-size:.48rem;color:var(--t3);background:0;border:0;cursor:pointer;margin-top:.2rem;text-decoration:underline;text-underline-offset:2px}
+/* HERO - editorial accent layout */
+.hero{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;padding:2rem 0 1.5rem;position:relative;overflow:hidden}
+/* Diagonal gradient accent */
+.hero::before{content:'';position:absolute;top:-20%;right:-60px;width:380px;height:160%;background:linear-gradient(135deg,rgba(184,212,255,.1),rgba(212,197,249,.15),rgba(255,200,221,.1));transform:skewX(-12deg);pointer-events:none}
+/* Accent frame in background */
+.hero::after{content:'';position:absolute;top:10px;right:130px;width:120px;height:120px;border:1.5px solid var(--fd);transform:rotate(8deg);pointer-events:none}
+.hero-left{flex:1;min-width:0;position:relative;z-index:1}
+.hero-motto{font-size:2.4rem;font-weight:900;line-height:1.05;letter-spacing:.04em;margin-bottom:.25rem}
+.hero-sub{font-size:.7rem;font-weight:300;color:var(--t2);letter-spacing:.03em}
+.hero-edit-btn{font-family:var(--f);font-size:.48rem;color:var(--t3);background:0;border:0;cursor:pointer;margin-top:.25rem;text-decoration:underline;text-underline-offset:2px}
 .hero-edit-btn:hover{color:var(--text)}
-.hero-photo{position:relative;width:160px;height:105px;flex-shrink:0}
+/* Photo with overlapping frame treatment */
+.hero-photo{position:relative;width:180px;height:115px;flex-shrink:0;z-index:1}
 .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.92) contrast(1.05)}
-.hero-photo::before{content:'';position:absolute;top:-5px;left:-5px;right:7px;bottom:7px;border:1.5px solid var(--fd);pointer-events:none}
-.hero-photo::after{content:'';position:absolute;top:5px;left:7px;right:-5px;bottom:-5px;border:1px solid var(--fm);pointer-events:none}
+.hero-photo::before{content:'';position:absolute;top:-6px;left:-6px;right:8px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
+.hero-photo::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
+/* Small decorative line near motto */
+.hero-line{position:absolute;bottom:8px;left:0;width:40px;height:2px;background:linear-gradient(90deg,var(--purple),transparent)}
 
 /* Diagonal rule */
 .rule{position:relative;height:3px;overflow:hidden;margin-bottom:.8rem}
@@ -205,8 +211,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
   .logo{font-size:1.1rem}
   .nav-b{padding:.25rem .55rem;font-size:.58rem}
   .hero{padding:1.2rem 0 .8rem}
-  .hero-motto{font-size:1.6rem}
-  .hero-photo{width:100px;height:70px}
+  .hero::after{display:none}
+  .hero-motto{font-size:1.7rem}
+  .hero-photo{width:110px;height:75px}
   .mg{grid-template-columns:1fr;gap:.8rem}
   .sb-inner{position:static}
   .side-photo{display:none}
@@ -263,27 +270,28 @@ function fmtDate(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const 
 function dateClass(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'today';if(diff<0)return'overdue';return'';}
 
 // FIXED: Calculate next due date properly from TODAY
+// Local date formatter (avoids toISOString UTC timezone shift for JST)
+const localDate=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+
 function nextDue(task){
   const today=new Date();today.setHours(0,0,0,0);
   if(task.repeat==='daily'){
     const n=new Date(today);n.setDate(n.getDate()+1);
-    return n.toISOString().split('T')[0];
+    return localDate(n);
   }
   if(task.repeat==='weekly'&&task.repeatDays?.length){
     for(let i=1;i<=7;i++){
       const d=new Date(today);d.setDate(d.getDate()+i);
-      if(task.repeatDays.includes(d.getDay()))return d.toISOString().split('T')[0];
+      if(task.repeatDays.includes(d.getDay()))return localDate(d);
     }
-    // fallback: just add 7 days
-    const n=new Date(today);n.setDate(n.getDate()+7);return n.toISOString().split('T')[0];
+    const n=new Date(today);n.setDate(n.getDate()+7);return localDate(n);
   }
   if(task.repeat==='monthly'){
     const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):today;
     const dayOfMonth=base.getDate();
     const n=new Date(today.getFullYear(),today.getMonth()+1,dayOfMonth);
-    // if next month date already passed this month, go to month after
     if(n<=today)n.setMonth(n.getMonth()+1);
-    return n.toISOString().split('T')[0];
+    return localDate(n);
   }
   return task.dueDate;
 }
@@ -335,7 +343,7 @@ function App(){
       {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
-      <div className="foot">TimeValue Tracker v14</div>
+      <div className="foot">TimeValue Tracker v15</div>
       {toast&&<div className="toast">{toast}</div>}
     </div>
   );
@@ -398,6 +406,7 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
           <div className="hero-motto">{pr.main}</div>
           <div className="hero-sub">{pr.sub.split('\n')[0]}</div>
           <button className="hero-edit-btn" onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
+          <div className="hero-line"></div>
         </div>
         <div className="hero-photo"><img src={PHOTOS[pi]} alt=""/></div>
       </div>
@@ -458,10 +467,10 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
                         )}
                       </div>
                     </div>
-                    {/* Expand: [編集] ... [削除] */}
+                    {/* Expand: [編集] [削除] on right */}
                     {isE&&<div className="te">
-                      <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
                       <span style={{flex:1}}></span>
+                      <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
                       <button className="bt bt-x" onClick={()=>del(task.id)}>削除</button>
                     </div>}
                   </React.Fragment>);
@@ -523,9 +532,9 @@ function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,se
   const kpi=useMemo(()=>{const{s,e}=mR();let logs=[...timeLogs];if(per==='week'){const w=new Date(new Date()-7*864e5);logs=logs.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){logs=logs.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')logs=logs.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});const tm=logs.reduce((a,l)=>a+(l.duration||0),0);let tr=0;if(cf==='all')tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);else{const c=clients.find(x=>x.id===cf);tr=c?c.monthlyRevenue||0:0;}return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,tasks,clients,per,cf]);
   const fl=useMemo(()=>{let l=[...timeLogs];const n=new Date();if(per==='week'){const w=new Date(n-7*864e5);l=l.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){const{s,e}=mR();l=l.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf]);
   // FIXED: include dueDate in report table
-  const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,due:t.dueDate};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>b.tm-a.tm)},[fl,tasks,gcn]);
+  const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,due:t.dueDate};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>(b.due||'').localeCompare(a.due||''))},[fl,tasks,gcn]);
   const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
-  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v14'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
+  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v15'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
   const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
   return(<div className="fi" style={{padding:'1.5rem 0'}}>
     <div className="sh"><h2 className="st">Report</h2></div>
