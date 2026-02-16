@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>TimeValue Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -11,20 +11,17 @@
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#f5f3f0;--white:#fff;--text:#1a1a1a;--t2:#666;--t3:#aaa;
-  --bdr:#e0dcd6;--bdr2:#eae7e2;
-  --blue:#b8d4ff;--purple:#d4c5f9;--pink:#ffc8dd;--mint:#c7f0db;--peach:#ffd6a5;--lav:#e7c6ff;
-  --fd:rgba(26,26,26,.12);--fm:rgba(26,26,26,.06);
-  --f:'Noto Sans JP',sans-serif;
+--bg:#f5f3f0;--white:#fff;--text:#1a1a1a;--t2:#666;--t3:#aaa;
+--bdr:#e0dcd6;--bdr2:#eae7e2;
+--blue:#b8d4ff;--purple:#d4c5f9;--pink:#ffc8dd;--mint:#c7f0db;--peach:#ffd6a5;--lav:#e7c6ff;
+--fd:rgba(26,26,26,.12);--fm:rgba(26,26,26,.06);
+--f:'Noto Sans JP',sans-serif;
 }
 html{font-size:14px;scroll-behavior:smooth}
 body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh}
-
-/* === LAYOUT === */
 .app{max-width:1400px;margin:0 auto;padding:0 2.5rem}
-@media(max-width:1024px){.app{padding:0 1rem}}
 
-/* === HEADER === */
+/* HEADER */
 .hd{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;background:var(--bg);border-bottom:1px solid var(--bdr2)}
 .logo{font-size:1.3rem;font-weight:900;letter-spacing:-.02em}
 .logo-sub{font-size:.5rem;font-weight:300;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-left:.5rem}
@@ -35,41 +32,37 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .nav-b:hover{color:var(--text)}
 .nav-b.on{color:var(--white);background:var(--text);font-weight:500}
 
-/* === HERO === */
-.hero{display:grid;grid-template-columns:1fr auto;align-items:end;gap:2rem;padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--bdr2);margin-bottom:1rem;position:relative}
-.hero-left{}
-.hero-motto{font-size:2.6rem;font-weight:900;line-height:1.05;letter-spacing:.04em;margin-bottom:.3rem}
-.hero-sub{font-size:.72rem;font-weight:300;color:var(--t2);letter-spacing:.03em}
-.hero-edit-btn{font-family:var(--f);font-size:.5rem;color:var(--t3);background:0;border:0;cursor:pointer;margin-top:.3rem;padding:0;text-decoration:underline;text-underline-offset:2px}
+/* HERO - compact with gradient accent strip */
+.hero{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;padding:1.8rem 0 1.2rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;right:-30px;width:280px;height:100%;background:linear-gradient(135deg,rgba(184,212,255,.08),rgba(212,197,249,.12),rgba(255,200,221,.08));transform:skewX(-12deg);pointer-events:none}
+.hero-left{flex:1;min-width:0}
+.hero-motto{font-size:2.2rem;font-weight:900;line-height:1.05;letter-spacing:.04em;margin-bottom:.2rem}
+.hero-sub{font-size:.68rem;font-weight:300;color:var(--t2);letter-spacing:.03em}
+.hero-edit-btn{font-family:var(--f);font-size:.48rem;color:var(--t3);background:0;border:0;cursor:pointer;margin-top:.2rem;text-decoration:underline;text-underline-offset:2px}
 .hero-edit-btn:hover{color:var(--text)}
-/* Photo accent - small, intentional */
-.hero-photo{position:relative;width:200px;height:130px;flex-shrink:0}
-.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.95) contrast(1.05)}
-.hero-photo::before{content:'';position:absolute;top:-6px;left:-6px;right:8px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
-.hero-photo::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
-/* Accent elements near photo */
-.hero-acc{position:absolute;pointer-events:none}
-@media(max-width:768px){.hero{grid-template-columns:1fr}.hero-photo{display:none}}
+.hero-photo{position:relative;width:160px;height:105px;flex-shrink:0}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.92) contrast(1.05)}
+.hero-photo::before{content:'';position:absolute;top:-5px;left:-5px;right:7px;bottom:7px;border:1.5px solid var(--fd);pointer-events:none}
+.hero-photo::after{content:'';position:absolute;top:5px;left:7px;right:-5px;bottom:-5px;border:1px solid var(--fm);pointer-events:none}
 
-/* === DIAGONAL RULE === */
-.rule{position:relative;height:3px;overflow:hidden;margin-bottom:1rem}
+/* Diagonal rule */
+.rule{position:relative;height:3px;overflow:hidden;margin-bottom:.8rem}
 .rule::before{content:'';position:absolute;inset:0 -3%;background:linear-gradient(90deg,var(--purple),var(--blue),var(--pink),var(--peach),var(--mint));transform:skewX(-25deg)}
 
-/* === MAIN GRID === */
+/* GRID */
 .mg{display:grid;grid-template-columns:1fr 240px;gap:1.5rem;align-items:start}
-@media(max-width:1024px){.mg{grid-template-columns:1fr}}
 
-/* === SECTION === */
+/* SECTION */
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
 .st{font-size:.85rem;font-weight:700;position:relative;padding-left:.65rem}
 .st::before{content:'';position:absolute;left:0;top:.1em;width:2.5px;height:.85em;background:var(--purple)}
 
-/* === CLIENT GROUP === */
+/* CLIENT GROUP */
 .cg{margin-bottom:.4rem}
 .cg-head{display:flex;align-items:center;justify-content:space-between;padding:.2rem .6rem;background:var(--white);border:1px solid var(--bdr2);border-bottom:0;font-size:.68rem;font-weight:600}
 .cg-cnt{font-size:.55rem;font-weight:300;color:var(--t3)}
 
-/* === TASK LIST === */
+/* TASK LIST */
 .tl{position:relative;margin-bottom:.5rem}
 .tl::before{content:'';position:absolute;top:-7px;left:-7px;right:10px;bottom:10px;border:1.5px solid var(--fd);pointer-events:none;z-index:0}
 .tl::after{content:'';position:absolute;top:7px;left:7px;right:-7px;bottom:-7px;border:1px solid var(--fm);pointer-events:none;z-index:0}
@@ -91,27 +84,28 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .tt-creative{background:var(--pink);color:#b5577a}
 .tt-admin{background:var(--peach);color:#b58040}
 
-/* Time display - clickable to edit */
 .ttm{font-size:.68rem;font-weight:600;flex-shrink:0;min-width:28px;text-align:right;cursor:pointer;padding:.08rem .25rem;transition:background .15s}
 .ttm:hover{background:rgba(212,197,249,.15)}
-/* Time edit: h:m format */
 .ttm-ed{display:flex;align-items:center;gap:1px;flex-shrink:0}
 .ttm-ed input{width:28px;font-family:var(--f);font-size:.65rem;font-weight:600;padding:.08rem .15rem;border:1px solid var(--purple);background:var(--white);outline:0;text-align:center}
 .ttm-ed span{font-size:.55rem;color:var(--t3)}
 
-/* Action buttons */
-.bt{font-family:var(--f);font-size:.54rem;padding:.12rem .38rem;border:1px solid var(--bdr);background:var(--white);color:var(--t2);cursor:pointer;transition:all .1s}
+/* Buttons */
+.ta{display:flex;gap:2px;flex-shrink:0;align-items:center}
+.bt{font-family:var(--f);font-size:.54rem;padding:.12rem .38rem;border:1px solid var(--bdr);background:var(--white);color:var(--t2);cursor:pointer;transition:all .1s;white-space:nowrap}
 .bt:hover{background:var(--bg);color:var(--text)}
 .bt-go{background:var(--mint);color:#3a7d5c;border-color:rgba(58,125,92,.12);font-weight:600}
 .bt-go:hover{background:#a8e6c3}
 .bt-st{background:var(--pink);color:#b5577a;border-color:rgba(181,87,122,.12);font-weight:600}
 .bt-st:hover{background:#ffacc7}
+.bt-done{background:var(--blue);color:#3a6db5;border-color:rgba(58,109,181,.12);font-weight:500}
+.bt-done:hover{background:#9ec4ff}
+.bt-undo{background:var(--lav);color:#7b5ea7;border-color:rgba(123,94,167,.12);font-weight:500}
+.bt-undo:hover{background:#d4bff7}
 .bt-x{color:#c77;border:0;background:0}
-
-/* Expand row */
 .te{display:flex;align-items:center;gap:.3rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:.18rem .6rem;position:relative;z-index:1;font-size:.55rem}
 
-/* === SIDEBAR === */
+/* SIDEBAR */
 .sb-inner{position:sticky;top:55px}
 .tw{background:var(--white);border:1px solid var(--bdr2);padding:.8rem;position:relative;z-index:1}
 .tw::before{content:'';position:absolute;top:-6px;right:-6px;width:28px;height:28px;border:1.5px solid var(--fd);transform:rotate(12deg);pointer-events:none}
@@ -124,20 +118,19 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .tw-d.off{opacity:.12}
 .tw-ctr{display:flex;justify-content:center;margin-top:.2rem}
 
-/* Side photo accent */
-.side-photo{margin-top:.8rem;position:relative;width:100%;height:100px;overflow:hidden}
+.side-photo{margin-top:.8rem;position:relative;width:100%;height:90px;overflow:hidden}
 .side-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.9)}
 .side-photo::before{content:'';position:absolute;top:-5px;left:-5px;right:7px;bottom:7px;border:1.5px solid var(--fd);pointer-events:none;z-index:1}
 .side-photo::after{content:'';position:absolute;top:5px;left:7px;right:-5px;bottom:-5px;border:1px solid var(--fm);pointer-events:none;z-index:1}
 
-/* === BUTTONS === */
+/* BUTTONS */
 .btn{font-family:var(--f);font-size:.68rem;font-weight:400;padding:.35rem .9rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);cursor:pointer;transition:all .2s}
 .btn:hover{background:var(--text);color:var(--white);border-color:var(--text)}
 .btn-p{background:var(--text);color:var(--white);border-color:var(--text)}
 .btn-p:hover{background:#444}
 .btn-s{padding:.22rem .55rem;font-size:.62rem}
 
-/* === FORMS === */
+/* FORMS */
 .inp,.sel,.txa{font-family:var(--f);font-size:.76rem;font-weight:300;padding:.45rem .65rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);width:100%;outline:0;transition:border-color .2s}
 .inp:focus,.sel:focus,.txa:focus{border-color:var(--t3)}
 .txa{resize:vertical;min-height:45px;line-height:1.5}
@@ -148,7 +141,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .wd-b{width:26px;height:26px;border:1px solid var(--bdr);background:var(--white);color:var(--t2);font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--f);transition:all .1s}
 .wd-b.on{background:var(--text);color:var(--white);border-color:var(--text);font-weight:600}
 
-/* === MODAL === */
+/* MODAL */
 .mo-bg{position:fixed;inset:0;background:rgba(26,26,26,.3);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fi .12s}
 .mo{background:var(--white);width:90%;max-width:460px;max-height:85vh;overflow-y:auto;padding:1.4rem;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.12);animation:su .18s}
 .mo::before{content:'';position:absolute;top:-8px;left:-8px;right:12px;bottom:12px;border:1.5px solid var(--fd);pointer-events:none}
@@ -156,10 +149,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .mo-t{font-size:.95rem;font-weight:700;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--bdr2)}
 .mo-f{display:flex;gap:.4rem;justify-content:flex-end;margin-top:.8rem;padding-top:.5rem;border-top:1px solid var(--bdr2)}
 
-/* === MOTTO EDIT === */
 .motto-ed{background:var(--white);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.8rem;animation:su .15s}
 
-/* === KPI === */
+/* KPI */
 .kpi{display:flex;background:var(--white);border:1px solid var(--bdr2);position:relative;margin-bottom:.7rem}
 .kpi::before{content:'';position:absolute;top:-7px;left:-7px;right:10px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
 .kpi::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
@@ -187,11 +179,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .cmb-a{background:var(--lav);opacity:.9;border:1px solid rgba(0,0,0,.03)}
 .cr{display:flex;gap:.3rem}
 
-/* DATA */
 .dg{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem}
 .dc{background:var(--white);border:1px solid var(--bdr2);padding:1rem;text-align:center}
 
-/* CLIENT CARD */
 .cl{background:var(--white);border:1px solid var(--bdr2);padding:.7rem .9rem;margin-bottom:.3rem;position:relative;cursor:grab;z-index:1}
 .cl::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
 .cl:nth-child(4n+1)::before{background:var(--blue)}
@@ -199,7 +189,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .cl:nth-child(4n+3)::before{background:var(--pink)}
 .cl:nth-child(4n)::before{background:var(--mint)}
 
-/* Fixed decorative elements */
+/* Fixed deco */
 .deco{position:fixed;pointer-events:none;z-index:0}
 
 @keyframes fi{from{opacity:0}to{opacity:1}}
@@ -207,17 +197,39 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .fi{animation:fi .3s}
 .toast{position:fixed;bottom:1rem;right:1rem;background:var(--text);color:var(--white);padding:.45rem .9rem;font-size:.65rem;z-index:2000;animation:su .2s}
 .foot{padding:1.2rem 0 .8rem;text-align:center;font-size:.5rem;color:var(--t3);letter-spacing:.08em}
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-track{background:0}
-::-webkit-scrollbar-thumb{background:var(--bdr)}
+
+/* === MOBILE === */
+@media(max-width:768px){
+  .app{padding:0 .8rem}
+  .hd{padding:.5rem 0}
+  .logo{font-size:1.1rem}
+  .nav-b{padding:.25rem .55rem;font-size:.58rem}
+  .hero{padding:1.2rem 0 .8rem}
+  .hero-motto{font-size:1.6rem}
+  .hero-photo{width:100px;height:70px}
+  .mg{grid-template-columns:1fr;gap:.8rem}
+  .sb-inner{position:static}
+  .side-photo{display:none}
+  .tr{padding:.25rem .5rem;font-size:.72rem;gap:.3rem}
+  .td-date{font-size:.52rem;min-width:32px}
+  .tn{font-size:.72rem}
+  .tt{font-size:.45rem;padding:.04rem .25rem}
+  .ttm{font-size:.62rem}
+  .bt{font-size:.48rem;padding:.1rem .3rem}
+  .te{padding:.15rem .5rem;font-size:.5rem}
+  .kpi-i{padding:.4rem .6rem}
+  .kpi-v{font-size:1rem}
+  .rtbl td,.rtbl th{padding:.3rem .4rem;font-size:.62rem}
+  .dg{grid-template-columns:1fr}
+  .fr{grid-template-columns:1fr}
+  .tw-d{font-size:1.3rem}
+  .rule{height:2px}
+}
 </style>
 </head>
 <body>
-<!-- Sparse decorative elements -->
 <div class="deco" style="top:15%;right:1.5%;width:70px;height:70px;border:1.5px solid rgba(26,26,26,.03);transform:rotate(18deg)"></div>
 <div class="deco" style="bottom:10%;left:1%;width:50px;height:50px;border:1px solid rgba(212,197,249,.1);transform:rotate(-12deg)"></div>
-<div class="deco" style="top:50%;left:.5%;width:1px;height:80px;background:rgba(26,26,26,.04)"></div>
-<div class="deco" style="top:30%;right:.5%;width:1px;height:60px;background:rgba(26,26,26,.03)"></div>
 
 <div id="root"></div>
 <script type="text/babel">
@@ -240,26 +252,42 @@ const PHOTOS=[
   'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&q=80',
   'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&q=80',
   'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80',
-  'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80',
-  'https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=600&q=80',
 ];
 const SIDE=[
   'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&q=80',
   'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&q=80',
-  'https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=400&q=80',
   'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400&q=80',
-  'https://images.unsplash.com/photo-1496568816025-a34fcdc12e9e?w=400&q=80',
 ];
 
 function fmtDate(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
 function dateClass(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'today';if(diff<0)return'overdue';return'';}
+
+// FIXED: Calculate next due date properly from TODAY
 function nextDue(task){
-  const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):new Date();
-  if(task.repeat==='daily'){const n=new Date(base);n.setDate(n.getDate()+1);return n.toISOString().split('T')[0];}
-  if(task.repeat==='weekly'&&task.repeatDays?.length){const today=new Date();today.setHours(0,0,0,0);for(let i=1;i<=7;i++){const d=new Date(today);d.setDate(d.getDate()+i);if(task.repeatDays.includes(d.getDay()))return d.toISOString().split('T')[0];}return task.dueDate;}
-  if(task.repeat==='monthly'){const n=new Date(base);n.setMonth(n.getMonth()+1);return n.toISOString().split('T')[0];}
+  const today=new Date();today.setHours(0,0,0,0);
+  if(task.repeat==='daily'){
+    const n=new Date(today);n.setDate(n.getDate()+1);
+    return n.toISOString().split('T')[0];
+  }
+  if(task.repeat==='weekly'&&task.repeatDays?.length){
+    for(let i=1;i<=7;i++){
+      const d=new Date(today);d.setDate(d.getDate()+i);
+      if(task.repeatDays.includes(d.getDay()))return d.toISOString().split('T')[0];
+    }
+    // fallback: just add 7 days
+    const n=new Date(today);n.setDate(n.getDate()+7);return n.toISOString().split('T')[0];
+  }
+  if(task.repeat==='monthly'){
+    const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):today;
+    const dayOfMonth=base.getDate();
+    const n=new Date(today.getFullYear(),today.getMonth()+1,dayOfMonth);
+    // if next month date already passed this month, go to month after
+    if(n<=today)n.setMonth(n.getMonth()+1);
+    return n.toISOString().split('T')[0];
+  }
   return task.dueDate;
 }
+
 function migrate(raw){
   const r={};
   if(raw.clients)r.clients=raw.clients.map(c=>({id:c.client_id||c.id||gid(),name:c.name||'',monthlyRevenue:c.monthly_fee??c.monthlyRevenue??0}));
@@ -290,7 +318,7 @@ function App(){
   useEffect(()=>sv('timevalue-clientOrder',clientOrder),[clientOrder]);
   useEffect(()=>sv('timevalue-runningState',running),[running]);
 
-  const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2000)},[]);
+  const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2200)},[]);
   const gcn=useCallback(cid=>{const c=clients.find(x=>x.id===cid);return c?c.name:'未分類'},[clients]);
   const oc=useMemo(()=>{if(!clientOrder.length)return clients;const o=[];clientOrder.forEach(id=>{const c=clients.find(x=>x.id===id);if(c)o.push(c)});clients.forEach(c=>{if(!o.find(x=>x.id===c.id))o.push(c)});return o},[clients,clientOrder]);
   const gtt=useCallback(tid=>timeLogs.filter(l=>l.taskId===tid).reduce((a,l)=>a+(l.duration||0),0),[timeLogs]);
@@ -307,22 +335,17 @@ function App(){
       {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
-      <div className="foot">TimeValue Tracker v13</div>
+      <div className="foot">TimeValue Tracker v14</div>
       {toast&&<div className="toast">{toast}</div>}
     </div>
   );
 }
 
 function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
-  const[eP,setEP]=useState(false);
-  const[pF,setPF]=useState(pr);
-  const[modal,setMo]=useState(false);
-  const[et,setEt]=useState(null);
-  const[filter,setFi]=useState('active');
-  const[exp,setExp]=useState(null);
-  const[editTime,setEditTime]=useState(null);
-  const[etH,setEtH]=useState(0);
-  const[etM,setEtM]=useState(0);
+  const[eP,setEP]=useState(false);const[pF,setPF]=useState(pr);
+  const[modal,setMo]=useState(false);const[et,setEt]=useState(null);
+  const[filter,setFi]=useState('active');const[exp,setExp]=useState(null);
+  const[editTime,setEditTime]=useState(null);const[etH,setEtH]=useState(0);const[etM,setEtM]=useState(0);
 
   const ft=useMemo(()=>{
     let list;
@@ -342,18 +365,23 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const saveP=()=>{setPr(pF);setEP(false);show('更新')};
   const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
+
+  // Complete with recurring auto-generation (FIXED: proper next due from today)
   const comp=id=>{
     const task=tasks.find(t=>t.id===id);if(!task)return;
     setTk(p=>{
-      let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:Date.now()}:t);
+      let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t);
       if(task.repeat&&task.repeat!=='none'){
         const nd=nextDue(task);
-        updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,lastCompleted:task.lastCompleted,createdAt:new Date().toISOString()}];
+        updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,createdAt:new Date().toISOString()}];
         show('完了 → 次回 '+fmtDate(nd));
       }else{show('完了');}
       return updated;
     });
   };
+
+  // Uncomplete task
+  const uncomp=id=>{setTk(p=>p.map(t=>t.id===id?{...t,completed:false,lastCompleted:null}:t));show('未完了に戻し')};
 
   const startEditTime=(tid,e)=>{e.stopPropagation();const tt=gtt(tid);setEditTime(tid);setEtH(Math.floor(tt/60));setEtM(Math.round(tt%60));};
   const saveEditTime=tid=>{
@@ -371,11 +399,7 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
           <div className="hero-sub">{pr.sub.split('\n')[0]}</div>
           <button className="hero-edit-btn" onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
         </div>
-        <div className="hero-photo">
-          <img src={PHOTOS[pi]} alt=""/>
-          <div className="hero-acc" style={{top:'-10px',right:'-12px',width:'18px',height:'18px',border:'1px solid var(--fd)',transform:'rotate(8deg)'}}></div>
-          <div className="hero-acc" style={{bottom:'-8px',left:'-8px',width:'12px',height:'12px',border:'1px solid rgba(212,197,249,.25)',transform:'rotate(-6deg)'}}></div>
-        </div>
+        <div className="hero-photo"><img src={PHOTOS[pi]} alt=""/></div>
       </div>
 
       {eP&&<div className="motto-ed fi">
@@ -419,22 +443,27 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
                           <span>h</span>
                           <input value={etM} onChange={e=>setEtM(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveEditTime(task.id);if(e.key==='Escape')setEditTime(null)}}/>
                           <span>m</span>
-                          <button className="bt" onClick={()=>saveEditTime(task.id)} style={{marginLeft:'2px'}}>OK</button>
+                          <button className="bt" onClick={()=>saveEditTime(task.id)}>OK</button>
                         </div>
                       ):(
                         <span className="ttm" onClick={e=>!task.completed&&startEditTime(task.id,e)}>{fT(tt)}</span>
                       )}
-                      {!task.completed&&(isR?
-                        <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
-                        <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
-                      )}
+                      {/* BUTTON ORDER: [完了] [開始/停止] for active; [戻す] for completed */}
+                      <div className="ta">
+                        {!task.completed&&<button className="bt bt-done" onClick={e=>{e.stopPropagation();comp(task.id)}}>完了</button>}
+                        {task.completed&&<button className="bt bt-undo" onClick={e=>{e.stopPropagation();uncomp(task.id)}}>戻す</button>}
+                        {!task.completed&&(isR?
+                          <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
+                          <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
+                        )}
+                      </div>
                     </div>
-                    {isE&&!task.completed&&<div className="te">
+                    {/* Expand: [編集] ... [削除] */}
+                    {isE&&<div className="te">
                       <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
-                      <button className="bt" onClick={()=>comp(task.id)}>完了</button>
-                      <button className="bt bt-x" style={{marginLeft:'auto'}} onClick={()=>del(task.id)}>削除</button>
+                      <span style={{flex:1}}></span>
+                      <button className="bt bt-x" onClick={()=>del(task.id)}>削除</button>
                     </div>}
-                    {isE&&task.completed&&<div className="te"><button className="bt bt-x" onClick={()=>del(task.id)}>削除</button></div>}
                   </React.Fragment>);
                 })}
               </div>
@@ -493,15 +522,16 @@ function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,se
   const[per,setPer]=useState('month');const[cf,setCf]=useState('all');const[msgs,setMs]=useState([]);const[cin,setCin]=useState('');const[cld,setCld]=useState(false);const fRef=useRef(null);
   const kpi=useMemo(()=>{const{s,e}=mR();let logs=[...timeLogs];if(per==='week'){const w=new Date(new Date()-7*864e5);logs=logs.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){logs=logs.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')logs=logs.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});const tm=logs.reduce((a,l)=>a+(l.duration||0),0);let tr=0;if(cf==='all')tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);else{const c=clients.find(x=>x.id===cf);tr=c?c.monthlyRevenue||0:0;}return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,tasks,clients,per,cf]);
   const fl=useMemo(()=>{let l=[...timeLogs];const n=new Date();if(per==='week'){const w=new Date(n-7*864e5);l=l.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){const{s,e}=mR();l=l.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf]);
-  const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>b.tm-a.tm)},[fl,tasks,gcn]);
+  // FIXED: include dueDate in report table
+  const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,due:t.dueDate};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>b.tm-a.tm)},[fl,tasks,gcn]);
   const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
-  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v13'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
+  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v14'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
   const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
   return(<div className="fi" style={{padding:'1.5rem 0'}}>
     <div className="sh"><h2 className="st">Report</h2></div>
     <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div><div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div></div>
     <div className="kpi"><div className="kpi-i"><div className="kpi-l">Work</div><div className="kpi-v">{fT(kpi.tm)}</div></div><div className="kpi-i"><div className="kpi-l">Revenue</div><div className="kpi-v">{fY(kpi.tr)}</div></div><div className="kpi-i"><div className="kpi-l">Rate</div><div className="kpi-v">{fY(Math.round(kpi.hr))}<span className="kpi-u">/h</span></div></div></div>
-    <div style={{marginBottom:'1.2rem'}}>{ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--bdr2)',padding:'.4rem'}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>Cat</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.cn}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.2rem',background:'var(--white)',border:'1px solid var(--bdr2)'}}>データなし</div>}</div>
+    <div style={{marginBottom:'1.2rem'}}>{ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--bdr2)',padding:'.4rem'}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>期日</th><th>Cat</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.cn}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.due?fmtDate(t.due):'-'}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.2rem',background:'var(--white)',border:'1px solid var(--bdr2)'}}>データなし</div>}</div>
     <div className="cb" style={{marginBottom:'1.2rem'}}><div className="tw-l">AI Reflection</div><div className="cm">{msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.65rem',padding:'.8rem 0'}}>質問しましょう</div>}{msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}{cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}</div><div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div></div>
     <div className="dg"><div className="dc"><div style={{fontWeight:700,marginBottom:'.2rem',fontSize:'.8rem'}}>Export</div><button className="btn btn-p btn-s" style={{marginTop:'.3rem'}} onClick={expData}>エクスポート</button></div><div className="dc"><div style={{fontWeight:700,marginBottom:'.2rem',fontSize:'.8rem'}}>Import</div><input ref={fRef} type="file" accept=".json" onChange={impData} style={{display:'none'}}/><button className="btn btn-s" style={{marginTop:'.3rem'}} onClick={()=>fRef.current?.click()}>インポート</button></div></div>
   </div>);
