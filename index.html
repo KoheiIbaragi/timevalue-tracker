@@ -2,715 +2,316 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>TimeValue Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TimeValue — Hero Collage Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box}
 :root{
---bg:#f5f3f0;--white:#fff;--text:#1a1a1a;--t2:#666;--t3:#aaa;
---bdr:#e0dcd6;--bdr2:#eae7e2;
---blue:#b8d4ff;--purple:#d4c5f9;--pink:#ffc8dd;--mint:#c7f0db;--peach:#ffd6a5;--lav:#e7c6ff;
---fd:rgba(26,26,26,.12);--fm:rgba(26,26,26,.06);
---f:'Noto Sans JP',sans-serif;
+  --bg:#f5f3f0;--white:#fff;--text:#1a1a1a;--t2:#666;--t3:#aaa;
+  --bdr:#e0dcd6;--bdr2:#eae7e2;
+  --blue:#b8d4ff;--purple:#d4c5f9;--pink:#ffc8dd;--mint:#c7f0db;--peach:#ffd6a5;--lav:#e7c6ff;
+  --fd:rgba(26,26,26,.12);--fm:rgba(26,26,26,.06);
+  --f:'Noto Sans JP',sans-serif;
 }
-html{font-size:14px;scroll-behavior:smooth}
-body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh}
+body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300}
 .app{max-width:1400px;margin:0 auto;padding:0 2.5rem}
 
 /* HEADER */
-.hd{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;background:var(--bg);border-bottom:1px solid var(--bdr2)}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;border-bottom:1px solid var(--bdr2);margin-bottom:1rem}
 .logo{font-size:1.3rem;font-weight:900;letter-spacing:-.02em}
 .logo-sub{font-size:.5rem;font-weight:300;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-left:.5rem}
-.nav{display:flex;gap:1px;background:var(--bdr2);border-radius:4px;padding:1px}
-.nav-b{padding:.3rem .85rem;font-family:var(--f);font-size:.65rem;font-weight:400;color:var(--t3);background:var(--bg);border:0;cursor:pointer;transition:all .15s}
-.nav-b:first-child{border-radius:3px 0 0 3px}
-.nav-b:last-child{border-radius:0 3px 3px 0}
-.nav-b:hover{color:var(--text)}
-.nav-b.on{color:var(--white);background:var(--text);font-weight:500}
 
-/* HERO - editorial accent layout */
-.hero{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;padding:2rem 0 1.5rem;position:relative;overflow:hidden}
-/* Diagonal gradient accent */
-.hero::before{content:'';position:absolute;top:-20%;right:-60px;width:380px;height:160%;background:linear-gradient(135deg,rgba(184,212,255,.1),rgba(212,197,249,.15),rgba(255,200,221,.1));transform:skewX(-12deg);pointer-events:none}
-/* Accent frame in background */
-.hero::after{content:'';position:absolute;top:10px;right:130px;width:120px;height:120px;border:1.5px solid var(--fd);transform:rotate(8deg);pointer-events:none}
-.hero-left{flex:1;min-width:0;position:relative;z-index:1}
-.hero-motto{font-size:2.4rem;font-weight:900;line-height:1.05;letter-spacing:.04em;margin-bottom:.25rem}
-.hero-sub{font-size:.7rem;font-weight:300;color:var(--t2);letter-spacing:.03em}
-.hero-edit-btn{font-family:var(--f);font-size:.48rem;color:var(--t3);background:0;border:0;cursor:pointer;margin-top:.25rem;text-decoration:underline;text-underline-offset:2px}
-.hero-edit-btn:hover{color:var(--text)}
-/* Photo with overlapping frame treatment */
-.hero-photo{position:relative;width:180px;height:115px;flex-shrink:0;z-index:1}
-.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.92) contrast(1.05)}
-.hero-photo::before{content:'';position:absolute;top:-6px;left:-6px;right:8px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
-.hero-photo::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
-/* Small decorative line near motto */
-.hero-line{position:absolute;bottom:8px;left:0;width:40px;height:2px;background:linear-gradient(90deg,var(--purple),transparent)}
+/* ============================================
+   HERO COLLAGE — Editorial Magazine Style
+   ============================================ */
+.hero{
+  position:relative;
+  height:300px;
+  margin-bottom:1rem;
+  overflow:visible;
+}
 
-/* Diagonal rule */
-.rule{position:relative;height:3px;overflow:hidden;margin-bottom:.8rem}
-.rule::before{content:'';position:absolute;inset:0 -3%;background:linear-gradient(90deg,var(--purple),var(--blue),var(--pink),var(--peach),var(--mint));transform:skewX(-25deg)}
+/* --- Photo layers --- */
+.h-photo{
+  position:absolute;
+  overflow:hidden;
+}
+.h-photo img{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+  filter:brightness(.92) contrast(1.05);
+}
 
-/* GRID */
-.mg{display:grid;grid-template-columns:1fr 240px;gap:1.5rem;align-items:start}
+/* Photo 1: Main large — left, diagonal right edge */
+.h-photo.p1{
+  top:8px;left:2%;
+  width:48%;height:270px;
+  z-index:3;
+  clip-path:polygon(0 0, 92% 0, 80% 100%, 0 100%);
+}
 
-/* SECTION */
+/* Photo 2: Medium — overlaps p1 from right, diagonal left edge */
+.h-photo.p2{
+  top:0;left:36%;
+  width:38%;height:210px;
+  z-index:4;
+  clip-path:polygon(18% 0, 100% 0, 100% 100%, 8% 100%);
+}
+
+/* Photo 3: Small accent — bottom right */
+.h-photo.p3{
+  bottom:0;right:5%;
+  width:26%;height:160px;
+  z-index:5;
+  clip-path:polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Photo 4: Tiny square — bottom left, peeking */
+.h-photo.p4{
+  bottom:10px;left:5%;
+  width:10%;height:80px;
+  z-index:2;
+  clip-path:polygon(0 5%, 100% 0, 95% 100%, 5% 95%);
+  opacity:.8;
+}
+
+/* --- White frames crossing photos --- */
+.h-frame{
+  position:absolute;
+  border:1.5px solid rgba(255,255,255,.55);
+  pointer-events:none;
+  z-index:6;
+}
+.h-frame.f1{
+  top:4px;left:0%;
+  width:52%;height:276px;
+  transform:rotate(-.2deg);
+}
+.h-frame.f2{
+  top:-6px;left:34%;
+  width:40%;height:218px;
+  transform:rotate(.3deg);
+}
+.h-frame.f3{
+  bottom:-4px;right:3%;
+  width:29%;height:168px;
+}
+/* Dark subtle frame */
+.h-frame.f4{
+  top:15px;left:6%;
+  width:40%;height:240px;
+  border-color:rgba(26,26,26,.08);
+  transform:rotate(.15deg);
+}
+
+/* --- Geometric color planes --- */
+.h-plane{
+  position:absolute;
+  pointer-events:none;
+  z-index:1;
+}
+.h-plane.c1{
+  top:0;left:42%;
+  width:15%;height:45%;
+  background:var(--bg);
+  clip-path:polygon(25% 0,100% 0,75% 100%,0 100%);
+  z-index:3;
+  opacity:.6;
+}
+.h-plane.c2{
+  bottom:0;right:28%;
+  width:12%;height:35%;
+  background:rgba(212,197,249,.1);
+}
+.h-plane.c3{
+  top:20px;right:0;
+  width:6%;height:30%;
+  background:rgba(184,212,255,.08);
+}
+
+/* --- Accent lines & dots --- */
+.h-acc{position:absolute;pointer-events:none;z-index:7}
+
+/* --- Gradient overlay for text --- */
+.h-grad{
+  position:absolute;
+  bottom:0;right:0;
+  width:40%;height:100%;
+  background:linear-gradient(135deg,transparent 20%,rgba(26,26,26,.35) 100%);
+  pointer-events:none;
+  z-index:7;
+}
+
+/* --- Motto text --- */
+.h-motto{
+  position:absolute;
+  bottom:24px;right:4%;
+  z-index:8;
+  text-align:right;
+  max-width:300px;
+}
+.h-motto-main{
+  font-size:2rem;
+  font-weight:900;
+  color:var(--white);
+  text-shadow:0 2px 20px rgba(0,0,0,.5),0 0 60px rgba(0,0,0,.12);
+  line-height:1.15;
+  letter-spacing:.1em;
+}
+.h-motto-sub{
+  font-size:.62rem;
+  font-weight:300;
+  color:rgba(255,255,255,.7);
+  text-shadow:0 1px 10px rgba(0,0,0,.5);
+  margin-top:.2rem;
+  letter-spacing:.06em;
+}
+.h-motto-edit{
+  font-size:.48rem;
+  color:rgba(255,255,255,.4);
+  margin-top:.3rem;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.h-motto-edit:hover{color:rgba(255,255,255,.7)}
+
+/* --- Diagonal divider --- */
+.h-divider{
+  position:relative;height:4px;
+  margin-bottom:.8rem;overflow:hidden;
+}
+.h-divider::before{
+  content:'';position:absolute;
+  top:0;left:-3%;right:-3%;height:100%;
+  background:linear-gradient(90deg,var(--purple),var(--blue),var(--pink),var(--peach),var(--mint));
+  transform:skewX(-25deg);
+}
+
+/* --- Section header --- */
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
 .st{font-size:.85rem;font-weight:700;position:relative;padding-left:.65rem}
 .st::before{content:'';position:absolute;left:0;top:.1em;width:2.5px;height:.85em;background:var(--purple)}
 
-/* CLIENT GROUP */
-.cg{margin-bottom:.4rem}
-.cg-head{display:flex;align-items:center;justify-content:space-between;padding:.2rem .6rem;background:var(--white);border:1px solid var(--bdr2);border-bottom:0;font-size:.68rem;font-weight:600}
-.cg-cnt{font-size:.55rem;font-weight:300;color:var(--t3)}
-
-/* TASK LIST */
-.tl{position:relative;margin-bottom:.5rem}
-.tl::before{content:'';position:absolute;top:-7px;left:-7px;right:10px;bottom:10px;border:1.5px solid var(--fd);pointer-events:none;z-index:0}
-.tl::after{content:'';position:absolute;top:7px;left:7px;right:-7px;bottom:-7px;border:1px solid var(--fm);pointer-events:none;z-index:0}
-
-.tr{display:flex;align-items:center;gap:.4rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:.3rem .6rem;position:relative;z-index:1;transition:all .1s;cursor:pointer;font-size:.76rem}
-.tr:first-child,.cg-head+.tr{border-top:1px solid var(--bdr2)}
-.tr:hover{background:#faf9f7}
-.tr.run{border-left:3px solid #5a8f6e}
-.tr.done{opacity:.3}
-.tr.done .tn{text-decoration:line-through}
-
-.td-date{font-size:.58rem;font-weight:500;min-width:36px;flex-shrink:0;color:var(--purple)}
-.td-date.overdue{color:#c77}
-.td-date.today{color:#5a8f6e;font-weight:600}
-.tn{font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tt{display:inline-block;padding:.06rem .35rem;font-size:.5rem;font-weight:500;border-radius:1px;flex-shrink:0}
-.tt-routine{background:var(--blue);color:#3a6db5}
-.tt-strategic{background:var(--purple);color:#6b5a9e}
-.tt-creative{background:var(--pink);color:#b5577a}
-.tt-admin{background:var(--peach);color:#b58040}
-
-.ttm{font-size:.68rem;font-weight:600;flex-shrink:0;min-width:28px;text-align:right;cursor:pointer;padding:.08rem .25rem;transition:background .15s}
-.ttm:hover{background:rgba(212,197,249,.15)}
-.ttm-ed{display:flex;align-items:center;gap:1px;flex-shrink:0}
-.ttm-ed input{width:28px;font-family:var(--f);font-size:.65rem;font-weight:600;padding:.08rem .15rem;border:1px solid var(--purple);background:var(--white);outline:0;text-align:center}
-.ttm-ed span{font-size:.55rem;color:var(--t3)}
-
-/* Buttons */
-.ta{display:flex;gap:2px;flex-shrink:0;align-items:center}
-.bt{font-family:var(--f);font-size:.54rem;padding:.12rem .38rem;border:1px solid var(--bdr);background:var(--white);color:var(--t2);cursor:pointer;transition:all .1s;white-space:nowrap}
-.bt:hover{background:var(--bg);color:var(--text)}
-.bt-go{background:var(--mint);color:#3a7d5c;border-color:rgba(58,125,92,.12);font-weight:600}
-.bt-go:hover{background:#a8e6c3}
-.bt-st{background:var(--pink);color:#b5577a;border-color:rgba(181,87,122,.12);font-weight:600}
-.bt-st:hover{background:#ffacc7}
-.bt-done{background:var(--blue);color:#3a6db5;border-color:rgba(58,109,181,.12);font-weight:500}
-.bt-done:hover{background:#9ec4ff}
-.bt-undo{background:var(--lav);color:#7b5ea7;border-color:rgba(123,94,167,.12);font-weight:500}
-.bt-undo:hover{background:#d4bff7}
-.bt-x{color:#c77;border:0;background:0}
-.te{display:flex;align-items:center;gap:.3rem;background:var(--white);border:1px solid var(--bdr2);border-top:0;padding:.18rem .6rem;position:relative;z-index:1;font-size:.55rem}
-
-/* SIDEBAR */
-.sb-inner{position:sticky;top:55px}
-.tw{background:var(--white);border:1px solid var(--bdr2);padding:.8rem;position:relative;z-index:1}
-.tw::before{content:'';position:absolute;top:-6px;right:-6px;width:28px;height:28px;border:1.5px solid var(--fd);transform:rotate(12deg);pointer-events:none}
-.tw::after{content:'';position:absolute;bottom:-5px;left:-5px;width:18px;height:18px;border:1px solid rgba(212,197,249,.3);transform:rotate(-8deg);pointer-events:none}
-.tw-l{font-size:.48rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.5rem}
-.tw-n{font-size:.72rem;font-weight:600;margin-bottom:.05rem}
-.tw-c{font-size:.55rem;color:var(--t3);margin-bottom:.3rem}
-.tw-d{font-size:1.6rem;font-weight:700;text-align:center;padding:.2rem 0;letter-spacing:.04em}
-.tw-d.on{color:#5a8f6e}
-.tw-d.off{opacity:.12}
-.tw-ctr{display:flex;justify-content:center;margin-top:.2rem}
-
-.side-photo{margin-top:.8rem;position:relative;width:100%;height:90px;overflow:hidden}
-.side-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.9)}
-.side-photo::before{content:'';position:absolute;top:-5px;left:-5px;right:7px;bottom:7px;border:1.5px solid var(--fd);pointer-events:none;z-index:1}
-.side-photo::after{content:'';position:absolute;top:5px;left:7px;right:-5px;bottom:-5px;border:1px solid var(--fm);pointer-events:none;z-index:1}
-
-/* BUTTONS */
-.btn{font-family:var(--f);font-size:.68rem;font-weight:400;padding:.35rem .9rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);cursor:pointer;transition:all .2s}
-.btn:hover{background:var(--text);color:var(--white);border-color:var(--text)}
-.btn-p{background:var(--text);color:var(--white);border-color:var(--text)}
-.btn-p:hover{background:#444}
-.btn-s{padding:.22rem .55rem;font-size:.62rem}
-
-/* FORMS */
-.inp,.sel,.txa{font-family:var(--f);font-size:.76rem;font-weight:300;padding:.45rem .65rem;border:1px solid var(--bdr);background:var(--white);color:var(--text);width:100%;outline:0;transition:border-color .2s}
-.inp:focus,.sel:focus,.txa:focus{border-color:var(--t3)}
-.txa{resize:vertical;min-height:45px;line-height:1.5}
-.fl{display:block;font-size:.55rem;font-weight:500;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem}
-.fg{margin-bottom:.6rem}
-.fr{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-.wd{display:flex;gap:2px}
-.wd-b{width:26px;height:26px;border:1px solid var(--bdr);background:var(--white);color:var(--t2);font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--f);transition:all .1s}
-.wd-b.on{background:var(--text);color:var(--white);border-color:var(--text);font-weight:600}
-
-/* MODAL */
-.mo-bg{position:fixed;inset:0;background:rgba(26,26,26,.3);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fi .12s}
-.mo{background:var(--white);width:90%;max-width:460px;max-height:85vh;overflow-y:auto;padding:1.4rem;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.12);animation:su .18s}
-.mo::before{content:'';position:absolute;top:-8px;left:-8px;right:12px;bottom:12px;border:1.5px solid var(--fd);pointer-events:none}
-.mo::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
-.mo-t{font-size:.95rem;font-weight:700;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--bdr2)}
-.mo-f{display:flex;gap:.4rem;justify-content:flex-end;margin-top:.8rem;padding-top:.5rem;border-top:1px solid var(--bdr2)}
-
-.motto-ed{background:var(--white);border:1px solid var(--bdr2);padding:.8rem 1rem;margin-bottom:.8rem;animation:su .15s}
-
-/* KPI */
-.kpi{display:flex;background:var(--white);border:1px solid var(--bdr2);position:relative;margin-bottom:.7rem}
-.kpi::before{content:'';position:absolute;top:-7px;left:-7px;right:10px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
-.kpi::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
-.kpi-i{flex:1;padding:.5rem 1rem;position:relative;z-index:1}
-.kpi-i+.kpi-i{border-left:1px solid var(--bdr2)}
-.kpi-i:nth-child(1){border-top:2px solid var(--blue)}
-.kpi-i:nth-child(2){border-top:2px solid var(--purple)}
-.kpi-i:nth-child(3){border-top:2px solid var(--mint)}
-.kpi-l{font-size:.5rem;font-weight:500;color:var(--t3);letter-spacing:.12em;text-transform:uppercase}
-.kpi-v{font-size:1.2rem;font-weight:700;line-height:1.2}
-.kpi-u{font-size:.6rem;font-weight:300;color:var(--t2);margin-left:.1rem}
-
-/* REPORT */
-.rf{display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:end}
-.rtbl{width:100%;border-collapse:collapse}
-.rtbl th{font-size:.55rem;font-weight:500;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:.35rem .6rem;border-bottom:2px solid var(--bdr)}
-.rtbl td{font-size:.72rem;font-weight:300;padding:.35rem .6rem;border-bottom:1px solid var(--bdr2)}
-
-/* CHAT */
-.cb{background:var(--white);border:1px solid var(--bdr2);padding:.8rem;position:relative;z-index:1}
-.cb::before{content:'';position:absolute;top:-6px;left:4px;right:-5px;bottom:5px;border:1.5px solid var(--fd);pointer-events:none;z-index:-1}
-.cm{min-height:60px;max-height:200px;overflow-y:auto;margin-bottom:.4rem}
-.cmb{padding:.4rem .7rem;margin-bottom:.3rem;font-size:.72rem;line-height:1.5;font-weight:300;max-width:85%;white-space:pre-line}
-.cmb-u{background:var(--bg);border:1px solid var(--bdr2);margin-left:auto}
-.cmb-a{background:var(--lav);opacity:.9;border:1px solid rgba(0,0,0,.03)}
-.cr{display:flex;gap:.3rem}
-
-.dg{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem}
-.dc{background:var(--white);border:1px solid var(--bdr2);padding:1rem;text-align:center}
-
-.cl{background:var(--white);border:1px solid var(--bdr2);padding:.7rem .9rem;margin-bottom:.3rem;position:relative;cursor:grab;z-index:1}
-.cl::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
-.cl:nth-child(4n+1)::before{background:var(--blue)}
-.cl:nth-child(4n+2)::before{background:var(--purple)}
-.cl:nth-child(4n+3)::before{background:var(--pink)}
-.cl:nth-child(4n)::before{background:var(--mint)}
-
-/* Fixed deco */
-.deco{position:fixed;pointer-events:none;z-index:0}
-
-@keyframes fi{from{opacity:0}to{opacity:1}}
-@keyframes su{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.fi{animation:fi .3s}
-.toast{position:fixed;bottom:1rem;right:1rem;background:var(--text);color:var(--white);padding:.45rem .9rem;font-size:.65rem;z-index:2000;animation:su .2s}
-.foot{padding:1.2rem 0 .8rem;text-align:center;font-size:.5rem;color:var(--t3);letter-spacing:.08em}
-
-/* === MOBILE === */
-@media(max-width:768px){
-  .app{padding:0 .8rem}
-  .hd{padding:.5rem 0}
-  .logo{font-size:1.1rem}
-  .nav-b{padding:.25rem .55rem;font-size:.58rem}
-  .hero{padding:1.2rem 0 .8rem}
-  .hero::after{display:none}
-  .hero-motto{font-size:1.7rem}
-  .hero-photo{width:110px;height:75px}
-  .mg{grid-template-columns:1fr;gap:.8rem}
-  .sb-inner{position:static}
-  .side-photo{display:none}
-  .tr{padding:.25rem .5rem;font-size:.72rem;gap:.3rem}
-  .td-date{font-size:.52rem;min-width:32px}
-  .tn{font-size:.72rem}
-  .tt{font-size:.45rem;padding:.04rem .25rem}
-  .ttm{font-size:.62rem}
-  .bt{font-size:.48rem;padding:.1rem .3rem}
-  .te{padding:.15rem .5rem;font-size:.5rem}
-  .kpi-i{padding:.4rem .6rem}
-  .kpi-v{font-size:1rem}
-  .rtbl td,.rtbl th{padding:.3rem .4rem;font-size:.62rem}
-  .dg{grid-template-columns:1fr}
-  .fr{grid-template-columns:1fr}
-  .tw-d{font-size:1.3rem}
-  .rule{height:2px}
+/* Fake task list for preview */
+.task-row{
+  display:flex;align-items:center;gap:.5rem;
+  background:var(--white);border:1px solid var(--bdr2);border-top:0;
+  padding:.35rem .7rem;font-size:.78rem;
 }
+.task-row:first-child{border-top:1px solid var(--bdr2)}
+.task-date{font-size:.6rem;color:var(--purple);font-weight:500;min-width:38px}
+.task-name{flex:1;font-weight:500}
+.task-cat{display:inline-block;padding:.06rem .35rem;font-size:.5rem;font-weight:500;border-radius:1px}
+.cat-r{background:var(--blue);color:#3a6db5}
+.cat-s{background:var(--purple);color:#6b5a9e}
+.cat-c{background:var(--pink);color:#b5577a}
+.cat-a{background:var(--peach);color:#b58040}
+.task-time{font-size:.7rem;font-weight:600;min-width:40px;text-align:right}
 
-/* AUTH */
-.auth-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:1rem}
-.auth-card{background:var(--white);width:100%;max-width:380px;padding:2rem;position:relative}
-.auth-card::before{content:'';position:absolute;top:-8px;left:-8px;right:12px;bottom:12px;border:1.5px solid var(--fd);pointer-events:none}
-.auth-card::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
-.auth-title{font-size:1.3rem;font-weight:900;margin-bottom:.15rem}
-.auth-sub{font-size:.6rem;color:var(--t3);margin-bottom:1.5rem}
-.auth-err{font-size:.65rem;color:#c77;margin-bottom:.5rem;padding:.3rem .5rem;background:rgba(204,119,119,.08);border:1px solid rgba(204,119,119,.15)}
-.auth-sw{font-size:.6rem;color:var(--t3);margin-top:1rem;text-align:center}
-.auth-sw a{color:var(--text);font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
-.auth-divider{display:flex;align-items:center;gap:.5rem;margin:1rem 0;font-size:.55rem;color:var(--t3)}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--bdr2)}
-.sync-badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.48rem;color:var(--t3);padding:.1rem .35rem;background:rgba(199,240,219,.3);border-radius:2px}
-.sync-badge.off{background:rgba(255,200,221,.3)}
-.sync-badge .dot{width:5px;height:5px;border-radius:50%}
-.sync-badge .dot.on{background:#5a8f6e}
-.sync-badge .dot.off{background:#c77}
+.cg-head{display:flex;align-items:center;justify-content:space-between;padding:.25rem .7rem;background:var(--white);border:1px solid var(--bdr2);font-size:.7rem;font-weight:600;border-bottom:0}
+.cg-count{font-size:.58rem;font-weight:300;color:var(--t3)}
+
+.mg{display:grid;grid-template-columns:1fr 240px;gap:1.5rem;align-items:start}
+
+/* Sidebar */
+.sb-box{background:var(--white);border:1px solid var(--bdr2);padding:1rem;position:relative}
+.sb-box::before{content:'';position:absolute;top:-8px;right:-8px;width:34px;height:34px;border:1.5px solid var(--fd);transform:rotate(12deg);pointer-events:none}
+.sb-label{font-size:.5rem;font-weight:500;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.6rem}
+.sb-timer{font-size:1.8rem;font-weight:700;text-align:center;padding:.3rem 0;opacity:.15}
+.sb-hint{font-size:.6rem;color:var(--t3);text-align:center;margin-top:.2rem}
+
+.sb-photo{width:100%;height:100px;object-fit:cover;margin-top:1rem;position:relative}
+.sb-photo-wrap{position:relative;margin-top:1rem}
+.sb-photo-wrap::before{content:'';position:absolute;top:-6px;left:-6px;right:8px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none;z-index:1}
+.sb-photo-wrap::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none;z-index:1}
+
+.foot{margin-top:1.5rem;padding:.8rem 0;border-top:1px solid var(--bdr2);text-align:center;font-size:.55rem;color:var(--t3)}
 </style>
 </head>
 <body>
-<div class="deco" style="top:15%;right:1.5%;width:70px;height:70px;border:1.5px solid rgba(26,26,26,.03);transform:rotate(18deg)"></div>
-<div class="deco" style="bottom:10%;left:1%;width:50px;height:50px;border:1px solid rgba(212,197,249,.1);transform:rotate(-12deg)"></div>
 
-<div id="root"></div>
-<script type="text/babel">
-const{useState,useEffect,useRef,useCallback,useMemo}=React;
+<div class="app">
+  <header class="hd">
+    <div><span class="logo">TimeValue</span><span class="logo-sub">Tracker</span></div>
+    <div style="font-size:.65rem;color:var(--t3)">Dashboard / Clients / Report</div>
+  </header>
 
-// ============================================================
-// SUPABASE CONFIG - Replace these with your project values
-// ============================================================
-const SUPABASE_URL = '__YOUR_SUPABASE_URL__';
-const SUPABASE_KEY = '__YOUR_SUPABASE_ANON_KEY__';
-// ============================================================
+  <!-- HERO COLLAGE -->
+  <div class="hero">
+    <!-- Geometric color planes behind -->
+    <div class="h-plane c1"></div>
+    <div class="h-plane c2"></div>
+    <div class="h-plane c3"></div>
 
-const sbEnabled = SUPABASE_URL !== '__YOUR_SUPABASE_URL__' && SUPABASE_KEY !== '__YOUR_SUPABASE_ANON_KEY__';
-const sb = sbEnabled ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+    <!-- 4 photos with diagonal clip-paths, overlapping -->
+    <div class="h-photo p1"><img src="https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1000&q=80" alt=""></div>
+    <div class="h-photo p2"><img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80" alt=""></div>
+    <div class="h-photo p3"><img src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80" alt=""></div>
+    <div class="h-photo p4"><img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&q=80" alt=""></div>
 
-const gid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,5);
-const fT=m=>{if(!m&&m!==0)return'0m';const h=Math.floor(m/60);const mm=Math.round(m%60);return h>0?h+'h'+mm.toString().padStart(2,'0')+'m':mm+'m'};
-const fTm=s=>{const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const ss=s%60;return h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+':'+ss.toString().padStart(2,'0')};
-const fY=a=>new Intl.NumberFormat('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}).format(a);
-const mR=(d=new Date())=>({s:new Date(d.getFullYear(),d.getMonth(),1),e:new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59)});
-const ld=(k,f)=>{try{const d=localStorage.getItem(k);return d?JSON.parse(d):f}catch{return f}};
-const sv=(k,d)=>{try{localStorage.setItem(k,JSON.stringify(d))}catch{}};
-const CATS=[{id:'routine',l:'Routine',c:'tt-routine'},{id:'strategic',l:'Strategic',c:'tt-strategic'},{id:'creative',l:'Creative',c:'tt-creative'},{id:'admin',l:'Admin',c:'tt-admin'}];
-const REPS=[{id:'none',l:'なし'},{id:'daily',l:'毎日'},{id:'weekly',l:'毎週'},{id:'monthly',l:'毎月'}];
-const WDS=[{id:0,l:'日'},{id:1,l:'月'},{id:2,l:'火'},{id:3,l:'水'},{id:4,l:'木'},{id:5,l:'金'},{id:6,l:'土'}];
+    <!-- White frames crossing over photos -->
+    <div class="h-frame f1"></div>
+    <div class="h-frame f2"></div>
+    <div class="h-frame f3"></div>
+    <div class="h-frame f4"></div>
 
-const PHOTOS=[
-  'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=600&q=80',
-  'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80',
-  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80',
-  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&q=80',
-  'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&q=80',
-  'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80',
-];
-const SIDE=[
-  'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&q=80',
-  'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&q=80',
-  'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400&q=80',
-];
+    <!-- Gradient overlay for text readability -->
+    <div class="h-grad"></div>
 
-function fmtDate(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
-function dateClass(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'today';if(diff<0)return'overdue';return'';}
-const localDate=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-function nextDue(task){
-  const today=new Date();today.setHours(0,0,0,0);
-  if(task.repeat==='daily'){const n=new Date(today);n.setDate(n.getDate()+1);return localDate(n);}
-  if(task.repeat==='weekly'&&task.repeatDays?.length){for(let i=1;i<=7;i++){const d=new Date(today);d.setDate(d.getDate()+i);if(task.repeatDays.includes(d.getDay()))return localDate(d);}const n=new Date(today);n.setDate(n.getDate()+7);return localDate(n);}
-  if(task.repeat==='monthly'){const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):today;const dayOfMonth=base.getDate();const n=new Date(today.getFullYear(),today.getMonth()+1,dayOfMonth);if(n<=today)n.setMonth(n.getMonth()+1);return localDate(n);}
-  return task.dueDate;
-}
-function migrate(raw){
-  const r={};
-  if(raw.clients)r.clients=raw.clients.map(c=>({id:c.client_id||c.id||gid(),name:c.name||'',monthlyRevenue:c.monthly_fee??c.monthlyRevenue??0}));
-  if(raw.tasks)r.tasks=raw.tasks.map(t=>{let rep='none';if(typeof t.repeat==='boolean')rep=t.repeat?(t.repeatType||'daily'):'none';else if(typeof t.repeat==='string')rep=t.repeat;return{id:t.task_id||t.id||gid(),name:t.title||t.name||'',clientId:t.client_id||t.clientId||'',dueDate:t.due_date||t.dueDate||null,dueTime:t.due_time||t.dueTime||null,category:t.category||'routine',repeat:rep,repeatDays:t.repeatDays||[],completed:t.completed||false,isActive:t.is_active??t.isActive??!t.completed,lastCompleted:t.last_completed||t.lastCompleted||null,notes:t.notes||'',createdAt:t.createdAt||new Date().toISOString()}});
-  if(raw.timeLogs)r.timeLogs=raw.timeLogs.map(l=>({id:l.time_log_id||l.id||gid(),taskId:l.task_id||l.taskId||'',startTime:l.start_ts?new Date(l.start_ts).toISOString():(l.startTime||new Date().toISOString()),endTime:l.end_ts?new Date(l.end_ts).toISOString():(l.endTime||new Date().toISOString()),duration:l.duration_sec?Math.round(l.duration_sec/60):(l.duration||0)}));
-  if(raw.principles){const p=raw.principles;r.principles={main:p.motto||p.main||'',sub:(p.subCopy||p.sub||'')+(p.principles?'\n'+p.principles:'')};}
-  if(raw.clientOrder)r.clientOrder=raw.clientOrder;
-  if(raw.runningState){const rs=raw.runningState;r.runningState=rs?.task_id?{taskId:rs.task_id,startTime:rs.start_ts?new Date(rs.start_ts).toISOString():null}:rs;}
-  return r;
-}
+    <!-- Small accent lines -->
+    <div class="h-acc" style="top:10px;left:1%;width:20px;height:1.5px;background:rgba(184,212,255,.5)"></div>
+    <div class="h-acc" style="top:32px;left:1.5%;width:12px;height:1.5px;background:rgba(26,26,26,.15)"></div>
+    <div class="h-acc" style="bottom:45px;left:18%;width:14px;height:1.5px;background:rgba(255,255,255,.4)"></div>
+    <div class="h-acc" style="top:70px;right:2%;width:1.5px;height:22px;background:rgba(26,26,26,.1)"></div>
+    <div class="h-acc" style="bottom:55px;right:40%;width:1.5px;height:16px;background:rgba(255,255,255,.3)"></div>
+    <!-- Small accent squares -->
+    <div class="h-acc" style="bottom:20px;left:1%;width:7px;height:7px;background:rgba(184,212,255,.25)"></div>
+    <div class="h-acc" style="top:50px;left:55%;width:5px;height:5px;background:rgba(255,200,221,.2);transform:rotate(45deg)"></div>
+    <div class="h-acc" style="top:8px;right:30%;width:5px;height:5px;background:rgba(212,197,249,.18)"></div>
 
-// ==================== AUTH COMPONENTS ====================
-function AuthScreen({onAuth}){
-  const[mode,setMode]=useState('login');
-  const[email,setEmail]=useState('');
-  const[pass,setPass]=useState('');
-  const[err,setErr]=useState('');
-  const[loading,setLoading]=useState(false);
+    <!-- Motto -->
+    <div class="h-motto">
+      <div class="h-motto-main">独責開眼</div>
+      <div class="h-motto-sub">責任を負うと見える世界が変わる</div>
+      <div class="h-motto-edit">編集 ─</div>
+    </div>
+  </div>
 
-  const handle=async(e)=>{
-    e?.preventDefault?.();setErr('');setLoading(true);
-    try{
-      let res;
-      if(mode==='login'){res=await sb.auth.signInWithPassword({email,password:pass})}
-      else{res=await sb.auth.signUp({email,password:pass})}
-      if(res.error)throw res.error;
-      if(res.data?.user)onAuth(res.data.user);
-    }catch(e){setErr(e.message||'エラー')}
-    setLoading(false);
-  };
+  <!-- Diagonal divider -->
+  <div class="h-divider"></div>
 
-  return(
-    <div className="auth-bg">
-      <div className="auth-card">
-        <div className="auth-title">TimeValue</div>
-        <div className="auth-sub">TRACKER — {mode==='login'?'ログイン':'アカウント作成'}</div>
-        {err&&<div className="auth-err">{err}</div>}
-        <div className="fg"><label className="fl">メールアドレス</label><input className="inp" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>
-        <div className="fg"><label className="fl">パスワード</label><input className="inp" type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="6文字以上" onKeyDown={e=>e.key==='Enter'&&handle()}/></div>
-        <button className="btn btn-p" style={{width:'100%',marginTop:'.3rem'}} onClick={handle} disabled={loading}>{loading?'...':(mode==='login'?'ログイン':'登録')}</button>
-        <div className="auth-sw">{mode==='login'?(<>アカウントがない？ <a onClick={()=>{setMode('signup');setErr('')}}>新規登録</a></>):(<>アカウントがある？ <a onClick={()=>{setMode('login');setErr('')}}>ログイン</a></>)}</div>
+  <!-- Task list preview -->
+  <div class="mg">
+    <div>
+      <div class="sh"><h2 class="st">Tasks</h2></div>
+      <div>
+        <div class="cg-head"><span>合同会社SIN JAPAN</span><span class="cg-count">2件</span></div>
+        <div class="task-row"><span class="task-date">今日</span><span class="task-name">物流エージェントの構想</span><span class="task-cat cat-c">Creative</span><span class="task-time">3h00m</span></div>
+        <div class="task-row"><span class="task-date">今日</span><span class="task-name">一般貨物-求貨求車獲得</span><span class="task-cat cat-s">Strategic</span><span class="task-time">0m</span></div>
+        <div class="cg-head" style="margin-top:.4rem"><span>株式会社MEEM</span><span class="cg-count">6件</span></div>
+        <div class="task-row"><span class="task-date">今日 10:00</span><span class="task-name">Lstep確認1</span><span class="task-cat cat-r">Routine</span><span class="task-time">0m</span></div>
+        <div class="task-row"><span class="task-date">今日 16:00</span><span class="task-name">Lstep確認2</span><span class="task-cat cat-r">Routine</span><span class="task-time">0m</span></div>
+        <div class="task-row"><span class="task-date">今日</span><span class="task-name">審査form判定 / scout判定 / 面談ID&着金ID作成</span><span class="task-cat cat-r">Routine</span><span class="task-time">0m</span></div>
+        <div class="task-row"><span class="task-date" style="color:var(--mint)">明日</span><span class="task-name">報酬確定連絡</span><span class="task-cat cat-a">Admin</span><span class="task-time">0m</span></div>
       </div>
     </div>
-  );
-}
-
-// ==================== SUPABASE SYNC ====================
-async function loadFromSupabase(userId){
-  if(!sb)return null;
-  try{
-    const{data,error}=await sb.from('user_data').select('*').eq('user_id',userId).single();
-    if(error){
-      if(error.code==='PGRST116'){
-        // No row yet, create one
-        await sb.from('user_data').insert({user_id:userId});
-        return null;
-      }
-      console.error('Load error:',error);return null;
-    }
-    return data;
-  }catch(e){console.error('Load error:',e);return null;}
-}
-
-let saveTimer=null;
-function saveToSupabase(userId,state){
-  if(!sb||!userId)return;
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(async()=>{
-    try{
-      await sb.from('user_data').upsert({
-        user_id:userId,
-        clients:state.clients,
-        tasks:state.tasks,
-        time_logs:state.timeLogs,
-        principles:state.principles,
-        client_order:state.clientOrder,
-        running_state:state.running
-      });
-    }catch(e){console.error('Save error:',e)}
-  },800);
-}
-
-// ==================== ROOT (Auth Gate + App) ====================
-function Root(){
-  const[user,setUser]=useState(null);
-  const[authLoading,setAuthLoading]=useState(true);
-  const[synced,setSynced]=useState(false);
-
-  useEffect(()=>{
-    if(!sb){setAuthLoading(false);return;}
-    sb.auth.getSession().then(({data:{session}})=>{
-      setUser(session?.user||null);
-      setAuthLoading(false);
-    });
-    const{data:{subscription}}=sb.auth.onAuthStateChange((_,session)=>{
-      setUser(session?.user||null);
-    });
-    return()=>subscription?.unsubscribe();
-  },[]);
-
-  if(!sbEnabled)return <App userId={null} synced={false}/>;
-  if(authLoading)return <div className="auth-bg"><div style={{color:'var(--t3)',fontSize:'.7rem'}}>読み込み中...</div></div>;
-  if(!user)return <AuthScreen onAuth={u=>setUser(u)}/>;
-  return <App userId={user.id} synced={synced} setSynced={setSynced} userEmail={user.email} onLogout={async()=>{await sb.auth.signOut();setUser(null)}}/>;
-}
-
-// ==================== MAIN APP ====================
-function App({userId,synced,setSynced,userEmail,onLogout}){
-  const[tab,setTab]=useState('dashboard');
-  const[clients,setCl]=useState(()=>ld('timevalue-clients',[]));
-  const[tasks,setTk]=useState(()=>ld('timevalue-tasks',[]));
-  const[timeLogs,setTl]=useState(()=>ld('timevalue-timeLogs',[]));
-  const[principles,setPr]=useState(()=>ld('timevalue-principles',{main:'独責開眼',sub:'責任を負うと見える世界が変わる'}));
-  const[clientOrder,setCo]=useState(()=>ld('timevalue-clientOrder',[]));
-  const[running,setRn]=useState(()=>ld('timevalue-runningState',null));
-  const[toast,setToast]=useState(null);
-  const[pi]=useState(()=>Math.floor(Math.random()*PHOTOS.length));
-  const[si]=useState(()=>Math.floor(Math.random()*SIDE.length));
-  const[cloudLoaded,setCloudLoaded]=useState(false);
-
-  // Load from Supabase on mount (overrides localStorage)
-  useEffect(()=>{
-    if(!userId)return;
-    (async()=>{
-      const data=await loadFromSupabase(userId);
-      if(data){
-        const hasCloud=data.tasks?.length>0||data.clients?.length>0;
-        const hasLocal=ld('timevalue-tasks',[]).length>0||ld('timevalue-clients',[]).length>0;
-        if(hasCloud){
-          // Cloud has data - use it
-          if(data.clients)setCl(data.clients);
-          if(data.tasks)setTk(data.tasks);
-          if(data.time_logs)setTl(data.time_logs);
-          if(data.principles&&data.principles.main)setPr(data.principles);
-          if(data.client_order)setCo(data.client_order);
-          if(data.running_state!==undefined)setRn(data.running_state);
-        }else if(hasLocal){
-          // Cloud empty but local has data - migrate up
-          saveToSupabase(userId,{
-            clients:ld('timevalue-clients',[]),
-            tasks:ld('timevalue-tasks',[]),
-            timeLogs:ld('timevalue-timeLogs',[]),
-            principles:ld('timevalue-principles',{main:'独責開眼',sub:'責任を負うと見える世界が変わる'}),
-            clientOrder:ld('timevalue-clientOrder',[]),
-            running:ld('timevalue-runningState',null)
-          });
-        }
-      }
-      setCloudLoaded(true);
-      if(setSynced)setSynced(true);
-    })();
-  },[userId]);
-
-  // Save to localStorage
-  useEffect(()=>sv('timevalue-clients',clients),[clients]);
-  useEffect(()=>sv('timevalue-tasks',tasks),[tasks]);
-  useEffect(()=>sv('timevalue-timeLogs',timeLogs),[timeLogs]);
-  useEffect(()=>sv('timevalue-principles',principles),[principles]);
-  useEffect(()=>sv('timevalue-clientOrder',clientOrder),[clientOrder]);
-  useEffect(()=>sv('timevalue-runningState',running),[running]);
-
-  // Save to Supabase (debounced) after cloud data is loaded
-  useEffect(()=>{
-    if(!cloudLoaded||!userId)return;
-    saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});
-  },[clients,tasks,timeLogs,principles,clientOrder,running,cloudLoaded,userId]);
-
-  const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2200)},[]);
-  const gcn=useCallback(cid=>{const c=clients.find(x=>x.id===cid);return c?c.name:'未分類'},[clients]);
-  const oc=useMemo(()=>{if(!clientOrder.length)return clients;const o=[];clientOrder.forEach(id=>{const c=clients.find(x=>x.id===id);if(c)o.push(c)});clients.forEach(c=>{if(!o.find(x=>x.id===c.id))o.push(c)});return o},[clients,clientOrder]);
-  const gtt=useCallback(tid=>timeLogs.filter(l=>l.taskId===tid).reduce((a,l)=>a+(l.duration||0),0),[timeLogs]);
-  const startT=useCallback(tid=>{if(running){show('他のタイマーが実行中');return}setRn({taskId:tid,startTime:new Date().toISOString()});show('開始')},[running,show]);
-  const stopT=useCallback(()=>{if(!running)return;const dur=Math.round((new Date()-new Date(running.startTime))/60000);if(dur>0)setTl(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime:new Date().toISOString(),duration:dur}]);setRn(null);show('停止')},[running,show]);
-
-  const tabs=[{id:'dashboard',l:'Dashboard'},{id:'clients',l:'Clients'},{id:'report',l:'Report'}];
-  return(
-    <div className="app">
-      <header className="hd">
-        <div style={{display:'flex',alignItems:'baseline',gap:'.4rem'}}>
-          <div className="logo">TimeValue</div><span className="logo-sub">Tracker</span>
-          {sbEnabled&&<span className={'sync-badge'+(cloudLoaded?' ':' off')}><span className={'dot'+(cloudLoaded?' on':' off')}></span>{cloudLoaded?'同期済':'接続中'}</span>}
-        </div>
-        <div style={{display:'flex',alignItems:'center',gap:'.5rem'}}>
-          <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
-          {onLogout&&<button className="bt" style={{fontSize:'.48rem',padding:'.1rem .3rem'}} onClick={onLogout} title={userEmail}>ログアウト</button>}
-        </div>
-      </header>
-      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
-      {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
-      {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
-      <div className="foot">TimeValue Tracker v16</div>
-      {toast&&<div className="toast">{toast}</div>}
-    </div>
-  );
-}
-
-function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
-  const[eP,setEP]=useState(false);const[pF,setPF]=useState(pr);
-  const[modal,setMo]=useState(false);const[et,setEt]=useState(null);
-  const[filter,setFi]=useState('active');const[exp,setExp]=useState(null);
-  const[editTime,setEditTime]=useState(null);const[etH,setEtH]=useState(0);const[etM,setEtM]=useState(0);
-
-  const ft=useMemo(()=>{
-    let list;
-    if(filter==='active')list=tasks.filter(t=>!t.completed);
-    else if(filter==='completed')list=tasks.filter(t=>t.completed);
-    else list=[...tasks];
-    return list.sort((a,b)=>{const da=a.dueDate||'9999';const db=b.dueDate||'9999';if(da!==db)return da.localeCompare(db);return(a.dueTime||'99:99').localeCompare(b.dueTime||'99:99')});
-  },[tasks,filter]);
-
-  const grouped=useMemo(()=>{
-    const groups=[];const order=clientOrder.length?clientOrder:clients.map(c=>c.id);
-    const cids=[...new Set(ft.map(t=>t.clientId))];const sorted=[];order.forEach(id=>{if(cids.includes(id))sorted.push(id)});cids.forEach(id=>{if(!sorted.includes(id))sorted.push(id)});
-    sorted.forEach(cid=>{const cTasks=ft.filter(t=>t.clientId===cid);if(cTasks.length)groups.push({clientId:cid,clientName:gcn(cid),tasks:cTasks})});
-    return groups;
-  },[ft,clientOrder,clients,gcn]);
-
-  const saveP=()=>{setPr(pF);setEP(false);show('更新')};
-  const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
-  const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
-
-  // Complete with recurring auto-generation (FIXED: proper next due from today)
-  const comp=id=>{
-    const task=tasks.find(t=>t.id===id);if(!task)return;
-    setTk(p=>{
-      let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t);
-      if(task.repeat&&task.repeat!=='none'){
-        const nd=nextDue(task);
-        updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,createdAt:new Date().toISOString()}];
-        show('完了 → 次回 '+fmtDate(nd));
-      }else{show('完了');}
-      return updated;
-    });
-  };
-
-  // Uncomplete task
-  const uncomp=id=>{setTk(p=>p.map(t=>t.id===id?{...t,completed:false,lastCompleted:null}:t));show('未完了に戻し')};
-
-  const startEditTime=(tid,e)=>{e.stopPropagation();const tt=gtt(tid);setEditTime(tid);setEtH(Math.floor(tt/60));setEtM(Math.round(tt%60));};
-  const saveEditTime=tid=>{
-    const newMin=(parseInt(etH)||0)*60+(parseInt(etM)||0);
-    const currentMin=gtt(tid);const diff=newMin-currentMin;
-    if(diff!==0){const n=new Date();setTl(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-Math.abs(diff)*60000).toISOString(),endTime:n.toISOString(),duration:diff}]);show((diff>0?'+':'')+diff+'分');}
-    setEditTime(null);
-  };
-
-  return(
-    <div className="fi">
-      <div className="hero">
-        <div className="hero-left">
-          <div className="hero-motto">{pr.main}</div>
-          <div className="hero-sub">{pr.sub.split('\n')[0]}</div>
-          <button className="hero-edit-btn" onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
-          <div className="hero-line"></div>
-        </div>
-        <div className="hero-photo"><img src={PHOTOS[pi]} alt=""/></div>
+    <div>
+      <div class="sb-box">
+        <div class="sb-label">Timer</div>
+        <div class="sb-timer">00:00:00</div>
+        <div class="sb-hint">タスクから開始</div>
       </div>
-
-      {eP&&<div className="motto-ed fi">
-        <div className="fg"><label className="fl">Motto</label><input className="inp" value={pF.main} onChange={e=>setPF({...pF,main:e.target.value})}/></div>
-        <div className="fg"><label className="fl">Sub</label><textarea className="txa" value={pF.sub} onChange={e=>setPF({...pF,sub:e.target.value})} rows={2}/></div>
-        <div style={{display:'flex',gap:'.3rem'}}><button className="btn btn-p btn-s" onClick={saveP}>保存</button><button className="btn btn-s" onClick={()=>setEP(false)}>取消</button></div>
-      </div>}
-
-      <div className="rule"></div>
-
-      <div className="mg">
-        <div>
-          <div className="sh">
-            <h2 className="st">Tasks</h2>
-            <div style={{display:'flex',gap:'.3rem',alignItems:'center'}}>
-              <select className="sel" style={{width:'auto',padding:'.12rem .35rem',fontSize:'.58rem'}} value={filter} onChange={e=>setFi(e.target.value)}>
-                <option value="active">アクティブ</option><option value="completed">完了済み</option><option value="all">すべて</option>
-              </select>
-              <button className="btn btn-p btn-s" onClick={()=>{setEt(null);setMo(true)}}>新規</button>
-            </div>
-          </div>
-          <div className="tl">
-            {grouped.length===0?<div className="tr" style={{justifyContent:'center',color:'var(--t3)',padding:'1.2rem'}}>タスクがありません</div>:
-            grouped.map(g=>(
-              <div className="cg" key={g.clientId}>
-                <div className="cg-head"><span>{g.clientName}</span><span className="cg-cnt">{g.tasks.length}件</span></div>
-                {g.tasks.map(task=>{
-                  const isR=running&&running.taskId===task.id;
-                  const cat=CATS.find(c=>c.id===task.category);
-                  const tt=gtt(task.id);
-                  const isE=exp===task.id;
-                  const isET=editTime===task.id;
-                  return(<React.Fragment key={task.id}>
-                    <div className={'tr'+(task.completed?' done':'')+(isR?' run':'')} onClick={()=>setExp(isE?null:task.id)}>
-                      <span className={'td-date '+dateClass(task.dueDate)}>{fmtDate(task.dueDate)}{task.dueTime?' '+task.dueTime:''}</span>
-                      <span className="tn">{task.name}</span>
-                      {cat&&<span className={'tt '+cat.c}>{cat.l}</span>}
-                      {isET?(
-                        <div className="ttm-ed" onClick={e=>e.stopPropagation()}>
-                          <input value={etH} onChange={e=>setEtH(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveEditTime(task.id);if(e.key==='Escape')setEditTime(null)}} autoFocus/>
-                          <span>h</span>
-                          <input value={etM} onChange={e=>setEtM(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveEditTime(task.id);if(e.key==='Escape')setEditTime(null)}}/>
-                          <span>m</span>
-                          <button className="bt" onClick={()=>saveEditTime(task.id)}>OK</button>
-                        </div>
-                      ):(
-                        <span className="ttm" onClick={e=>!task.completed&&startEditTime(task.id,e)}>{fT(tt)}</span>
-                      )}
-                      {/* BUTTON ORDER: [完了] [開始/停止] for active; [戻す] for completed */}
-                      <div className="ta">
-                        {!task.completed&&<button className="bt bt-done" onClick={e=>{e.stopPropagation();comp(task.id)}}>完了</button>}
-                        {task.completed&&<button className="bt bt-undo" onClick={e=>{e.stopPropagation();uncomp(task.id)}}>戻す</button>}
-                        {!task.completed&&(isR?
-                          <button className="bt bt-st" onClick={e=>{e.stopPropagation();stopT()}}>停止</button>:
-                          <button className="bt bt-go" onClick={e=>{e.stopPropagation();startT(task.id)}}>開始</button>
-                        )}
-                      </div>
-                    </div>
-                    {/* Expand: [編集] [削除] on right */}
-                    {isE&&<div className="te">
-                      <span style={{flex:1}}></span>
-                      <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
-                      <button className="bt bt-x" onClick={()=>del(task.id)}>削除</button>
-                    </div>}
-                  </React.Fragment>);
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div><div className="sb-inner">
-          <div className="tw"><TimerW running={running} stopT={stopT} tasks={tasks} gcn={gcn}/></div>
-          <div className="side-photo"><img src={SIDE[si]} alt=""/></div>
-        </div></div>
+      <div class="sb-photo-wrap">
+        <img class="sb-photo" src="https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&q=80" alt="">
       </div>
-      {modal&&<TaskModal task={et} clients={clients} onSave={saveTask} onClose={()=>{setMo(false);setEt(null)}}/>}
     </div>
-  );
-}
+  </div>
 
-function TimerW({running,stopT,tasks,gcn}){
-  const[el,setEl]=useState(0);const ref=useRef(null);
-  useEffect(()=>{if(running?.startTime){const u=()=>setEl(Math.floor((Date.now()-new Date(running.startTime).getTime())/1000));u();ref.current=setInterval(u,1000);return()=>clearInterval(ref.current)}else{setEl(0);if(ref.current)clearInterval(ref.current)}},[running]);
-  const rt=running?tasks.find(t=>t.id===running.taskId):null;
-  return(<><div className="tw-l">Timer</div>{rt?(<div><div className="tw-n">{rt.name}</div><div className="tw-c">{gcn(rt.clientId)}</div><div className="tw-d on">{fTm(el)}</div><div className="tw-ctr"><button className="btn btn-p btn-s" onClick={stopT}>停止</button></div></div>):(<div style={{textAlign:'center',padding:'.4rem 0'}}><div className="tw-d off">00:00:00</div><div style={{fontSize:'.55rem',color:'var(--t3)',marginTop:'.15rem'}}>タスクから開始</div></div>)}</>);
-}
+  <div class="foot">TimeValue Tracker v16</div>
+</div>
 
-function TaskModal({task,clients,onSave,onClose}){
-  const[f,sF]=useState({name:task?.name||'',clientId:task?.clientId||(clients[0]?.id||''),category:task?.category||'routine',repeat:task?.repeat||'none',repeatDays:task?.repeatDays||[],dueDate:task?.dueDate||'',dueTime:task?.dueTime||'',notes:task?.notes||''});
-  const td=d=>sF(p=>({...p,repeatDays:p.repeatDays.includes(d)?p.repeatDays.filter(x=>x!==d):[...p.repeatDays,d].sort()}));
-  return(<div className="mo-bg" onClick={onClose}><div className="mo" onClick={e=>e.stopPropagation()}>
-    <div className="mo-t">{task?'タスクを編集':'新規タスク'}</div>
-    <div className="fg"><label className="fl">タスク名</label><input className="inp" value={f.name} onChange={e=>sF({...f,name:e.target.value})} autoFocus/></div>
-    <div className="fr"><div className="fg"><label className="fl">取引先</label><select className="sel" value={f.clientId} onChange={e=>sF({...f,clientId:e.target.value})}><option value="">未分類</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div><div className="fg"><label className="fl">カテゴリー</label><select className="sel" value={f.category} onChange={e=>sF({...f,category:e.target.value})}>{CATS.map(c=><option key={c.id} value={c.id}>{c.l}</option>)}</select></div></div>
-    <div className="fr"><div className="fg"><label className="fl">期日</label><input className="inp" type="date" value={f.dueDate} onChange={e=>sF({...f,dueDate:e.target.value})}/></div><div className="fg"><label className="fl">時刻</label><input className="inp" type="time" value={f.dueTime} onChange={e=>sF({...f,dueTime:e.target.value})}/></div></div>
-    <div className="fg"><label className="fl">繰り返し</label><select className="sel" value={f.repeat} onChange={e=>sF({...f,repeat:e.target.value})}>{REPS.map(r=><option key={r.id} value={r.id}>{r.l}</option>)}</select></div>
-    {f.repeat==='weekly'&&<div className="fg"><label className="fl">曜日</label><div className="wd">{WDS.map(w=><button key={w.id} type="button" className={'wd-b'+(f.repeatDays.includes(w.id)?' on':'')} onClick={()=>td(w.id)}>{w.l}</button>)}</div></div>}
-    <div className="fg"><label className="fl">メモ</label><textarea className="txa" value={f.notes} onChange={e=>sF({...f,notes:e.target.value})}/></div>
-    <div className="mo-f"><button className="btn" onClick={onClose}>キャンセル</button><button className="btn btn-p" onClick={()=>{if(f.name.trim())onSave(f)}}>{task?'更新':'作成'}</button></div>
-  </div></div>);
-}
-
-function Clients({clients,setCl,oc,co,setCo,tasks,timeLogs,show}){
-  const[mo,setMo]=useState(false);const[ec,setEc]=useState(null);const di=useRef(null),doi=useRef(null);
-  const save=d=>{if(ec){setCl(p=>p.map(c=>c.id===ec.id?{...c,...d}:c));show('更新')}else{const n={id:gid(),...d};setCl(p=>[...p,n]);setCo(p=>[...p,n.id]);show('追加')}setMo(false);setEc(null)};
-  const del=id=>{if(confirm('削除？')){setCl(p=>p.filter(c=>c.id!==id));setCo(p=>p.filter(i=>i!==id));show('削除')}};
-  const gcs=cid=>{const{s,e}=mR();const ct=tasks.filter(t=>t.clientId===cid);const cl=timeLogs.filter(l=>{const t=tasks.find(x=>x.id===l.taskId);return t&&t.clientId===cid});const ml=cl.filter(l=>{const d=new Date(l.startTime);return d>=s&&d<=e});return{tc:ct.length,tm:ml.reduce((a,l)=>a+(l.duration||0),0)}};
-  return(<div className="fi" style={{padding:'1.5rem 0'}}>
-    <div className="sh"><h2 className="st">Clients</h2><button className="btn btn-p btn-s" onClick={()=>{setEc(null);setMo(true)}}>新規</button></div>
-    {oc.length===0?<div className="cl" style={{textAlign:'center',color:'var(--t3)'}}>なし</div>:oc.map((c,i)=>{const s=gcs(c.id);return(<div key={c.id} className="cl" draggable onDragStart={()=>{di.current=i}} onDragEnter={()=>{doi.current=i}} onDragEnd={()=>{const it=[...oc];const dr=it[di.current];it.splice(di.current,1);it.splice(doi.current,0,dr);setCo(it.map(x=>x.id))}} onDragOver={e=>e.preventDefault()}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><span style={{fontWeight:700,fontSize:'.82rem'}}>{c.name}</span><span style={{fontSize:'.65rem',color:'var(--t2)',marginLeft:'.7rem'}}>{fY(c.monthlyRevenue||0)}/mo</span></div><div style={{display:'flex',gap:'2px'}}><button className="bt" onClick={()=>{setEc(c);setMo(true)}}>編集</button><button className="bt bt-x" onClick={()=>del(c.id)}>削除</button></div></div>
-      <div style={{fontSize:'.55rem',color:'var(--t3)',marginTop:'.1rem'}}>{s.tc} tasks / 今月: {fT(s.tm)}</div>
-    </div>)})}
-    {mo&&<div className="mo-bg" onClick={()=>{setMo(false);setEc(null)}}><div className="mo" onClick={e=>e.stopPropagation()}><CForm c={ec} onSave={save} onClose={()=>{setMo(false);setEc(null)}}/></div></div>}
-  </div>);
-}
-function CForm({c,onSave,onClose}){const[f,sF]=useState({name:c?.name||'',monthlyRevenue:c?.monthlyRevenue||0});return(<><div className="mo-t">{c?'編集':'新規取引先'}</div><div className="fg"><label className="fl">名前</label><input className="inp" value={f.name} onChange={e=>sF({...f,name:e.target.value})} autoFocus/></div><div className="fg"><label className="fl">月額報酬</label><input className="inp" type="number" value={f.monthlyRevenue} onChange={e=>sF({...f,monthlyRevenue:parseInt(e.target.value)||0})}/></div><div className="mo-f"><button className="btn" onClick={onClose}>取消</button><button className="btn btn-p" onClick={()=>{if(f.name.trim())onSave(f)}}>{c?'更新':'追加'}</button></div></>);}
-
-function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,setCo,running,setRn,show}){
-  const[per,setPer]=useState('month');const[cf,setCf]=useState('all');const[sf,setSf]=useState('completed');const[msgs,setMs]=useState([]);const[cin,setCin]=useState('');const[cld,setCld]=useState(false);const fRef=useRef(null);
-  const[cFrom,setCFrom]=useState('');const[cTo,setCTo]=useState('');
-  // Date range helper
-  const getRange=(p)=>{
-    const now=new Date();const td=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-    if(p==='today')return{s:td,e:new Date(td.getTime()+864e5-1)};
-    if(p==='yesterday'){const y=new Date(td.getTime()-864e5);return{s:y,e:new Date(td.getTime()-1)};}
-    if(p==='week')return{s:new Date(now-7*864e5),e:now};
-    if(p==='month')return mR();
-    if(p==='custom'&&cFrom&&cTo){return{s:new Date(cFrom+'T00:00:00'),e:new Date(cTo+'T23:59:59')};}
-    return null;
-  };
-  const kpi=useMemo(()=>{let logs=[...timeLogs];const r=getRange(per);if(r){logs=logs.filter(x=>{const d=new Date(x.startTime);return d>=r.s&&d<=r.e})}if(cf!=='all')logs=logs.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});const tm=logs.reduce((a,l)=>a+(l.duration||0),0);let tr=0;if(cf==='all')tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);else{const c=clients.find(x=>x.id===cf);tr=c?c.monthlyRevenue||0:0;}return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,tasks,clients,per,cf,cFrom,cTo]);
-  const fl=useMemo(()=>{let l=[...timeLogs];const r=getRange(per);if(r){l=l.filter(x=>{const d=new Date(x.startTime);return d>=r.s&&d<=r.e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf,cFrom,cTo]);
-  // FIXED: include dueDate in report table
-  const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(sf==='completed'&&!t.completed)return;if(sf==='active'&&t.completed)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,due:t.dueDate,done:t.completed};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>(b.due||'').localeCompare(a.due||''))},[fl,tasks,gcn,sf]);
-  const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
-  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v16'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
-  const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
-  return(<div className="fi" style={{padding:'1.5rem 0'}}>
-    <div className="sh"><h2 className="st">Report</h2></div>
-    <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="today">今日</option><option value="yesterday">昨日</option><option value="week">1週間</option><option value="month">今月</option><option value="custom">期間指定</option><option value="all">全期間</option></select></div>{per==='custom'&&<><div className="fg" style={{marginBottom:0}}><label className="fl">開始日</label><input className="inp" type="date" style={{width:'auto',fontSize:'.65rem',padding:'.12rem .3rem'}} value={cFrom} onChange={e=>setCFrom(e.target.value)}/></div><div className="fg" style={{marginBottom:0}}><label className="fl">終了日</label><input className="inp" type="date" style={{width:'auto',fontSize:'.65rem',padding:'.12rem .3rem'}} value={cTo} onChange={e=>setCTo(e.target.value)}/></div></>}<div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div><div className="fg" style={{marginBottom:0}}><label className="fl">ステータス</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={sf} onChange={e=>setSf(e.target.value)}><option value="completed">完了済み</option><option value="active">進行中</option><option value="all">すべて</option></select></div></div>
-    <div className="kpi"><div className="kpi-i"><div className="kpi-l">Work</div><div className="kpi-v">{fT(kpi.tm)}</div></div><div className="kpi-i"><div className="kpi-l">Revenue</div><div className="kpi-v">{fY(kpi.tr)}</div></div><div className="kpi-i"><div className="kpi-l">Rate</div><div className="kpi-v">{fY(Math.round(kpi.hr))}<span className="kpi-u">/h</span></div></div></div>
-    <div style={{marginBottom:'1.2rem'}}>{ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--bdr2)',padding:'.4rem'}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>期日</th><th>Cat</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.cn}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.due?fmtDate(t.due):'-'}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.2rem',background:'var(--white)',border:'1px solid var(--bdr2)'}}>データなし</div>}</div>
-    <div className="cb" style={{marginBottom:'1.2rem'}}><div className="tw-l">AI Reflection</div><div className="cm">{msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.65rem',padding:'.8rem 0'}}>質問しましょう</div>}{msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}{cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}</div><div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div></div>
-    <div className="dg"><div className="dc"><div style={{fontWeight:700,marginBottom:'.2rem',fontSize:'.8rem'}}>Export</div><button className="btn btn-p btn-s" style={{marginTop:'.3rem'}} onClick={expData}>エクスポート</button></div><div className="dc"><div style={{fontWeight:700,marginBottom:'.2rem',fontSize:'.8rem'}}>Import</div><input ref={fRef} type="file" accept=".json" onChange={impData} style={{display:'none'}}/><button className="btn btn-s" style={{marginTop:'.3rem'}} onClick={()=>fRef.current?.click()}>インポート</button></div></div>
-  </div>);
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<Root/>);
-</script>
 </body>
 </html>
