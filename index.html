@@ -8,7 +8,7 @@
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
 --bg:#f5f3f0;--white:#fff;--text:#1a1a1a;--t2:#666;--t3:#aaa;
@@ -232,6 +232,24 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
   .tw-d{font-size:1.3rem}
   .rule{height:2px}
 }
+
+/* AUTH */
+.auth-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:1rem}
+.auth-card{background:var(--white);width:100%;max-width:380px;padding:2rem;position:relative}
+.auth-card::before{content:'';position:absolute;top:-8px;left:-8px;right:12px;bottom:12px;border:1.5px solid var(--fd);pointer-events:none}
+.auth-card::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
+.auth-title{font-size:1.3rem;font-weight:900;margin-bottom:.15rem}
+.auth-sub{font-size:.6rem;color:var(--t3);margin-bottom:1.5rem}
+.auth-err{font-size:.65rem;color:#c77;margin-bottom:.5rem;padding:.3rem .5rem;background:rgba(204,119,119,.08);border:1px solid rgba(204,119,119,.15)}
+.auth-sw{font-size:.6rem;color:var(--t3);margin-top:1rem;text-align:center}
+.auth-sw a{color:var(--text);font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.auth-divider{display:flex;align-items:center;gap:.5rem;margin:1rem 0;font-size:.55rem;color:var(--t3)}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--bdr2)}
+.sync-badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.48rem;color:var(--t3);padding:.1rem .35rem;background:rgba(199,240,219,.3);border-radius:2px}
+.sync-badge.off{background:rgba(255,200,221,.3)}
+.sync-badge .dot{width:5px;height:5px;border-radius:50%}
+.sync-badge .dot.on{background:#5a8f6e}
+.sync-badge .dot.off{background:#c77}
 </style>
 </head>
 <body>
@@ -241,6 +259,17 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 <div id="root"></div>
 <script type="text/babel">
 const{useState,useEffect,useRef,useCallback,useMemo}=React;
+
+// ============================================================
+// SUPABASE CONFIG - Replace these with your project values
+// ============================================================
+const SUPABASE_URL = '__YOUR_SUPABASE_URL__';
+const SUPABASE_KEY = '__YOUR_SUPABASE_ANON_KEY__';
+// ============================================================
+
+const sbEnabled = SUPABASE_URL !== '__YOUR_SUPABASE_URL__' && SUPABASE_KEY !== '__YOUR_SUPABASE_ANON_KEY__';
+const sb = sbEnabled ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
 const gid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,5);
 const fT=m=>{if(!m&&m!==0)return'0m';const h=Math.floor(m/60);const mm=Math.round(m%60);return h>0?h+'h'+mm.toString().padStart(2,'0')+'m':mm+'m'};
 const fTm=s=>{const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const ss=s%60;return h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+':'+ss.toString().padStart(2,'0')};
@@ -268,34 +297,14 @@ const SIDE=[
 
 function fmtDate(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'今日';if(diff===1)return'明日';return(dt.getMonth()+1)+'/'+dt.getDate();}
 function dateClass(d){if(!d)return'';const t=new Date();t.setHours(0,0,0,0);const dt=new Date(d+'T00:00:00');const diff=Math.round((dt-t)/864e5);if(diff===0)return'today';if(diff<0)return'overdue';return'';}
-
-// FIXED: Calculate next due date properly from TODAY
-// Local date formatter (avoids toISOString UTC timezone shift for JST)
 const localDate=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-
 function nextDue(task){
   const today=new Date();today.setHours(0,0,0,0);
-  if(task.repeat==='daily'){
-    const n=new Date(today);n.setDate(n.getDate()+1);
-    return localDate(n);
-  }
-  if(task.repeat==='weekly'&&task.repeatDays?.length){
-    for(let i=1;i<=7;i++){
-      const d=new Date(today);d.setDate(d.getDate()+i);
-      if(task.repeatDays.includes(d.getDay()))return localDate(d);
-    }
-    const n=new Date(today);n.setDate(n.getDate()+7);return localDate(n);
-  }
-  if(task.repeat==='monthly'){
-    const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):today;
-    const dayOfMonth=base.getDate();
-    const n=new Date(today.getFullYear(),today.getMonth()+1,dayOfMonth);
-    if(n<=today)n.setMonth(n.getMonth()+1);
-    return localDate(n);
-  }
+  if(task.repeat==='daily'){const n=new Date(today);n.setDate(n.getDate()+1);return localDate(n);}
+  if(task.repeat==='weekly'&&task.repeatDays?.length){for(let i=1;i<=7;i++){const d=new Date(today);d.setDate(d.getDate()+i);if(task.repeatDays.includes(d.getDay()))return localDate(d);}const n=new Date(today);n.setDate(n.getDate()+7);return localDate(n);}
+  if(task.repeat==='monthly'){const base=task.dueDate?new Date(task.dueDate+'T00:00:00'):today;const dayOfMonth=base.getDate();const n=new Date(today.getFullYear(),today.getMonth()+1,dayOfMonth);if(n<=today)n.setMonth(n.getMonth()+1);return localDate(n);}
   return task.dueDate;
 }
-
 function migrate(raw){
   const r={};
   if(raw.clients)r.clients=raw.clients.map(c=>({id:c.client_id||c.id||gid(),name:c.name||'',monthlyRevenue:c.monthly_fee??c.monthlyRevenue??0}));
@@ -307,7 +316,103 @@ function migrate(raw){
   return r;
 }
 
-function App(){
+// ==================== AUTH COMPONENTS ====================
+function AuthScreen({onAuth}){
+  const[mode,setMode]=useState('login');
+  const[email,setEmail]=useState('');
+  const[pass,setPass]=useState('');
+  const[err,setErr]=useState('');
+  const[loading,setLoading]=useState(false);
+
+  const handle=async(e)=>{
+    e?.preventDefault?.();setErr('');setLoading(true);
+    try{
+      let res;
+      if(mode==='login'){res=await sb.auth.signInWithPassword({email,password:pass})}
+      else{res=await sb.auth.signUp({email,password:pass})}
+      if(res.error)throw res.error;
+      if(res.data?.user)onAuth(res.data.user);
+    }catch(e){setErr(e.message||'エラー')}
+    setLoading(false);
+  };
+
+  return(
+    <div className="auth-bg">
+      <div className="auth-card">
+        <div className="auth-title">TimeValue</div>
+        <div className="auth-sub">TRACKER — {mode==='login'?'ログイン':'アカウント作成'}</div>
+        {err&&<div className="auth-err">{err}</div>}
+        <div className="fg"><label className="fl">メールアドレス</label><input className="inp" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>
+        <div className="fg"><label className="fl">パスワード</label><input className="inp" type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="6文字以上" onKeyDown={e=>e.key==='Enter'&&handle()}/></div>
+        <button className="btn btn-p" style={{width:'100%',marginTop:'.3rem'}} onClick={handle} disabled={loading}>{loading?'...':(mode==='login'?'ログイン':'登録')}</button>
+        <div className="auth-sw">{mode==='login'?(<>アカウントがない？ <a onClick={()=>{setMode('signup');setErr('')}}>新規登録</a></>):(<>アカウントがある？ <a onClick={()=>{setMode('login');setErr('')}}>ログイン</a></>)}</div>
+      </div>
+    </div>
+  );
+}
+
+// ==================== SUPABASE SYNC ====================
+async function loadFromSupabase(userId){
+  if(!sb)return null;
+  try{
+    const{data,error}=await sb.from('user_data').select('*').eq('user_id',userId).single();
+    if(error){
+      if(error.code==='PGRST116'){
+        // No row yet, create one
+        await sb.from('user_data').insert({user_id:userId});
+        return null;
+      }
+      console.error('Load error:',error);return null;
+    }
+    return data;
+  }catch(e){console.error('Load error:',e);return null;}
+}
+
+let saveTimer=null;
+function saveToSupabase(userId,state){
+  if(!sb||!userId)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    try{
+      await sb.from('user_data').upsert({
+        user_id:userId,
+        clients:state.clients,
+        tasks:state.tasks,
+        time_logs:state.timeLogs,
+        principles:state.principles,
+        client_order:state.clientOrder,
+        running_state:state.running
+      });
+    }catch(e){console.error('Save error:',e)}
+  },800);
+}
+
+// ==================== ROOT (Auth Gate + App) ====================
+function Root(){
+  const[user,setUser]=useState(null);
+  const[authLoading,setAuthLoading]=useState(true);
+  const[synced,setSynced]=useState(false);
+
+  useEffect(()=>{
+    if(!sb){setAuthLoading(false);return;}
+    sb.auth.getSession().then(({data:{session}})=>{
+      setUser(session?.user||null);
+      setAuthLoading(false);
+    });
+    const{data:{subscription}}=sb.auth.onAuthStateChange((_,session)=>{
+      setUser(session?.user||null);
+    });
+    return()=>subscription?.unsubscribe();
+  },[]);
+
+  if(!sbEnabled)return <App userId={null} synced={false}/>;
+  if(authLoading)return <div className="auth-bg"><div style={{color:'var(--t3)',fontSize:'.7rem'}}>読み込み中...</div></div>;
+  if(!user)return <AuthScreen onAuth={u=>setUser(u)}/>;
+  return <App userId={user.id} synced={synced} setSynced={setSynced} userEmail={user.email} onLogout={async()=>{await sb.auth.signOut();setUser(null)}}/>;
+}
+
+// ==================== MAIN APP ====================
+function App({userId,synced,setSynced,userEmail,onLogout}){
   const[tab,setTab]=useState('dashboard');
   const[clients,setCl]=useState(()=>ld('timevalue-clients',[]));
   const[tasks,setTk]=useState(()=>ld('timevalue-tasks',[]));
@@ -318,13 +423,54 @@ function App(){
   const[toast,setToast]=useState(null);
   const[pi]=useState(()=>Math.floor(Math.random()*PHOTOS.length));
   const[si]=useState(()=>Math.floor(Math.random()*SIDE.length));
+  const[cloudLoaded,setCloudLoaded]=useState(false);
 
+  // Load from Supabase on mount (overrides localStorage)
+  useEffect(()=>{
+    if(!userId)return;
+    (async()=>{
+      const data=await loadFromSupabase(userId);
+      if(data){
+        const hasCloud=data.tasks?.length>0||data.clients?.length>0;
+        const hasLocal=ld('timevalue-tasks',[]).length>0||ld('timevalue-clients',[]).length>0;
+        if(hasCloud){
+          // Cloud has data - use it
+          if(data.clients)setCl(data.clients);
+          if(data.tasks)setTk(data.tasks);
+          if(data.time_logs)setTl(data.time_logs);
+          if(data.principles&&data.principles.main)setPr(data.principles);
+          if(data.client_order)setCo(data.client_order);
+          if(data.running_state!==undefined)setRn(data.running_state);
+        }else if(hasLocal){
+          // Cloud empty but local has data - migrate up
+          saveToSupabase(userId,{
+            clients:ld('timevalue-clients',[]),
+            tasks:ld('timevalue-tasks',[]),
+            timeLogs:ld('timevalue-timeLogs',[]),
+            principles:ld('timevalue-principles',{main:'独責開眼',sub:'責任を負うと見える世界が変わる'}),
+            clientOrder:ld('timevalue-clientOrder',[]),
+            running:ld('timevalue-runningState',null)
+          });
+        }
+      }
+      setCloudLoaded(true);
+      if(setSynced)setSynced(true);
+    })();
+  },[userId]);
+
+  // Save to localStorage
   useEffect(()=>sv('timevalue-clients',clients),[clients]);
   useEffect(()=>sv('timevalue-tasks',tasks),[tasks]);
   useEffect(()=>sv('timevalue-timeLogs',timeLogs),[timeLogs]);
   useEffect(()=>sv('timevalue-principles',principles),[principles]);
   useEffect(()=>sv('timevalue-clientOrder',clientOrder),[clientOrder]);
   useEffect(()=>sv('timevalue-runningState',running),[running]);
+
+  // Save to Supabase (debounced) after cloud data is loaded
+  useEffect(()=>{
+    if(!cloudLoaded||!userId)return;
+    saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});
+  },[clients,tasks,timeLogs,principles,clientOrder,running,cloudLoaded,userId]);
 
   const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2200)},[]);
   const gcn=useCallback(cid=>{const c=clients.find(x=>x.id===cid);return c?c.name:'未分類'},[clients]);
@@ -337,13 +483,19 @@ function App(){
   return(
     <div className="app">
       <header className="hd">
-        <div style={{display:'flex',alignItems:'baseline'}}><div className="logo">TimeValue</div><span className="logo-sub">Tracker</span></div>
-        <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
+        <div style={{display:'flex',alignItems:'baseline',gap:'.4rem'}}>
+          <div className="logo">TimeValue</div><span className="logo-sub">Tracker</span>
+          {sbEnabled&&<span className={'sync-badge'+(cloudLoaded?' ':' off')}><span className={'dot'+(cloudLoaded?' on':' off')}></span>{cloudLoaded?'同期済':'接続中'}</span>}
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:'.5rem'}}>
+          <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
+          {onLogout&&<button className="bt" style={{fontSize:'.48rem',padding:'.1rem .3rem'}} onClick={onLogout} title={userEmail}>ログアウト</button>}
+        </div>
       </header>
       {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
-      <div className="foot">TimeValue Tracker v15</div>
+      <div className="foot">TimeValue Tracker v16</div>
       {toast&&<div className="toast">{toast}</div>}
     </div>
   );
@@ -529,16 +681,27 @@ function CForm({c,onSave,onClose}){const[f,sF]=useState({name:c?.name||'',monthl
 
 function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,setCo,running,setRn,show}){
   const[per,setPer]=useState('month');const[cf,setCf]=useState('all');const[sf,setSf]=useState('completed');const[msgs,setMs]=useState([]);const[cin,setCin]=useState('');const[cld,setCld]=useState(false);const fRef=useRef(null);
-  const kpi=useMemo(()=>{const{s,e}=mR();let logs=[...timeLogs];if(per==='week'){const w=new Date(new Date()-7*864e5);logs=logs.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){logs=logs.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')logs=logs.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});const tm=logs.reduce((a,l)=>a+(l.duration||0),0);let tr=0;if(cf==='all')tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);else{const c=clients.find(x=>x.id===cf);tr=c?c.monthlyRevenue||0:0;}return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,tasks,clients,per,cf]);
-  const fl=useMemo(()=>{let l=[...timeLogs];const n=new Date();if(per==='week'){const w=new Date(n-7*864e5);l=l.filter(x=>new Date(x.startTime)>=w)}else if(per==='month'){const{s,e}=mR();l=l.filter(x=>{const d=new Date(x.startTime);return d>=s&&d<=e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf]);
+  const[cFrom,setCFrom]=useState('');const[cTo,setCTo]=useState('');
+  // Date range helper
+  const getRange=(p)=>{
+    const now=new Date();const td=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    if(p==='today')return{s:td,e:new Date(td.getTime()+864e5-1)};
+    if(p==='yesterday'){const y=new Date(td.getTime()-864e5);return{s:y,e:new Date(td.getTime()-1)};}
+    if(p==='week')return{s:new Date(now-7*864e5),e:now};
+    if(p==='month')return mR();
+    if(p==='custom'&&cFrom&&cTo){return{s:new Date(cFrom+'T00:00:00'),e:new Date(cTo+'T23:59:59')};}
+    return null;
+  };
+  const kpi=useMemo(()=>{let logs=[...timeLogs];const r=getRange(per);if(r){logs=logs.filter(x=>{const d=new Date(x.startTime);return d>=r.s&&d<=r.e})}if(cf!=='all')logs=logs.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});const tm=logs.reduce((a,l)=>a+(l.duration||0),0);let tr=0;if(cf==='all')tr=clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0);else{const c=clients.find(x=>x.id===cf);tr=c?c.monthlyRevenue||0:0;}return{tm,tr,hr:tm>0?(tr/(tm/60)):0}},[timeLogs,tasks,clients,per,cf,cFrom,cTo]);
+  const fl=useMemo(()=>{let l=[...timeLogs];const r=getRange(per);if(r){l=l.filter(x=>{const d=new Date(x.startTime);return d>=r.s&&d<=r.e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf,cFrom,cTo]);
   // FIXED: include dueDate in report table
   const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(sf==='completed'&&!t.completed)return;if(sf==='active'&&t.completed)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,due:t.dueDate,done:t.completed};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>(b.due||'').localeCompare(a.due||''))},[fl,tasks,gcn,sf]);
   const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
-  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v15'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
+  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v16'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
   const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
   return(<div className="fi" style={{padding:'1.5rem 0'}}>
     <div className="sh"><h2 className="st">Report</h2></div>
-    <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="week">1週間</option><option value="month">今月</option><option value="all">全期間</option></select></div><div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div><div className="fg" style={{marginBottom:0}}><label className="fl">ステータス</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={sf} onChange={e=>setSf(e.target.value)}><option value="completed">完了済み</option><option value="active">進行中</option><option value="all">すべて</option></select></div></div>
+    <div className="rf"><div className="fg" style={{marginBottom:0}}><label className="fl">期間</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={per} onChange={e=>setPer(e.target.value)}><option value="today">今日</option><option value="yesterday">昨日</option><option value="week">1週間</option><option value="month">今月</option><option value="custom">期間指定</option><option value="all">全期間</option></select></div>{per==='custom'&&<><div className="fg" style={{marginBottom:0}}><label className="fl">開始日</label><input className="inp" type="date" style={{width:'auto',fontSize:'.65rem',padding:'.12rem .3rem'}} value={cFrom} onChange={e=>setCFrom(e.target.value)}/></div><div className="fg" style={{marginBottom:0}}><label className="fl">終了日</label><input className="inp" type="date" style={{width:'auto',fontSize:'.65rem',padding:'.12rem .3rem'}} value={cTo} onChange={e=>setCTo(e.target.value)}/></div></>}<div className="fg" style={{marginBottom:0}}><label className="fl">取引先</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={cf} onChange={e=>setCf(e.target.value)}><option value="all">すべて</option>{clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div><div className="fg" style={{marginBottom:0}}><label className="fl">ステータス</label><select className="sel" style={{width:'auto',fontSize:'.65rem'}} value={sf} onChange={e=>setSf(e.target.value)}><option value="completed">完了済み</option><option value="active">進行中</option><option value="all">すべて</option></select></div></div>
     <div className="kpi"><div className="kpi-i"><div className="kpi-l">Work</div><div className="kpi-v">{fT(kpi.tm)}</div></div><div className="kpi-i"><div className="kpi-l">Revenue</div><div className="kpi-v">{fY(kpi.tr)}</div></div><div className="kpi-i"><div className="kpi-l">Rate</div><div className="kpi-v">{fY(Math.round(kpi.hr))}<span className="kpi-u">/h</span></div></div></div>
     <div style={{marginBottom:'1.2rem'}}>{ts.length>0?<div style={{background:'var(--white)',border:'1px solid var(--bdr2)',padding:'.4rem'}}><table className="rtbl"><thead><tr><th>タスク</th><th>取引先</th><th>期日</th><th>Cat</th><th style={{textAlign:'right'}}>時間</th></tr></thead><tbody>{ts.map(t=>{const cat=CATS.find(c=>c.id===t.cat);return(<tr key={t.id}><td style={{fontWeight:400}}>{t.name}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.cn}</td><td style={{fontSize:'.6rem',color:'var(--t3)'}}>{t.due?fmtDate(t.due):'-'}</td><td>{cat&&<span className={'tt '+cat.c}>{cat.l}</span>}</td><td style={{textAlign:'right',fontWeight:600}}>{fT(t.tm)}</td></tr>)})}</tbody></table></div>:<div style={{textAlign:'center',color:'var(--t3)',padding:'1.2rem',background:'var(--white)',border:'1px solid var(--bdr2)'}}>データなし</div>}</div>
     <div className="cb" style={{marginBottom:'1.2rem'}}><div className="tw-l">AI Reflection</div><div className="cm">{msgs.length===0&&<div style={{textAlign:'center',color:'var(--t3)',fontSize:'.65rem',padding:'.8rem 0'}}>質問しましょう</div>}{msgs.map((m,i)=><div key={i} className={'cmb '+(m.role==='user'?'cmb-u':'cmb-a')}>{m.content}</div>)}{cld&&<div className="cmb cmb-a" style={{opacity:.5}}>...</div>}</div><div className="cr"><input className="inp" placeholder="質問..." value={cin} onChange={e=>setCin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn btn-p btn-s" onClick={send} disabled={cld}>送信</button></div></div>
@@ -546,7 +709,7 @@ function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,se
   </div>);
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+ReactDOM.createRoot(document.getElementById('root')).render(<Root/>);
 </script>
 </body>
 </html>
