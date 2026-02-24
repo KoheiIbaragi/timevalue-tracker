@@ -18,8 +18,8 @@
 --fd:rgba(26,26,26,.12);--fm:rgba(26,26,26,.06);
 --f:'Noto Sans JP',sans-serif;
 }
-html{font-size:14px;scroll-behavior:smooth}
-body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh}
+html{font-size:14px;scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6;font-weight:300;min-height:100vh;overflow-x:hidden}
 .app{max-width:1400px;margin:0 auto;padding:0 2.5rem}
 
 /* HEADER */
@@ -213,26 +213,35 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 
 /* === MOBILE === */
 @media(max-width:768px){
-  .app{padding:0 .8rem}
-  .hd{padding:.5rem 0}
+  .app{padding:0 .8rem;overflow-x:hidden}
+  .hd{padding:.5rem 0;flex-wrap:wrap;gap:.3rem}
   .logo{font-size:1.1rem}
-  .nav-b{padding:.25rem .55rem;font-size:.58rem}
-  .hero{height:180px}
-  .h-photo.p1{width:55%;height:165px}
-  .h-photo.p2{width:42%;height:130px;left:32%}
-  .h-photo.p3{width:30%;height:100px}
+  .nav-b{padding:.25rem .45rem;font-size:.55rem}
+  /* Hero: compact collage for mobile */
+  .hero{height:170px}
+  .h-photo.p1{width:50%;height:155px;clip-path:polygon(0 0,95% 0,82% 100%,0 100%)}
+  .h-photo.p2{width:40%;height:120px;left:40%;clip-path:polygon(15% 0,100% 0,100% 100%,5% 100%)}
+  .h-photo.p3{width:32%;height:95px;right:2%}
   .h-photo.p4{display:none}
   .h-fr{display:none}
-  .h-motto-main{font-size:1.3rem}
+  .h-grad{width:50%}
+  .h-motto{right:2%;bottom:12px;max-width:200px}
+  .h-motto-main{font-size:1.2rem;letter-spacing:.06em}
+  .h-motto-sub{font-size:.5rem}
+  .h-motto-edit{font-size:.4rem}
+  .h-plane{display:none}
+  /* Grid */
   .mg{grid-template-columns:1fr;gap:.8rem}
   .sb-inner{position:static}
   .side-photo{display:none}
-  .tr{padding:.25rem .5rem;font-size:.72rem;gap:.3rem}
-  .td-date{font-size:.52rem;min-width:32px}
-  .tn{font-size:.72rem}
-  .tt{font-size:.45rem;padding:.04rem .25rem}
-  .ttm{font-size:.62rem}
-  .bt{font-size:.48rem;padding:.1rem .3rem}
+  /* Task rows: prevent overflow */
+  .tr{padding:.25rem .5rem;font-size:.72rem;gap:.3rem;flex-wrap:nowrap;overflow:hidden}
+  .td-date{font-size:.5rem;min-width:28px}
+  .tn{font-size:.68rem}
+  .tt{font-size:.42rem;padding:.03rem .2rem}
+  .ttm{font-size:.58rem;min-width:22px}
+  .bt{font-size:.45rem;padding:.08rem .25rem}
+  .ta{gap:1px}
   .te{padding:.15rem .5rem;font-size:.5rem}
   .kpi-i{padding:.4rem .6rem}
   .kpi-v{font-size:1rem}
