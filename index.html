@@ -33,24 +33,30 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
 .nav-b:hover{color:var(--text)}
 .nav-b.on{color:var(--white);background:var(--text);font-weight:500}
 
-/* HERO - editorial accent layout */
-.hero{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;padding:2rem 0 1.5rem;position:relative;overflow:hidden}
-/* Diagonal gradient accent */
-.hero::before{content:'';position:absolute;top:-20%;right:-60px;width:380px;height:160%;background:linear-gradient(135deg,rgba(184,212,255,.1),rgba(212,197,249,.15),rgba(255,200,221,.1));transform:skewX(-12deg);pointer-events:none}
-/* Accent frame in background */
-.hero::after{content:'';position:absolute;top:10px;right:130px;width:120px;height:120px;border:1.5px solid var(--fd);transform:rotate(8deg);pointer-events:none}
-.hero-left{flex:1;min-width:0;position:relative;z-index:1}
-.hero-motto{font-size:2.4rem;font-weight:900;line-height:1.05;letter-spacing:.04em;margin-bottom:.25rem}
-.hero-sub{font-size:.7rem;font-weight:300;color:var(--t2);letter-spacing:.03em}
-.hero-edit-btn{font-family:var(--f);font-size:.48rem;color:var(--t3);background:0;border:0;cursor:pointer;margin-top:.25rem;text-decoration:underline;text-underline-offset:2px}
-.hero-edit-btn:hover{color:var(--text)}
-/* Photo with overlapping frame treatment */
-.hero-photo{position:relative;width:180px;height:115px;flex-shrink:0;z-index:1}
-.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.92) contrast(1.05)}
-.hero-photo::before{content:'';position:absolute;top:-6px;left:-6px;right:8px;bottom:8px;border:1.5px solid var(--fd);pointer-events:none}
-.hero-photo::after{content:'';position:absolute;top:6px;left:8px;right:-6px;bottom:-6px;border:1px solid var(--fm);pointer-events:none}
-/* Small decorative line near motto */
-.hero-line{position:absolute;bottom:8px;left:0;width:40px;height:2px;background:linear-gradient(90deg,var(--purple),transparent)}
+/* HERO - Editorial Collage */
+.hero{position:relative;height:280px;margin-bottom:.4rem;overflow:hidden}
+.h-photo{position:absolute;overflow:hidden}
+.h-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.9) contrast(1.05)}
+.h-photo.p1{top:8px;left:2%;width:48%;height:260px;z-index:3;clip-path:polygon(0 0,92% 0,80% 100%,0 100%)}
+.h-photo.p2{top:0;left:36%;width:38%;height:200px;z-index:4;clip-path:polygon(18% 0,100% 0,100% 100%,8% 100%)}
+.h-photo.p3{bottom:0;right:5%;width:26%;height:155px;z-index:5;clip-path:polygon(12% 0,100% 0,100% 100%,0 100%)}
+.h-photo.p4{bottom:10px;left:5%;width:10%;height:75px;z-index:2;clip-path:polygon(0 5%,100% 0,95% 100%,5% 92%);opacity:.8}
+.h-fr{position:absolute;border:1.5px solid rgba(255,255,255,.5);pointer-events:none;z-index:6}
+.h-fr.f1{top:4px;left:0%;width:52%;height:266px;transform:rotate(-.2deg)}
+.h-fr.f2{top:-6px;left:34%;width:40%;height:208px;transform:rotate(.3deg)}
+.h-fr.f3{bottom:-4px;right:3%;width:29%;height:162px}
+.h-fr.f4{top:15px;left:6%;width:40%;height:230px;border-color:rgba(26,26,26,.07);transform:rotate(.15deg)}
+.h-plane{position:absolute;pointer-events:none;z-index:1}
+.h-plane.c1{top:0;left:42%;width:15%;height:45%;background:var(--bg);clip-path:polygon(25% 0,100% 0,75% 100%,0 100%);z-index:3;opacity:.6}
+.h-plane.c2{bottom:0;right:28%;width:12%;height:35%;background:rgba(212,197,249,.08)}
+.h-acc{position:absolute;pointer-events:none;z-index:7}
+.h-grad{position:absolute;bottom:0;right:0;width:42%;height:100%;background:linear-gradient(135deg,transparent 15%,rgba(26,26,26,.4) 100%);pointer-events:none;z-index:7}
+.h-motto{position:absolute;bottom:22px;right:4%;z-index:8;text-align:right;max-width:300px}
+.h-motto-main{font-size:2rem;font-weight:900;color:var(--white);text-shadow:0 2px 20px rgba(0,0,0,.5),0 0 50px rgba(0,0,0,.12);line-height:1.15;letter-spacing:.1em}
+.h-motto-sub{font-size:.6rem;font-weight:300;color:rgba(255,255,255,.7);text-shadow:0 1px 10px rgba(0,0,0,.5);margin-top:.15rem;letter-spacing:.05em}
+.h-motto-edit{font-family:var(--f);font-size:.45rem;color:rgba(255,255,255,.35);background:0;border:0;cursor:pointer;margin-top:.25rem;text-decoration:underline;text-underline-offset:2px}
+.h-motto-edit:hover{color:rgba(255,255,255,.7)}
+.hero-line{display:none}
 
 /* Diagonal rule */
 .rule{position:relative;height:3px;overflow:hidden;margin-bottom:.8rem}
@@ -211,10 +217,13 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
   .hd{padding:.5rem 0}
   .logo{font-size:1.1rem}
   .nav-b{padding:.25rem .55rem;font-size:.58rem}
-  .hero{padding:1.2rem 0 .8rem}
-  .hero::after{display:none}
-  .hero-motto{font-size:1.7rem}
-  .hero-photo{width:110px;height:75px}
+  .hero{height:180px}
+  .h-photo.p1{width:55%;height:165px}
+  .h-photo.p2{width:42%;height:130px;left:32%}
+  .h-photo.p3{width:30%;height:100px}
+  .h-photo.p4{display:none}
+  .h-fr{display:none}
+  .h-motto-main{font-size:1.3rem}
   .mg{grid-template-columns:1fr;gap:.8rem}
   .sb-inner{position:static}
   .side-photo{display:none}
@@ -264,8 +273,8 @@ const{useState,useEffect,useRef,useCallback,useMemo}=React;
 // ============================================================
 // SUPABASE CONFIG - Replace these with your project values
 // ============================================================
-const SUPABASE_URL = '__YOUR_SUPABASE_URL__';
-const SUPABASE_KEY = '__YOUR_SUPABASE_ANON_KEY__';
+const SUPABASE_URL = 'https://qxsxfrphdtxxhxmhfhio.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4c3hmcnBoZHR4eGh4bWhmaGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDkyMTUsImV4cCI6MjA4NzQ4NTIxNX0.o3U5VUTLzJj8nMNSUXJCF-ifbKIGncmGUIFvsegbFk0';
 // ============================================================
 
 const sbEnabled = SUPABASE_URL !== '__YOUR_SUPABASE_URL__' && SUPABASE_KEY !== '__YOUR_SUPABASE_ANON_KEY__';
@@ -555,13 +564,28 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   return(
     <div className="fi">
       <div className="hero">
-        <div className="hero-left">
-          <div className="hero-motto">{pr.main}</div>
-          <div className="hero-sub">{pr.sub.split('\n')[0]}</div>
-          <button className="hero-edit-btn" onClick={()=>{setEP(true);setPF(pr)}}>編集</button>
-          <div className="hero-line"></div>
+        <div className="h-plane c1"></div>
+        <div className="h-plane c2"></div>
+        <div className="h-photo p1"><img src={PHOTOS[pi]} alt=""/></div>
+        <div className="h-photo p2"><img src={PHOTOS[(pi+1)%PHOTOS.length]} alt=""/></div>
+        <div className="h-photo p3"><img src={SIDE[si]} alt=""/></div>
+        <div className="h-photo p4"><img src={PHOTOS[(pi+2)%PHOTOS.length]} alt=""/></div>
+        <div className="h-fr f1"></div>
+        <div className="h-fr f2"></div>
+        <div className="h-fr f3"></div>
+        <div className="h-fr f4"></div>
+        <div className="h-grad"></div>
+        <div className="h-acc" style={{top:'10px',left:'1%',width:'18px',height:'1.5px',background:'rgba(184,212,255,.5)'}}></div>
+        <div className="h-acc" style={{top:'30px',left:'1.5%',width:'11px',height:'1.5px',background:'rgba(26,26,26,.15)'}}></div>
+        <div className="h-acc" style={{bottom:'40px',left:'18%',width:'13px',height:'1.5px',background:'rgba(255,255,255,.4)'}}></div>
+        <div className="h-acc" style={{top:'65px',right:'2%',width:'1.5px',height:'20px',background:'rgba(26,26,26,.1)'}}></div>
+        <div className="h-acc" style={{bottom:'20px',left:'1%',width:'6px',height:'6px',background:'rgba(184,212,255,.22)'}}></div>
+        <div className="h-acc" style={{top:'45px',left:'54%',width:'5px',height:'5px',background:'rgba(255,200,221,.18)',transform:'rotate(45deg)'}}></div>
+        <div className="h-motto">
+          <div className="h-motto-main">{pr.main}</div>
+          <div className="h-motto-sub">{pr.sub.split('\n')[0]}</div>
+          <button className="h-motto-edit" onClick={()=>{setEP(true);setPF(pr)}}>編集 ─</button>
         </div>
-        <div className="hero-photo"><img src={PHOTOS[pi]} alt=""/></div>
       </div>
 
       {eP&&<div className="motto-ed fi">
