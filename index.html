@@ -220,7 +220,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
   .logo-sub{font-size:.4rem;margin-left:.3rem}
   .nav-b{padding:.22rem .4rem;font-size:.52rem}
   .sync-badge{font-size:.4rem;padding:.06rem .2rem}
-  /* Hero: compact for mobile */
+  /* Hero */
   .hero{height:160px;overflow:hidden}
   .h-photo.p1{width:52%;height:150px;clip-path:polygon(0 0,95% 0,82% 100%,0 100%)}
   .h-photo.p2{width:42%;height:115px;left:38%;clip-path:polygon(15% 0,100% 0,100% 100%,5% 100%)}
@@ -234,7 +234,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
   .h-motto-main{font-size:1.1rem;letter-spacing:.05em}
   .h-motto-sub{font-size:.45rem}
   .h-motto-edit{font-size:.38rem}
-  /* Remove overlapping frames that cause overflow */
+  /* Remove decorative frames that cause overflow */
   .tl::before,.tl::after{display:none}
   .tw::before,.tw::after{display:none}
   .kpi::before,.kpi::after{display:none}
@@ -243,14 +243,15 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
   .mg{grid-template-columns:1fr;gap:.8rem}
   .sb-inner{position:static}
   .side-photo{display:none}
-  /* Task rows: fit in viewport, hide buttons - show on expand */
-  .tr{padding:.25rem .4rem;font-size:.7rem;gap:.25rem}
-  .td-date{font-size:.48rem;min-width:26px;flex-shrink:0}
-  .tn{font-size:.66rem;min-width:0}
-  .tt{font-size:.4rem;padding:.03rem .18rem}
+  /* Task rows: hide CATEGORY BADGE to save space, keep buttons */
+  .tr{padding:.2rem .4rem;font-size:.7rem;gap:.2rem}
+  .td-date{font-size:.48rem;min-width:24px}
+  .tn{font-size:.66rem}
+  .tt{display:none}
   .ttm{font-size:.56rem;min-width:20px}
-  .ta{display:none}
-  .te{padding:.15rem .4rem;font-size:.48rem;flex-wrap:wrap;gap:.2rem}
+  .ta{gap:1px}
+  .bt{font-size:.44rem;padding:.08rem .22rem}
+  .te{padding:.15rem .4rem;font-size:.48rem}
   .cg-head{padding:.18rem .4rem;font-size:.62rem}
   .cg-cnt{font-size:.48rem}
   /* KPI */
@@ -264,9 +265,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.6
   .fr{grid-template-columns:1fr}
   .tw-d{font-size:1.3rem}
   .rule{height:2px}
-  /* Buttons general */
   .btn-s{padding:.2rem .45rem;font-size:.58rem}
-  .bt{font-size:.44rem;padding:.08rem .22rem}
 }
 
 /* AUTH */
@@ -670,14 +669,8 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
                         )}
                       </div>
                     </div>
-                    {/* Expand: action buttons + edit/delete */}
+                    {/* Expand: edit/delete */}
                     {isE&&<div className="te">
-                      {!task.completed&&<button className="bt bt-done" onClick={()=>comp(task.id)}>完了</button>}
-                      {task.completed&&<button className="bt bt-undo" onClick={()=>uncomp(task.id)}>戻す</button>}
-                      {!task.completed&&(isR?
-                        <button className="bt bt-st" onClick={stopT}>停止</button>:
-                        <button className="bt bt-go" onClick={()=>startT(task.id)}>開始</button>
-                      )}
                       <span style={{flex:1}}></span>
                       <button className="bt" onClick={()=>{setEt(task);setMo(true)}}>編集</button>
                       <button className="bt bt-x" onClick={()=>del(task.id)}>削除</button>
