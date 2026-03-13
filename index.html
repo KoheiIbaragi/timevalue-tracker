@@ -564,6 +564,7 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   // Complete: 繰り返しタスクは期日を次回へ進めるだけ（新インスタンスは作らない）
   const comp=id=>{
     const task=tasks.find(t=>t.id===id);if(!task)return;
+    console.log('[comp] task.repeat:', task.repeat, '/ task.repeatDays:', task.repeatDays);
     if(task.repeat&&task.repeat!=='none'){
       const nd=nextDue(task);
       setTk(p=>p.map(t=>t.id===id?{...t,dueDate:nd,completed:false,lastCompleted:new Date().toISOString()}:t));
