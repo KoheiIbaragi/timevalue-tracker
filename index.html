@@ -407,9 +407,11 @@ let saveTimer=null;
 function saveToSupabase(userId,state){
   if(!sb||!userId)return;
   clearTimeout(saveTimer);
+  console.log('[saveToSupabase] queued. tasks count:', state.tasks?.length, '/ sample dueDate:', state.tasks?.[0]?.dueDate);
   saveTimer=setTimeout(async()=>{
+    console.log('[saveToSupabase] firing upsert. tasks:', state.tasks?.map(t=>({id:t.id,name:t.name,dueDate:t.dueDate,repeat:t.repeat})));
     try{
-      await sb.from('user_data').upsert({
+      const res=await sb.from('user_data').upsert({
         user_id:userId,
         clients:state.clients,
         tasks:state.tasks,
@@ -418,7 +420,8 @@ function saveToSupabase(userId,state){
         client_order:state.clientOrder,
         running_state:state.running
       });
-    }catch(e){console.error('Save error:',e)}
+      console.log('[saveToSupabase] upsert result:', res);
+    }catch(e){console.error('[saveToSupabase] error:',e)}
   },800);
 }
 
@@ -504,6 +507,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   // Save to Supabase (debounced) after cloud data is loaded
   useEffect(()=>{
     if(!cloudLoaded||!userId)return;
+    console.log('[saveEffect] triggered. cloudLoaded:', cloudLoaded, '/ tasks count:', tasks.length, '/ tasks dueDates:', tasks.map(t=>t.dueDate));
     saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});
   },[clients,tasks,timeLogs,principles,clientOrder,running,cloudLoaded,userId]);
 
