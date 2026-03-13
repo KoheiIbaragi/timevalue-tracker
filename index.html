@@ -561,32 +561,15 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
 
-  // Complete with recurring auto-generation
+  // Complete with recurring auto-generation (FIXED: proper next due from today)
   const comp=id=>{
     const task=tasks.find(t=>t.id===id);if(!task)return;
     setTk(p=>{
       let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t);
       if(task.repeat&&task.repeat!=='none'){
         const nd=nextDue(task);
-        const today=localDate(new Date());
-        // 重複ガード: 同名・同クライアント・同繰り返し設定の未完了タスクがすでに未来日で存在すれば作成しない
-        const exists=updated.some(t=>
-          !t.completed&&t.id!==id&&
-          t.name===task.name&&t.clientId===task.clientId&&
-          t.repeat===task.repeat&&(t.dueDate||'')>=today
-        );
-        if(!exists){
-          updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,createdAt:new Date().toISOString()}];
-          show('完了 → 次回 '+fmtDate(nd));
-        }else{show('完了（次回予定済み）');}
-        // クリーンアップ: 同パターンの完了済みインスタンスは最新3件のみ保持
-        const pat=t=>t.name+'|'+t.clientId+'|'+t.repeat;
-        const pattern=pat(task);
-        const oldIds=updated
-          .filter(t=>t.completed&&pat(t)===pattern)
-          .sort((a,b)=>new Date(b.lastCompleted||0)-new Date(a.lastCompleted||0))
-          .slice(3).map(t=>t.id);
-        if(oldIds.length)updated=updated.filter(t=>!oldIds.includes(t.id));
+        updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,createdAt:new Date().toISOString()}];
+        show('完了 → 次回 '+fmtDate(nd));
       }else{show('完了');}
       return updated;
     });
