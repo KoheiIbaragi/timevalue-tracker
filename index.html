@@ -531,7 +531,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
           {onLogout&&<button className="bt" style={{fontSize:'.48rem',padding:'.1rem .3rem'}} onClick={onLogout} title={userEmail}>ログアウト</button>}
         </div>
       </header>
-      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
+      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si} userId={userId}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
       <div className="foot">TimeValue Tracker v16</div>
@@ -540,7 +540,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   );
 }
 
-function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
+function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si,userId}){
   const[eP,setEP]=useState(false);const[pF,setPF]=useState(pr);
   const[modal,setMo]=useState(false);const[et,setEt]=useState(null);
   const[filter,setFi]=useState('active');const[exp,setExp]=useState(null);
@@ -566,16 +566,25 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
 
   // Complete: 繰り返しタスクは期日を次回へ進めるだけ（新インスタンスは作らない）
+  // saveEffectはsetTk()非同期のため旧stateを参照してしまう → 新tasks配列を直接upsert
   const comp=id=>{
     const task=tasks.find(t=>t.id===id);if(!task)return;
     console.log('[comp] task.repeat:', task.repeat, '/ task.repeatDays:', task.repeatDays);
+    let newTasks;
     if(task.repeat&&task.repeat!=='none'){
       const nd=nextDue(task);
-      setTk(p=>p.map(t=>t.id===id?{...t,dueDate:nd,completed:false,lastCompleted:new Date().toISOString()}:t));
+      newTasks=tasks.map(t=>t.id===id?{...t,dueDate:nd,completed:false,lastCompleted:new Date().toISOString()}:t);
       show('完了 → 次回 '+fmtDate(nd));
     }else{
-      setTk(p=>p.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t));
+      newTasks=tasks.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t);
       show('完了');
+    }
+    setTk(newTasks);
+    // saveEffectに頼らず確実に保存
+    if(sb&&userId){
+      sb.from('user_data').upsert({user_id:userId,tasks:newTasks})
+        .then(r=>{if(r.error)console.error('[comp] direct save error:',r.error);else console.log('[comp] direct save OK');})
+        .catch(e=>console.error('[comp] direct save catch:',e));
     }
   };
 
