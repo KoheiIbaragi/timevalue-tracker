@@ -407,11 +407,9 @@ let saveTimer=null;
 function saveToSupabase(userId,state){
   if(!sb||!userId)return;
   clearTimeout(saveTimer);
-  console.log('[saveToSupabase] queued. tasks count:', state.tasks?.length, '/ sample dueDate:', state.tasks?.[0]?.dueDate);
   saveTimer=setTimeout(async()=>{
-    console.log('[saveToSupabase] firing upsert. tasks:', state.tasks?.map(t=>({id:t.id,name:t.name,dueDate:t.dueDate,repeat:t.repeat})));
     try{
-      const res=await sb.from('user_data').upsert({
+      await sb.from('user_data').upsert({
         user_id:userId,
         clients:state.clients,
         tasks:state.tasks,
@@ -420,8 +418,7 @@ function saveToSupabase(userId,state){
         client_order:state.clientOrder,
         running_state:state.running
       });
-      console.log('[saveToSupabase] upsert result:', res);
-    }catch(e){console.error('[saveToSupabase] error:',e)}
+    }catch(e){console.error('Save error:',e)}
   },800);
 }
 
@@ -507,7 +504,6 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   // Save to Supabase (debounced) after cloud data is loaded
   useEffect(()=>{
     if(!cloudLoaded||!userId)return;
-    console.log('[saveEffect] triggered. cloudLoaded:', cloudLoaded, '/ tasks count:', tasks.length, '/ tasks dueDates:', tasks.map(t=>t.dueDate));
     saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});
   },[clients,tasks,timeLogs,principles,clientOrder,running,cloudLoaded,userId]);
 
@@ -531,7 +527,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
           {onLogout&&<button className="bt" style={{fontSize:'.48rem',padding:'.1rem .3rem'}} onClick={onLogout} title={userEmail}>ログアウト</button>}
         </div>
       </header>
-      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si} userId={userId}/>}
+      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
       <div className="foot">TimeValue Tracker v16</div>
@@ -540,7 +536,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   );
 }
 
-function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si,userId}){
+function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
   const[eP,setEP]=useState(false);const[pF,setPF]=useState(pr);
   const[modal,setMo]=useState(false);const[et,setEt]=useState(null);
   const[filter,setFi]=useState('active');const[exp,setExp]=useState(null);
@@ -565,27 +561,18 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
 
-  // Complete: 繰り返しタスクは期日を次回へ進めるだけ（新インスタンスは作らない）
-  // saveEffectはsetTk()非同期のため旧stateを参照してしまう → 新tasks配列を直接upsert
+  // Complete with recurring auto-generation (FIXED: proper next due from today)
   const comp=id=>{
     const task=tasks.find(t=>t.id===id);if(!task)return;
-    console.log('[comp] task.repeat:', task.repeat, '/ task.repeatDays:', task.repeatDays);
-    let newTasks;
-    if(task.repeat&&task.repeat!=='none'){
-      const nd=nextDue(task);
-      newTasks=tasks.map(t=>t.id===id?{...t,dueDate:nd,completed:false,lastCompleted:new Date().toISOString()}:t);
-      show('完了 → 次回 '+fmtDate(nd));
-    }else{
-      newTasks=tasks.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t);
-      show('完了');
-    }
-    setTk(newTasks);
-    // saveEffectに頼らず確実に保存
-    if(sb&&userId){
-      sb.from('user_data').upsert({user_id:userId,tasks:newTasks})
-        .then(r=>{if(r.error)console.error('[comp] direct save error:',r.error);else console.log('[comp] direct save OK');})
-        .catch(e=>console.error('[comp] direct save catch:',e));
-    }
+    setTk(p=>{
+      let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t);
+      if(task.repeat&&task.repeat!=='none'){
+        const nd=nextDue(task);
+        updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,createdAt:new Date().toISOString()}];
+        show('完了 → 次回 '+fmtDate(nd));
+      }else{show('完了');}
+      return updated;
+    });
   };
 
   // Uncomplete task
