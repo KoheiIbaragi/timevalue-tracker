@@ -561,18 +561,17 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const saveTask=d=>{if(et){setTk(p=>p.map(t=>t.id===et.id?{...t,...d}:t));show('更新')}else{setTk(p=>[...p,{id:gid(),...d,completed:false,createdAt:new Date().toISOString()}]);show('作成')}setMo(false);setEt(null)};
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
 
-  // Complete with recurring auto-generation (FIXED: proper next due from today)
+  // Complete: 繰り返しタスクは期日を次回へ進めるだけ（新インスタンスは作らない）
   const comp=id=>{
     const task=tasks.find(t=>t.id===id);if(!task)return;
-    setTk(p=>{
-      let updated=p.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t);
-      if(task.repeat&&task.repeat!=='none'){
-        const nd=nextDue(task);
-        updated=[...updated,{...task,id:gid(),dueDate:nd,completed:false,isActive:true,createdAt:new Date().toISOString()}];
-        show('完了 → 次回 '+fmtDate(nd));
-      }else{show('完了');}
-      return updated;
-    });
+    if(task.repeat&&task.repeat!=='none'){
+      const nd=nextDue(task);
+      setTk(p=>p.map(t=>t.id===id?{...t,dueDate:nd,completed:false,lastCompleted:new Date().toISOString()}:t));
+      show('完了 → 次回 '+fmtDate(nd));
+    }else{
+      setTk(p=>p.map(t=>t.id===id?{...t,completed:true,lastCompleted:new Date().toISOString()}:t));
+      show('完了');
+    }
   };
 
   // Uncomplete task
