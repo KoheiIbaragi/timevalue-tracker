@@ -21,3 +21,19 @@ mainにマージすると本番に反映される。
 1. 必ずdevブランチで作業する
 2. 変更したらgit commit & push
 3. 本番反映前に必ず確認を取る
+
+## データベース（Supabase）
+テーブル: `user_data`（1テーブル構成）
+
+| カラム | 型 | 内容 |
+|---|---|---|
+| user_id | string | ユーザー識別子（主キー） |
+| clients | JSON | 取引先リスト |
+| tasks | JSON | タスクリスト（カテゴリ・繰り返し・ステータス等を含む） |
+
+操作パターン:
+- 取得: `.from('user_data').select('*').eq('user_id', userId).single()`
+- 新規: `.from('user_data').insert({user_id})`
+- 保存: `.from('user_data').upsert({user_id, clients, tasks})`
+
+※ データは clients・tasks をまとめて upsert する設計。カラム単位での部分更新は行わない。
