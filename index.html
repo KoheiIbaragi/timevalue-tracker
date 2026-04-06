@@ -355,7 +355,7 @@ function saveToSupabase(userId,state){
       try{
         const{error}=await sb.from('user_data').upsert({
           user_id:userId,clients:state.clients,tasks:state.tasks,
-          time_logs:state.timeLogs,principles:state.principles,
+          principles:state.principles,
           client_order:state.clientOrder,running_state:state.running
         });
         if(error){
@@ -365,7 +365,6 @@ function saveToSupabase(userId,state){
           continue;
         }
         if(state.tasks)cloudTaskCount=state.tasks.length;
-        if(state.timeLogs)cloudLogCount=state.timeLogs.length;
         if(_syncCb)_syncCb('ok');
         return;
       }catch(e){
@@ -375,6 +374,18 @@ function saveToSupabase(userId,state){
       }
     }
   },800);
+}
+
+async function appendTimeLog(userId,newLog){
+  if(!sb||!userId||!newLog)return;
+  try{
+    const{error}=await sb.rpc('append_time_logs',{
+      p_user_id:userId,
+      p_new_logs:JSON.stringify([newLog])
+    });
+    if(error)console.error('[TIMELOG] append error:',error);
+    else{cloudLogCount++;console.log('[TIMELOG] appended:',newLog.id);}
+  }catch(e){console.error('[TIMELOG] append exception:',e);}
 }
 
 function Root(){
@@ -459,8 +470,8 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   // FIX: Only save to cloud AFTER cloud data is loaded (prevents empty overwrite)
   useEffect(()=>{
     if(!cloudLoaded||!userId)return;
-    saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});
-  },[clients,tasks,timeLogs,principles,clientOrder,running,cloudLoaded,userId]);
+    saveToSupabase(userId,{clients,tasks,principles,clientOrder,running});
+  },[clients,tasks,principles,clientOrder,running,cloudLoaded,userId]);
 
   const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2200)},[]);
   // Alert user when sync fails
@@ -471,7 +482,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   const oc=useMemo(()=>{if(!clientOrder.length)return clients;const o=[];clientOrder.forEach(id=>{const c=clients.find(x=>x.id===id);if(c)o.push(c)});clients.forEach(c=>{if(!o.find(x=>x.id===c.id))o.push(c)});return o},[clients,clientOrder]);
   const gtt=useCallback(tid=>timeLogs.filter(l=>l.taskId===tid).reduce((a,l)=>a+(l.duration||0),0),[timeLogs]);
   const startT=useCallback(tid=>{if(running){show('他のタイマーが実行中');return}setRn({taskId:tid,startTime:new Date().toISOString()});show('開始')},[running,show]);
-  const stopT=useCallback(()=>{if(!running)return;const endTime=new Date().toISOString();const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);if(dur>0)setTl(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime,duration:dur}]);setRn(null);show('停止')},[running,show]);
+  const stopT=useCallback(()=>{if(!running)return;const endTime=new Date().toISOString();const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);if(dur>0){const newLog={id:gid(),taskId:running.taskId,startTime:running.startTime,endTime,duration:dur};setTl(p=>[...p,newLog]);appendTimeLog(userId,newLog);}setRn(null);show('停止')},[running,show,userId]);
 
   const tabs=[{id:'dashboard',l:'Dashboard'},{id:'clients',l:'Clients'},{id:'report',l:'Report'}];
   return(
@@ -479,14 +490,14 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
       <header className="hd">
         <div style={{display:'flex',alignItems:'baseline',gap:'.4rem'}}>
           <div className="logo">TimeValue</div><span className="logo-sub">Tracker</span>
-          {sbEnabled&&<span className={'sync-badge'+(syncStatus==='error'?' err':syncStatus==='ok'?' ':' off')} onClick={syncStatus==='error'?()=>{saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});show('再同期中...')}:undefined} style={syncStatus==='error'?{cursor:'pointer'}:{}}><span className={'dot'+(syncStatus==='ok'?' on':syncStatus==='saving'?' sav':' off')}></span>{syncStatus==='ok'?'同期済':syncStatus==='saving'?'保存中':syncStatus==='error'?'同期失敗（タップで再試行）':'接続中'}</span>}
+          {sbEnabled&&<span className={'sync-badge'+(syncStatus==='error'?' err':syncStatus==='ok'?' ':' off')} onClick={syncStatus==='error'?()=>{saveToSupabase(userId,{clients,tasks,principles,clientOrder,running});show('再同期中...')}:undefined} style={syncStatus==='error'?{cursor:'pointer'}:{}}><span className={'dot'+(syncStatus==='ok'?' on':syncStatus==='saving'?' sav':' off')}></span>{syncStatus==='ok'?'同期済':syncStatus==='saving'?'保存中':syncStatus==='error'?'同期失敗（タップで再試行）':'接続中'}</span>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:'.5rem'}}>
           <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
           {onLogout&&<button className="bt" style={{fontSize:'.48rem',padding:'.1rem .3rem'}} onClick={onLogout} title={userEmail}>ログアウト</button>}
         </div>
       </header>
-      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
+      {tab==='dashboard'&&<Dash userId={userId} pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
       <div className="foot">TimeValue Tracker v17</div>
@@ -495,7 +506,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   );
 }
 
-function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
+function Dash({userId,pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
   const[eP,setEP]=useState(false);const[pF,setPF]=useState(pr);
   const[modal,setMo]=useState(false);const[et,setEt]=useState(null);
   const[filter,setFi]=useState('active');const[exp,setExp]=useState(null);
@@ -526,8 +537,14 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
     if(running&&running.taskId===id){
       const endTime=new Date().toISOString();
       const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);
-      if(dur>0)newTimeLogs=[...timeLogs,{id:gid(),taskId:id,startTime:running.startTime,endTime,duration:dur}];
-      setTl(newTimeLogs);
+      if(dur>0){
+        const newLog={id:gid(),taskId:id,startTime:running.startTime,endTime,duration:dur};
+        newTimeLogs=[...timeLogs,newLog];
+        setTl(newTimeLogs);
+        appendTimeLog(userId,newLog);
+      }else{
+        setTl(newTimeLogs);
+      }
       setRn(null);
     }
     setTk(p=>{
