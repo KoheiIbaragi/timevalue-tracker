@@ -355,7 +355,7 @@ function saveToSupabase(userId,state){
       try{
         const{error}=await sb.from('user_data').upsert({
           user_id:userId,clients:state.clients,tasks:state.tasks,
-          principles:state.principles,
+          time_logs:state.timeLogs,principles:state.principles,
           client_order:state.clientOrder,running_state:state.running
         });
         if(error){
@@ -365,6 +365,7 @@ function saveToSupabase(userId,state){
           continue;
         }
         if(state.tasks)cloudTaskCount=state.tasks.length;
+        if(state.timeLogs)cloudLogCount=state.timeLogs.length;
         if(_syncCb)_syncCb('ok');
         return;
       }catch(e){
@@ -374,18 +375,6 @@ function saveToSupabase(userId,state){
       }
     }
   },800);
-}
-
-async function appendTimeLog(userId,newLog){
-  if(!sb||!userId||!newLog)return;
-  try{
-    const{error}=await sb.rpc('append_time_logs',{
-      p_user_id:userId,
-      p_new_logs:JSON.stringify([newLog])
-    });
-    if(error)console.error('[TIMELOG] append error:',error);
-    else{cloudLogCount++;console.log('[TIMELOG] appended:',newLog.id);}
-  }catch(e){console.error('[TIMELOG] append exception:',e);}
 }
 
 function Root(){
@@ -417,6 +406,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   const[si]=useState(()=>Math.floor(Math.random()*SIDE.length));
   const[cloudLoaded,setCloudLoaded]=useState(false);
   const[syncStatus,setSyncStatus]=useState('loading'); // 'loading'|'ok'|'saving'|'error'
+  const cloudJustLoaded=useRef(false);
 
   // Register sync status callback
   useEffect(()=>{_syncCb=setSyncStatus;return()=>{_syncCb=null}},[]);
@@ -433,26 +423,33 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
     return()=>clearInterval(iv);
   },[userId]);
 
-  // FIX: Load from Supabase - ALWAYS prefer cloud data, never let empty local overwrite
+  // FIX: Load from Supabase - merge cloud+local to prevent data loss when cloud is stale
   useEffect(()=>{
     if(!userId)return;
     (async()=>{
       const data=await loadFromSupabase(userId);
-      if(data){
-        const hasCloud=data.tasks?.length>0||data.clients?.length>0;
-        const hasLocal=ld('timevalue-tasks',[]).length>0||ld('timevalue-clients',[]).length>0;
-        if(hasCloud){
-          if(data.clients)setCl(data.clients);
-          if(data.tasks)setTk(data.tasks);
-          if(data.time_logs)setTl(data.time_logs);
-          if(data.principles&&data.principles.main)setPr(data.principles);
-          if(data.client_order)setCo(data.client_order);
-          if(data.running_state!==undefined)setRn(data.running_state);
-          console.log('[SYNC] Loaded cloud data');
-        }else if(hasLocal){
-          saveToSupabase(userId,{clients:ld('timevalue-clients',[]),tasks:ld('timevalue-tasks',[]),timeLogs:ld('timevalue-timeLogs',[]),principles:ld('timevalue-principles',{main:'独責開眼',sub:'責任を負うと見える世界が変わる'}),clientOrder:ld('timevalue-clientOrder',[]),running:ld('timevalue-runningState',null)});
-          console.log('[SYNC] Migrated local to cloud');
-        }
+      const localTasks=ld('timevalue-tasks',[]);
+      const localClients=ld('timevalue-clients',[]);
+      const localTimeLogs=ld('timevalue-timeLogs',[]);
+      const hasCloud=!!(data&&(data.tasks?.length>0||data.clients?.length>0||data.time_logs?.length>0));
+      const hasLocal=localTasks.length>0||localClients.length>0;
+      if(data!==null&&(hasCloud||hasLocal)){
+        // Merge cloud+local by ID: cloud wins for conflicts, local-only items are preserved
+        const cloudTaskIds=new Set((data.tasks||[]).map(t=>t.id));
+        const cloudClientIds=new Set((data.clients||[]).map(c=>c.id));
+        const cloudLogIds=new Set((data.time_logs||[]).map(l=>l.id));
+        const mergedTasks=[...(data.tasks||[]),...localTasks.filter(t=>!cloudTaskIds.has(t.id))];
+        const mergedClients=[...(data.clients||[]),...localClients.filter(c=>!cloudClientIds.has(c.id))];
+        const mergedTimeLogs=[...(data.time_logs||[]),...localTimeLogs.filter(l=>!cloudLogIds.has(l.id))];
+        const hasLocalExtra=mergedTasks.length>(data.tasks?.length||0)||mergedClients.length>(data.clients?.length||0)||mergedTimeLogs.length>(data.time_logs?.length||0);
+        setCl(mergedClients);
+        setTk(mergedTasks);
+        setTl(mergedTimeLogs);
+        if(data.principles&&data.principles.main)setPr(data.principles);
+        if(data.client_order)setCo(data.client_order);
+        if(data.running_state!==undefined)setRn(data.running_state);
+        if(!hasLocalExtra)cloudJustLoaded.current=true; // cloud was up-to-date, skip redundant save
+        console.log('[SYNC]',hasLocalExtra?'Merged local+cloud (local had newer items)':'Loaded cloud data');
       }
       setCloudLoaded(true);
       setSyncStatus('ok');
@@ -467,11 +464,12 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   useEffect(()=>sv('timevalue-clientOrder',clientOrder),[clientOrder]);
   useEffect(()=>sv('timevalue-runningState',running),[running]);
 
-  // FIX: Only save to cloud AFTER cloud data is loaded (prevents empty overwrite)
+  // FIX: Only save to cloud AFTER cloud data is loaded, and skip if we just loaded (no changes)
   useEffect(()=>{
     if(!cloudLoaded||!userId)return;
-    saveToSupabase(userId,{clients,tasks,principles,clientOrder,running});
-  },[clients,tasks,principles,clientOrder,running,cloudLoaded,userId]);
+    if(cloudJustLoaded.current){cloudJustLoaded.current=false;return;}
+    saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});
+  },[clients,tasks,timeLogs,principles,clientOrder,running,cloudLoaded,userId]);
 
   const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2200)},[]);
   // Alert user when sync fails
@@ -482,7 +480,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   const oc=useMemo(()=>{if(!clientOrder.length)return clients;const o=[];clientOrder.forEach(id=>{const c=clients.find(x=>x.id===id);if(c)o.push(c)});clients.forEach(c=>{if(!o.find(x=>x.id===c.id))o.push(c)});return o},[clients,clientOrder]);
   const gtt=useCallback(tid=>timeLogs.filter(l=>l.taskId===tid).reduce((a,l)=>a+(l.duration||0),0),[timeLogs]);
   const startT=useCallback(tid=>{if(running){show('他のタイマーが実行中');return}setRn({taskId:tid,startTime:new Date().toISOString()});show('開始')},[running,show]);
-  const stopT=useCallback(()=>{if(!running)return;const endTime=new Date().toISOString();const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);if(dur>0){const newLog={id:gid(),taskId:running.taskId,startTime:running.startTime,endTime,duration:dur};setTl(p=>[...p,newLog]);appendTimeLog(userId,newLog);}setRn(null);show('停止')},[running,show,userId]);
+  const stopT=useCallback(()=>{if(!running)return;const endTime=new Date().toISOString();const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);if(dur>0)setTl(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime,duration:dur}]);setRn(null);show('停止')},[running,show]);
 
   const tabs=[{id:'dashboard',l:'Dashboard'},{id:'clients',l:'Clients'},{id:'report',l:'Report'}];
   return(
@@ -490,14 +488,14 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
       <header className="hd">
         <div style={{display:'flex',alignItems:'baseline',gap:'.4rem'}}>
           <div className="logo">TimeValue</div><span className="logo-sub">Tracker</span>
-          {sbEnabled&&<span className={'sync-badge'+(syncStatus==='error'?' err':syncStatus==='ok'?' ':' off')} onClick={syncStatus==='error'?()=>{saveToSupabase(userId,{clients,tasks,principles,clientOrder,running});show('再同期中...')}:undefined} style={syncStatus==='error'?{cursor:'pointer'}:{}}><span className={'dot'+(syncStatus==='ok'?' on':syncStatus==='saving'?' sav':' off')}></span>{syncStatus==='ok'?'同期済':syncStatus==='saving'?'保存中':syncStatus==='error'?'同期失敗（タップで再試行）':'接続中'}</span>}
+          {sbEnabled&&<span className={'sync-badge'+(syncStatus==='error'?' err':syncStatus==='ok'?' ':' off')} onClick={syncStatus==='error'?()=>{saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});show('再同期中...')}:undefined} style={syncStatus==='error'?{cursor:'pointer'}:{}}><span className={'dot'+(syncStatus==='ok'?' on':syncStatus==='saving'?' sav':' off')}></span>{syncStatus==='ok'?'同期済':syncStatus==='saving'?'保存中':syncStatus==='error'?'同期失敗（タップで再試行）':'接続中'}</span>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:'.5rem'}}>
           <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
           {onLogout&&<button className="bt" style={{fontSize:'.48rem',padding:'.1rem .3rem'}} onClick={onLogout} title={userEmail}>ログアウト</button>}
         </div>
       </header>
-      {tab==='dashboard'&&<Dash userId={userId} pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
+      {tab==='dashboard'&&<Dash pr={principles} setPr={setPr} tasks={tasks} setTk={setTk} clients={clients} oc={oc} clientOrder={clientOrder} timeLogs={timeLogs} setTl={setTl} running={running} setRn={setRn} startT={startT} stopT={stopT} gcn={gcn} gtt={gtt} show={show} pi={pi} si={si}/>}
       {tab==='clients'&&<Clients clients={clients} setCl={setCl} oc={oc} co={clientOrder} setCo={setCo} tasks={tasks} timeLogs={timeLogs} show={show}/>}
       {tab==='report'&&<ReportPage tasks={tasks} clients={clients} setCl={setCl} timeLogs={timeLogs} setTl={setTl} gcn={gcn} setTk={setTk} pr={principles} setPr={setPr} co={clientOrder} setCo={setCo} running={running} setRn={setRn} show={show}/>}
       <div className="foot">TimeValue Tracker v17</div>
@@ -506,7 +504,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   );
 }
 
-function Dash({userId,pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,startT,stopT,gcn,gtt,show,pi,si}){
+function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,running,setRn,startT,stopT,gcn,gtt,show,pi,si}){
   const[eP,setEP]=useState(false);const[pF,setPF]=useState(pr);
   const[modal,setMo]=useState(false);const[et,setEt]=useState(null);
   const[filter,setFi]=useState('active');const[exp,setExp]=useState(null);
@@ -537,14 +535,8 @@ function Dash({userId,pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl
     if(running&&running.taskId===id){
       const endTime=new Date().toISOString();
       const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);
-      if(dur>0){
-        const newLog={id:gid(),taskId:id,startTime:running.startTime,endTime,duration:dur};
-        newTimeLogs=[...timeLogs,newLog];
-        setTl(newTimeLogs);
-        appendTimeLog(userId,newLog);
-      }else{
-        setTl(newTimeLogs);
-      }
+      if(dur>0)newTimeLogs=[...timeLogs,{id:gid(),taskId:id,startTime:running.startTime,endTime,duration:dur}];
+      setTl(newTimeLogs);
       setRn(null);
     }
     setTk(p=>{
@@ -705,7 +697,7 @@ function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,se
   const fl=useMemo(()=>{let l=[...timeLogs];const r=getRange(per);if(r){l=l.filter(x=>{const d=new Date(x.startTime);return d>=r.s&&d<=r.e})}if(cf!=='all')l=l.filter(x=>{const t=tasks.find(tt=>tt.id===x.taskId);return t&&t.clientId===cf});return l},[timeLogs,tasks,per,cf,cFrom,cTo]);
   const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(sf==='completed'&&!t.completed)return;if(sf==='active'&&t.completed)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,due:t.dueDate,done:t.completed};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>(b.due||'').localeCompare(a.due||''))},[fl,tasks,gcn,sf]);
   const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
-  const expData=()=>{const d={clients:ld('timevalue-clients',[]),tasks:ld('timevalue-tasks',[]),timeLogs:ld('timevalue-timeLogs',[]),principles:ld('timevalue-principles',{main:'独責開眼',sub:'責任を負うと見える世界が変わる'}),clientOrder:ld('timevalue-clientOrder',[]),runningState:ld('timevalue-runningState',null),exportDate:new Date().toISOString(),version:'v17'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
+  const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v17'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
   const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
   return(<div className="fi" style={{padding:'1.5rem 0'}}>
     <div className="sh"><h2 className="st">Report</h2></div>
