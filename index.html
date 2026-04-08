@@ -350,6 +350,24 @@ function saveToSupabase(userId,state){
         return;
       }
     }catch(e){console.error('[SYNC] Session check failed:',e);if(_syncCb)_syncCb('error');return;}
+    // SAFE MERGE: fetch current cloud state and add any cloud-only items before saving
+    // This prevents data loss when another device or external write added new items
+    try{
+      const{data:cloudData}=await sb.from('user_data').select('tasks,time_logs').eq('user_id',userId).single();
+      if(cloudData){
+        const localTaskIds=new Set((state.tasks||[]).map(t=>t.id));
+        const localLogIds=new Set((state.timeLogs||[]).map(l=>l.id));
+        const extraTasks=(cloudData.tasks||[]).filter(t=>!localTaskIds.has(t.id));
+        const extraLogs=(cloudData.time_logs||[]).filter(l=>!localLogIds.has(l.id));
+        if(extraTasks.length||extraLogs.length){
+          state={...state,
+            tasks:[...state.tasks,...extraTasks],
+            timeLogs:[...state.timeLogs,...extraLogs]
+          };
+          console.log('[SYNC] Merged cloud extras:',extraTasks.length,'tasks,',extraLogs.length,'logs');
+        }
+      }
+    }catch(e){console.warn('[SYNC] Pre-save merge failed (non-fatal):',e);}
     // Save with retry (up to 2 attempts)
     for(let attempt=0;attempt<2;attempt++){
       try{
