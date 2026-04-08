@@ -310,6 +310,33 @@ function AuthScreen({onAuth}){
   );
 }
 
+// ==================== DEDUP REPEAT TASKS ====================
+// 同名・同クライアントのリピートタスクが複数アクティブな場合、最新dueDate以外を完了にする
+function deduplicateRepeatTasks(tasks){
+  const active=tasks.filter(t=>!t.completed&&t.repeat&&t.repeat!=='none');
+  const groups={};
+  active.forEach(t=>{
+    const k=t.name+'|'+t.clientId;
+    if(!groups[k])groups[k]=[];
+    groups[k].push(t);
+  });
+  const toComplete=new Set();
+  Object.values(groups).forEach(arr=>{
+    if(arr.length<2)return;
+    const sorted=[...arr].sort((a,b)=>{
+      if(!a.dueDate)return 1;
+      if(!b.dueDate)return -1;
+      return b.dueDate.localeCompare(a.dueDate);
+    });
+    sorted.slice(1).forEach(t=>toComplete.add(t.id));
+  });
+  if(!toComplete.size)return tasks;
+  const now=new Date().toISOString();
+  const deduped=tasks.map(t=>toComplete.has(t.id)?{...t,completed:true,lastCompleted:now}:t);
+  console.log('[DEDUP] Marked',toComplete.size,'duplicate repeat tasks as completed');
+  return deduped;
+}
+
 // ==================== FIXED SUPABASE SYNC ====================
 // FIX: Track cloud data count to prevent empty overwrites
 let cloudTaskCount=0;
@@ -456,7 +483,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
         const cloudTaskIds=new Set((data.tasks||[]).map(t=>t.id));
         const cloudClientIds=new Set((data.clients||[]).map(c=>c.id));
         const cloudLogIds=new Set((data.time_logs||[]).map(l=>l.id));
-        const mergedTasks=[...(data.tasks||[]),...localTasks.filter(t=>!cloudTaskIds.has(t.id))];
+        const mergedTasks=deduplicateRepeatTasks([...(data.tasks||[]),...localTasks.filter(t=>!cloudTaskIds.has(t.id))]);
         const mergedClients=[...(data.clients||[]),...localClients.filter(c=>!cloudClientIds.has(c.id))];
         const mergedTimeLogs=[...(data.time_logs||[]),...localTimeLogs.filter(l=>!cloudLogIds.has(l.id))];
         const hasLocalExtra=mergedTasks.length>(data.tasks?.length||0)||mergedClients.length>(data.clients?.length||0)||mergedTimeLogs.length>(data.time_logs?.length||0);
