@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>稼働時間レポート — 株式会社MEEM</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f7f6f4;
+  --white: #ffffff;
+  --text: #1a1a1a;
+  --t2: #555;
+  --t3: #999;
+  --bdr: #e0dcd6;
+  --accent: #2a2a2a;
+  --over: #c0392b;
+  --over-light: #fdecea;
+  --ok: #27ae60;
+  --ok-light: #eafaf1;
+  --warn: #e67e22;
+  --warn-light: #fef5ec;
+  --bar-bg: #e8e4df;
+  --bar-fill: #2a2a2a;
+}
+
+body {
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+}
+
+/* Header */
+.report-header {
+  border-bottom: 3px solid var(--text);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.report-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--t3);
+  margin-bottom: 0.4rem;
+}
+.report-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.report-meta {
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  color: var(--t2);
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.report-meta span strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Section */
+.section {
+  margin-bottom: 3rem;
+}
+.section-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--t3);
+  border-top: 1px solid var(--bdr);
+  padding-top: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+
+/* Summary Cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--bdr);
+  padding: 1.2rem 1.4rem;
+}
+.card-label {
+  font-size: 0.7rem;
+  color: var(--t3);
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.card-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.card-sub {
+  font-size: 0.72rem;
+  color: var(--t2);
+  margin-top: 0.3rem;
+}
+.card.over { border-left: 4px solid var(--over); }
+.card.ok   { border-left: 4px solid var(--ok); }
+.card.warn { border-left: 4px solid var(--warn); }
+
+/* Alert Box */
+.alert {
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.alert.over { background: var(--over-light); border-color: var(--over); }
+.alert.ok   { background: var(--ok-light);   border-color: var(--ok); }
+.alert.warn { background: var(--warn-light);  border-color: var(--warn); }
+.alert strong { font-weight: 700; }
+
+/* Monthly Table */
+.monthly-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+.monthly-table th {
+  text-align: left;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--t3);
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--bdr);
+}
+.monthly-table td {
+  padding: 0.75rem 0.8rem;
+  border-bottom: 1px solid var(--bdr);
+  vertical-align: middle;
+}
+.monthly-table tr:last-child td { border-bottom: none; }
+.month-label { font-weight: 600; }
+.month-note  { font-size: 0.72rem; color: var(--t3); display: block; font-weight: 400; }
+.status-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+.status-badge.over { background: var(--over-light); color: var(--over); }
+.status-badge.ok   { background: var(--ok-light);   color: var(--ok); }
+.status-badge.warn { background: var(--warn-light);  color: var(--warn); }
+.status-badge.partial { background: #f0f0f0; color: var(--t2); }
+
+/* Bar */
+.bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bar-bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--bar-fill);
+  transition: width 0.3s;
+}
+.bar-fill.over { background: var(--over); }
+.bar-fill.ok   { background: var(--ok); }
+.bar-fill.warn { background: var(--warn); }
+.bar-num {
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 4.5rem;
+  text-align: right;
+}
+.contract-line {
+  font-size: 0.7rem;
+  color: var(--t3);
+  white-space: nowrap;
+}
+
+/* Task List */
+.task-list {
+  background: var(--white);
+  border: 1px solid var(--bdr);
+}
+.task-row {
+  display: grid;
+  grid-template-columns: 1fr 110px 5rem 5.5rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--bdr);
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.task-row:last-child { border-bottom: none; }
+.task-row.header {
+  background: #f2f0ed;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--t3);
+  padding: 0.5rem 1rem;
+}
+.task-name { font-weight: 500; word-break: break-all; }
+.task-cat  { font-size: 0.7rem; color: var(--t2); }
+.task-pct  { font-size: 0.78rem; color: var(--t2); text-align: right; }
+.task-time { font-weight: 700; text-align: right; }
+
+/* Group header */
+.group-header {
+  background: var(--text);
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.45rem 1rem;
+}
+.group-sub {
+  font-weight: 400;
+  opacity: 0.6;
+  margin-left: 0.5rem;
+}
+
+/* Discussion points */
+.points-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.point-item {
+  background: var(--white);
+  border: 1px solid var(--bdr);
+  padding: 1rem 1.2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.point-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--bdr);
+  line-height: 1;
+  min-width: 1.5rem;
+}
+.point-body {}
+.point-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.point-desc  { font-size: 0.82rem; color: var(--t2); line-height: 1.6; }
+.point-data  { font-size: 0.78rem; font-weight: 600; color: var(--text); margin-top: 0.3rem; }
+
+/* Footer */
+.footer {
+  margin-top: 4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bdr);
+  font-size: 0.72rem;
+  color: var(--t3);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .page { padding: 1.5rem 1rem 4rem; }
+  .report-title { font-size: 1.4rem; }
+  .task-row { grid-template-columns: 1fr 4rem; }
+  .task-row .task-cat, .task-row .task-pct { display: none; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header class="report-header">
+    <div class="report-label">Working Hours Report</div>
+    <h1 class="report-title">稼働時間レポート<br>株式会社MEEM</h1>
+    <div class="report-meta">
+      <span><strong>対象期間</strong> 2026年1月15日 〜 2026年4月8日</span>
+      <span><strong>契約条件</strong> 月20時間・税込50,000円</span>
+      <span><strong>作成日</strong> 2026年4月8日</span>
+    </div>
+  </header>
+
+  <!-- 1. Overview -->
+  <section class="section">
+    <div class="section-title">01 — 全体サマリー</div>
+
+    <div class="summary-grid">
+      <div class="card over">
+        <div class="card-label">累計稼働時間</div>
+        <div class="card-value">84<span style="font-size:1.1rem;font-weight:500">h</span>26<span style="font-size:1.1rem;font-weight:500">m</span></div>
+        <div class="card-sub">2026年1月〜4月8日</div>
+      </div>
+      <div class="card">
+        <div class="card-label">契約上限（同期間）</div>
+        <div class="card-value">～60<span style="font-size:1.1rem;font-weight:500">h</span></div>
+        <div class="card-sub">月20h × 約3ヶ月</div>
+      </div>
+      <div class="card over">
+        <div class="card-label">超過時間（推定）</div>
+        <div class="card-value" style="color:var(--over)">+24<span style="font-size:1.1rem">h</span>〜</div>
+        <div class="card-sub">特に3月に集中</div>
+      </div>
+      <div class="card">
+        <div class="card-label">実質時給換算</div>
+        <div class="card-value">595<span style="font-size:1rem;font-weight:500">円</span></div>
+        <div class="card-sub">50,000円 ÷ 84.4h</div>
+      </div>
+    </div>
+
+    <div class="alert over">
+      <strong>この資料について：</strong>
+      契約は「月20時間・税込50,000円（時給換算2,500円）」ですが、実際の稼働はほぼ毎月それを超えています。
+      特に3月は43時間を超え、契約の2倍以上になっています。
+      これが「良い」か「悪い」かの話ではなく、<strong>何にどのくらい時間がかかっているのかを一緒に確認したい</strong>と思い、この資料を作りました。
+    </div>
+  </section>
+
+  <!-- 2. Monthly -->
+  <section class="section">
+    <div class="section-title">02 — 月別の稼働時間</div>
+
+    <table class="monthly-table">
+      <thead>
+        <tr>
+          <th>月</th>
+          <th>稼働時間</th>
+          <th>契約上限</th>
+          <th>差分</th>
+          <th style="width:220px">グラフ（契約20h基準）</th>
+          <th>状況</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <span class="month-label">1月</span>
+            <span class="month-note">1/15〜1/31（半月）</span>
+          </td>
+          <td><strong>6h 00m</strong></td>
+          <td style="color:var(--t3)">〜10h</td>
+          <td style="color:var(--ok); font-weight:600">範囲内</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-track"><div class="bar-fill ok" style="width:30%"></div></div>
+              <span class="contract-line">20h基準</span>
+            </div>
+          </td>
+          <td><span class="status-badge partial">月途中</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="month-label">2月</span>
+            <span class="month-note">全月</span>
+          </td>
+          <td><strong>21h 15m</strong></td>
+          <td style="color:var(--t3)">20h</td>
+          <td style="color:var(--warn); font-weight:600">+1h 15m</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-track"><div class="bar-fill warn" style="width:106%"></div></div>
+              <span class="contract-line">+6%</span>
+            </div>
+          </td>
+          <td><span class="status-badge warn">微超過</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="month-label">3月</span>
+            <span class="month-note">全月</span>
+          </td>
+          <td><strong>43h 43m</strong></td>
+          <td style="color:var(--t3)">20h</td>
+          <td style="color:var(--over); font-weight:600">+23h 43m</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-track"><div class="bar-fill over" style="width:100%"></div></div>
+              <span class="contract-line">+118%</span>
+            </div>
+          </td>
+          <td><span class="status-badge over">大幅超過</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="month-label">4月</span>
+            <span class="month-note">4/1〜4/8（8日間）</span>
+          </td>
+          <td><strong>13h 28m</strong></td>
+          <td style="color:var(--t3)">〜5.3h</td>
+          <td style="color:var(--over); font-weight:600">+8h〜</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-track"><div class="bar-fill over" style="width:100%"></div></div>
+              <span class="contract-line">月換算50h超</span>
+            </div>
+          </td>
+          <td><span class="status-badge over">月途中・超過ペース</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert warn">
+      <strong>3月の急増について：</strong>
+      3月は「scout文章の最適化AI構築（約6.5時間）」「定例人材mtg（約3時間）」など、
+      まとまった時間のかかる作業が重なりました。こういったスポット作業が月の稼働量を大きく左右しています。
+    </div>
+  </section>
+
+  <!-- 3. Task Breakdown -->
+  <section class="section">
+    <div class="section-title">03 — 何に時間を使っているか（タスク別・全期間）</div>
+
+    <p style="font-size:0.82rem;color:var(--t2);margin-bottom:1.2rem;">
+      4つのカテゴリに分類しました。毎週繰り返す定期作業と、ツール構築・修正などのスポット作業で傾向が異なります。
+    </p>
+
+    <div class="task-list">
+      <div class="task-row header">
+        <span>タスク名</span>
+        <span>カテゴリ</span>
+        <span style="text-align:right">占有率</span>
+        <span style="text-align:right">合計時間</span>
+      </div>
+
+      <!-- Group A: Routine -->
+      <div class="group-header">
+        定期ルーティン
+        <span class="group-sub">毎週・毎月繰り返す作業 — 合計 約30h</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">Lstep関連（確認・対応）</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">13.7%</span>
+        <span class="task-time">11h 34m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">messege対応</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:44%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">7.3%</span>
+        <span class="task-time">6h 10m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">審査form判定 / scout判定 / 面談ID&着金ID作成 / 登録追客 / 案件未完了確認</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:29%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">4.9%</span>
+        <span class="task-time">4h 09m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">sales / as 数字報告</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:24%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">4.0%</span>
+        <span class="task-time">3h 23m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">cw対応</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">3.6%</span>
+        <span class="task-time">3h 00m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">sales / as 報酬計算</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:18%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">3.6%</span>
+        <span class="task-time">2h 56m</span>
+      </div>
+
+      <!-- Group B: Meeting -->
+      <div class="group-header">
+        ミーティング
+        <span class="group-sub">定例・個別の打ち合わせ — 合計 約12h</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">定例人材mtg</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill over" style="width:57%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">9.5%</span>
+        <span class="task-time" style="color:var(--over)">8h 02m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">人材mtg・scoutチームmtg</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:24%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Routine</span>
+        <span class="task-pct">3.9%</span>
+        <span class="task-time">3h 18m</span>
+      </div>
+
+      <!-- Group C: Spot Development -->
+      <div class="group-header">
+        ツール開発・修正（スポット）
+        <span class="group-sub">依頼ベースの単発作業 — 合計 約20h</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">scout文章の最適化 AI構築</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill over" style="width:46%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Admin</span>
+        <span class="task-pct">7.6%</span>
+        <span class="task-time" style="color:var(--over)">6h 25m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">画像生成ツール対応</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Admin</span>
+        <span class="task-pct">3.3%</span>
+        <span class="task-time">2h 45m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">airtable修正・対応</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:16%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Admin</span>
+        <span class="task-pct">2.7%</span>
+        <span class="task-time">2h 18m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">scoutシート修正・DM担当採用業務</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:19%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Admin</span>
+        <span class="task-pct">4.6%</span>
+        <span class="task-time">3h 56m</span>
+      </div>
+
+      <!-- Group D: Recruitment -->
+      <div class="group-header">
+        採用・エージェント対応
+        <span class="group-sub">求職者・外部との個別対応 — 合計 約12h</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">紹介求職者の対応・agent架電</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Admin</span>
+        <span class="task-pct">5.4%</span>
+        <span class="task-time">4h 35m</span>
+      </div>
+
+      <div class="task-row">
+        <div>
+          <div class="task-name">scout報酬確認・スカウト分析・scoutチームログ確認</div>
+          <div style="margin-top:0.2rem">
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:15%"></div></div></div>
+          </div>
+        </div>
+        <span class="task-cat">Admin</span>
+        <span class="task-pct">5.1%</span>
+        <span class="task-time">4h 21m</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. Discussion Points -->
+  <section class="section">
+    <div class="section-title">04 — 一緒に確認したいこと</div>
+
+    <p style="font-size:0.82rem;color:var(--t2);margin-bottom:1.2rem;">
+      提案ではなく、現状を一緒に整理したい観点です。
+    </p>
+
+    <ul class="points-list">
+      <li class="point-item">
+        <div class="point-num">01</div>
+        <div class="point-body">
+          <div class="point-title">Lstep関連の作業が全体の14%を占めています</div>
+          <div class="point-desc">
+            Lstep確認1・Lstep確認2・Lstep対応を合計すると約11時間半です。
+            毎週の繰り返し作業のうち、最もボリュームが大きいカテゴリです。
+            作業内容の標準化や一部の自動化で、時間を圧縮できる余地はあるでしょうか。
+          </div>
+          <div class="point-data">累計 11h 34m（全体の13.7%）</div>
+        </div>
+      </li>
+
+      <li class="point-item">
+        <div class="point-num">02</div>
+        <div class="point-body">
+          <div class="point-title">定例人材mtgに8時間かかっています</div>
+          <div class="point-desc">
+            3月・4月の定例ミーティングで合計8時間を超えています。
+            これは月20時間の契約に対して、ミーティングだけで約4割を占める計算です。
+            会議の時間・頻度・内容の棲み分けについて、現状の認識を確認したいです。
+          </div>
+          <div class="point-data">累計 8h 02m（全体の9.5%）</div>
+        </div>
+      </li>
+
+      <li class="point-item">
+        <div class="point-num">03</div>
+        <div class="point-body">
+          <div class="point-title">スポット開発が月の稼働量を大きく左右しています</div>
+          <div class="point-desc">
+            「scout文章の最適化AI構築（6h25m）」「画像生成ツール対応（2h45m）」など、
+            単発の開発・修正作業が入ると、その月の稼働が一気に増えます。
+            月20時間の中でどこまでをスコープとするか、都度すり合わせができると助かります。
+          </div>
+          <div class="point-data">スポット開発合計 約20h（全体の23%）</div>
+        </div>
+      </li>
+
+      <li class="point-item">
+        <div class="point-num">04</div>
+        <div class="point-body">
+          <div class="point-title">3月の稼働は43時間でした</div>
+          <div class="point-desc">
+            契約上限の2倍以上です。この月はAI構築・定例mtg増加・Lstep対応が重なりました。
+            これを続けることは持続可能ではないと感じているので、
+            「月20時間に収めるには何を削るか」もしくは「契約内容を見直すか」について
+            お互いの考えを共有できればと思います。
+          </div>
+          <div class="point-data">2026年3月実績 43h 43m（契約比 +118%）</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>本レポートは TimeValue Tracker から出力されたタイムログをもとに作成しています。</p>
+    <p style="margin-top:0.3rem">データ期間：2026年1月15日〜4月8日 / 対象：株式会社MEEMに紐づく全タスク</p>
+  </footer>
+
+</div>
+</body>
+</html>
