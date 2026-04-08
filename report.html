@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>稼働レポート</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f7f6f4;color:#999;font-size:.9rem}
+</style>
+</head>
+<body>
+<p id="msg">読み込み中...</p>
+<script>
+(async()=>{
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id){document.getElementById('msg').textContent='レポートIDが指定されていません';return;}
+  try{
+    const res=await fetch(
+      'https://qxsxfrphdtxxhxmhfhio.supabase.co/rest/v1/reports?id=eq.'+encodeURIComponent(id)+'&select=html',
+      {headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4c3hmcnBoZHR4eGh4bWhmaGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDkyMTUsImV4cCI6MjA4NzQ4NTIxNX0.o3U5VUTLzJj8nMNSUXJCF-ifbKIGncmGUIFvsegbFk0'}}
+    );
+    const data=await res.json();
+    if(!data?.[0]?.html){document.getElementById('msg').textContent='レポートが見つかりません';return;}
+    document.open();document.write(data[0].html);document.close();
+  }catch(e){document.getElementById('msg').textContent='エラー: '+e.message;}
+})();
+</script>
+</body>
+</html>
