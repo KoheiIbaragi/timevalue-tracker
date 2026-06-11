@@ -17,12 +17,13 @@ body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;display:flex;align-it
   if(!id){document.getElementById('msg').textContent='レポートIDが指定されていません';return;}
   try{
     const res=await fetch(
-      'https://qxsxfrphdtxxhxmhfhio.supabase.co/rest/v1/reports?id=eq.'+encodeURIComponent(id)+'&select=html',
+      'https://qxsxfrphdtxxhxmhfhio.supabase.co/rest/v1/rpc/get_report?report_id='+encodeURIComponent(id),
       {headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4c3hmcnBoZHR4eGh4bWhmaGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDkyMTUsImV4cCI6MjA4NzQ4NTIxNX0.o3U5VUTLzJj8nMNSUXJCF-ifbKIGncmGUIFvsegbFk0'}}
     );
+    if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
-    if(!data?.[0]?.html){document.getElementById('msg').textContent='レポートが見つかりません';return;}
-    document.open();document.write(data[0].html);document.close();
+    if(typeof data!=='string'||!data){document.getElementById('msg').textContent='レポートが見つかりません';return;}
+    document.open();document.write(data);document.close();
   }catch(e){document.getElementById('msg').textContent='エラー: '+e.message;}
 })();
 </script>
