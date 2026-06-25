@@ -337,10 +337,24 @@ function deduplicateRepeatTasks(tasks){
   return deduped;
 }
 
+function pruneCompletedGhosts(tasks, timeLogs){
+  // 安全装置: ログが未ロード(空)なら判定不能 → 何もしない
+  if(!timeLogs || !timeLogs.length) return tasks;
+  const logged = new Set(timeLogs.map(l=>l.taskId).filter(Boolean));
+  const kept = tasks.filter(t=>{
+    const isGhost = t.completed===true
+      && t.repeat && t.repeat!=='none'
+      && !logged.has(t.id);   // ログを持つものは絶対に残す
+    return !isGhost;
+  });
+  const removed = tasks.length - kept.length;
+  if(removed>0) console.log('[PRUNE] removed',removed,'completed repeat ghosts (no time_logs)');
+  return kept;
+}
+
 // ==================== FIXED SUPABASE SYNC ====================
 // FIX: Track cloud data count to prevent empty overwrites
 let cloudTaskCount=0;
-let cloudLogCount=0;
 let saveTimer=null;
 let _syncCb=null; // callback for sync status
 
@@ -353,7 +367,6 @@ async function loadFromSupabase(userId){
       console.error('Load error:',error);return null;
     }
     if(data?.tasks?.length)cloudTaskCount=data.tasks.length;
-    if(data?.time_logs?.length)cloudLogCount=data.time_logs.length;
     return data;
   }catch(e){console.error('Load error:',e);return null;}
 }
@@ -361,10 +374,8 @@ async function loadFromSupabase(userId){
 function saveToSupabase(userId,state){
   if(!sb||!userId)return;
   const taskLen=state.tasks?state.tasks.length:0;
-  const logLen=state.timeLogs?state.timeLogs.length:0;
   if(cloudTaskCount>0&&taskLen===0){console.warn('[SYNC BLOCKED] empty tasks');return;}
   if(cloudTaskCount>10&&taskLen<Math.floor(cloudTaskCount*0.3)){console.warn('[SYNC BLOCKED] task drop');return;}
-  if(cloudLogCount>0&&logLen===0){console.warn('[SYNC BLOCKED] empty logs');return;}
   clearTimeout(saveTimer);
   if(_syncCb)_syncCb('saving');
   saveTimer=setTimeout(async()=>{
@@ -380,18 +391,13 @@ function saveToSupabase(userId,state){
     // SAFE MERGE: fetch current cloud state and add any cloud-only items before saving
     // This prevents data loss when another device or external write added new items
     try{
-      const{data:cloudData}=await sb.from('user_data').select('tasks,time_logs').eq('user_id',userId).single();
+      const{data:cloudData}=await sb.from('user_data').select('tasks').eq('user_id',userId).single();
       if(cloudData){
         const localTaskIds=new Set((state.tasks||[]).map(t=>t.id));
-        const localLogIds=new Set((state.timeLogs||[]).map(l=>l.id));
         const extraTasks=(cloudData.tasks||[]).filter(t=>!localTaskIds.has(t.id));
-        const extraLogs=(cloudData.time_logs||[]).filter(l=>!localLogIds.has(l.id));
-        if(extraTasks.length||extraLogs.length){
-          state={...state,
-            tasks:[...state.tasks,...extraTasks],
-            timeLogs:[...state.timeLogs,...extraLogs]
-          };
-          console.log('[SYNC] Merged cloud extras:',extraTasks.length,'tasks,',extraLogs.length,'logs');
+        if(extraTasks.length){
+          state={...state,tasks:[...state.tasks,...extraTasks]};
+          console.log('[SYNC] Merged cloud extras:',extraTasks.length,'tasks');
         }
       }
     }catch(e){console.warn('[SYNC] Pre-save merge failed (non-fatal):',e);}
@@ -400,7 +406,7 @@ function saveToSupabase(userId,state){
       try{
         const{error}=await sb.from('user_data').upsert({
           user_id:userId,clients:state.clients,tasks:state.tasks,
-          time_logs:state.timeLogs,principles:state.principles,
+          principles:state.principles,
           client_order:state.clientOrder,running_state:state.running
         });
         if(error){
@@ -410,7 +416,6 @@ function saveToSupabase(userId,state){
           continue;
         }
         if(state.tasks)cloudTaskCount=state.tasks.length;
-        if(state.timeLogs)cloudLogCount=state.timeLogs.length;
         if(_syncCb)_syncCb('ok');
         return;
       }catch(e){
@@ -420,6 +425,54 @@ function saveToSupabase(userId,state){
       }
     }
   },800);
+}
+
+// ==================== APPEND-ONLY TIME LOG SYNC ====================
+// time_logs は RPC append のみで書く。失敗時は localStorage の pending に残し、
+// 冪等 RPC（同 id 再送は no-op）前提で at-least-once 再送する。
+let _flushing=false;
+
+async function appendTimeLog(logs){
+  if(!logs||!logs.length)return true;
+  const pending=ld('timevalue-pendingLogs',[]);
+  const merged=[...pending,...logs.filter(l=>!pending.some(p=>p.id===l.id))];
+  sv('timevalue-pendingLogs',merged);
+  if(!sb)return true; // クラウド未接続時は localStorage 残置のみ
+  return await flushPendingLogs();
+}
+
+async function flushPendingLogs(){
+  if(!sb||_flushing)return true;
+  _flushing=true;
+  try{
+    while(true){
+      const pending=ld('timevalue-pendingLogs',[]);
+      if(!pending.length)return true;
+      if(_syncCb)_syncCb('saving');
+      let ok=false;
+      for(let attempt=0;attempt<3&&!ok;attempt++){
+        try{
+          const{data:{session}}=await sb.auth.getSession();
+          if(!session){console.error('[TIMELOG] no session');break;}
+          const{error}=await sb.rpc('append_time_logs',{p_new_logs:pending});
+          if(error){
+            console.error('[TIMELOG] append error ('+(attempt+1)+'):',error.message||error);
+            await new Promise(r=>setTimeout(r,2000));continue;
+          }
+          ok=true;
+        }catch(e){
+          console.error('[TIMELOG] append exception ('+(attempt+1)+'):',e);
+          await new Promise(r=>setTimeout(r,2000));
+        }
+      }
+      if(!ok){if(_syncCb)_syncCb('error');return false;}
+      const still=ld('timevalue-pendingLogs',[]);
+      sv('timevalue-pendingLogs',still.filter(s=>!pending.some(p=>p.id===s.id)));
+      console.log('[TIMELOG] appended',pending.length,'log(s)');
+      if(_syncCb)_syncCb('ok');
+      // while ループ: RPC 中に新規キューが積まれていれば続けて送る
+    }
+  }finally{_flushing=false;}
 }
 
 function Root(){
@@ -483,9 +536,11 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
         const cloudTaskIds=new Set((data.tasks||[]).map(t=>t.id));
         const cloudClientIds=new Set((data.clients||[]).map(c=>c.id));
         const cloudLogIds=new Set((data.time_logs||[]).map(l=>l.id));
-        const mergedTasks=deduplicateRepeatTasks([...(data.tasks||[]),...localTasks.filter(t=>!cloudTaskIds.has(t.id))]);
-        const mergedClients=[...(data.clients||[]),...localClients.filter(c=>!cloudClientIds.has(c.id))];
         const mergedTimeLogs=[...(data.time_logs||[]),...localTimeLogs.filter(l=>!cloudLogIds.has(l.id))];
+        const mergedTasks=pruneCompletedGhosts(deduplicateRepeatTasks([...(data.tasks||[]),...localTasks.filter(t=>!cloudTaskIds.has(t.id))]),mergedTimeLogs);
+        const mergedClients=[...(data.clients||[]),...localClients.filter(c=>!cloudClientIds.has(c.id))];
+        const localOnlyLogs=localTimeLogs.filter(l=>!cloudLogIds.has(l.id));
+        if(localOnlyLogs.length)appendTimeLog(localOnlyLogs);
         const hasLocalExtra=mergedTasks.length>(data.tasks?.length||0)||mergedClients.length>(data.clients?.length||0)||mergedTimeLogs.length>(data.time_logs?.length||0);
         setCl(mergedClients);
         setTk(mergedTasks);
@@ -498,6 +553,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
       }
       setCloudLoaded(true);
       setSyncStatus('ok');
+      flushPendingLogs();
       if(setSynced)setSynced(true);
     })();
   },[userId]);
@@ -513,8 +569,8 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   useEffect(()=>{
     if(!cloudLoaded||!userId)return;
     if(cloudJustLoaded.current){cloudJustLoaded.current=false;return;}
-    saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});
-  },[clients,tasks,timeLogs,principles,clientOrder,running,cloudLoaded,userId]);
+    saveToSupabase(userId,{clients,tasks,principles,clientOrder,running});
+  },[clients,tasks,principles,clientOrder,running,cloudLoaded,userId]);
 
   const show=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2200)},[]);
   // Alert user when sync fails
@@ -525,7 +581,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
   const oc=useMemo(()=>{if(!clientOrder.length)return clients;const o=[];clientOrder.forEach(id=>{const c=clients.find(x=>x.id===id);if(c)o.push(c)});clients.forEach(c=>{if(!o.find(x=>x.id===c.id))o.push(c)});return o},[clients,clientOrder]);
   const gtt=useCallback(tid=>timeLogs.filter(l=>l.taskId===tid).reduce((a,l)=>a+(l.duration||0),0),[timeLogs]);
   const startT=useCallback(tid=>{if(running){show('他のタイマーが実行中');return}setRn({taskId:tid,startTime:new Date().toISOString()});show('開始')},[running,show]);
-  const stopT=useCallback(()=>{if(!running)return;const endTime=new Date().toISOString();const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);if(dur>0)setTl(p=>[...p,{id:gid(),taskId:running.taskId,startTime:running.startTime,endTime,duration:dur}]);setRn(null);show('停止')},[running,show]);
+  const stopT=useCallback(()=>{if(!running)return;const endTime=new Date().toISOString();const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);if(dur>0){const log={id:gid(),taskId:running.taskId,startTime:running.startTime,endTime,duration:dur};setTl(p=>[...p,log]);appendTimeLog([log]);}setRn(null);show('停止')},[running,show]);
 
   const tabs=[{id:'dashboard',l:'Dashboard'},{id:'clients',l:'Clients'},{id:'report',l:'Report'}];
   return(
@@ -533,7 +589,7 @@ function App({userId,synced,setSynced,userEmail,onLogout}){
       <header className="hd">
         <div style={{display:'flex',alignItems:'baseline',gap:'.4rem'}}>
           <div className="logo">TimeValue</div><span className="logo-sub">Tracker</span>
-          {sbEnabled&&<span className={'sync-badge'+(syncStatus==='error'?' err':syncStatus==='ok'?' ':' off')} onClick={syncStatus==='error'?()=>{saveToSupabase(userId,{clients,tasks,timeLogs,principles,clientOrder,running});show('再同期中...')}:undefined} style={syncStatus==='error'?{cursor:'pointer'}:{}}><span className={'dot'+(syncStatus==='ok'?' on':syncStatus==='saving'?' sav':' off')}></span>{syncStatus==='ok'?'同期済':syncStatus==='saving'?'保存中':syncStatus==='error'?'同期失敗（タップで再試行）':'接続中'}</span>}
+          {sbEnabled&&<span className={'sync-badge'+(syncStatus==='error'?' err':syncStatus==='ok'?' ':' off')} onClick={syncStatus==='error'?()=>{flushPendingLogs();saveToSupabase(userId,{clients,tasks,principles,clientOrder,running});show('再同期中...')}:undefined} style={syncStatus==='error'?{cursor:'pointer'}:{}}><span className={'dot'+(syncStatus==='ok'?' on':syncStatus==='saving'?' sav':' off')}></span>{syncStatus==='ok'?'同期済':syncStatus==='saving'?'保存中':syncStatus==='error'?'同期失敗（タップで再試行）':'接続中'}</span>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:'.5rem'}}>
           <nav className="nav">{tabs.map(t=><button key={t.id} className={'nav-b'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>{t.l}</button>)}</nav>
@@ -575,13 +631,11 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const del=id=>{if(confirm('削除？')){setTk(p=>p.filter(t=>t.id!==id));show('削除')}};
   const comp=id=>{
     const task=tasks.find(t=>t.id===id);if(!task)return;
-    // Bug1 fix: build newTimeLogs locally to avoid stale state in upsert
-    let newTimeLogs=timeLogs;
+    // time_logs は RPC append が永続化を担う（stale state が DB に影響しない）
     if(running&&running.taskId===id){
       const endTime=new Date().toISOString();
       const dur=Math.round((new Date(endTime)-new Date(running.startTime))/60000);
-      if(dur>0)newTimeLogs=[...timeLogs,{id:gid(),taskId:id,startTime:running.startTime,endTime,duration:dur}];
-      setTl(newTimeLogs);
+      if(dur>0){const log={id:gid(),taskId:id,startTime:running.startTime,endTime,duration:dur};setTl(p=>[...p,log]);appendTimeLog([log]);}
       setRn(null);
     }
     setTk(p=>{
@@ -599,7 +653,7 @@ function Dash({pr,setPr,tasks,setTk,clients,oc,clientOrder,timeLogs,setTl,runnin
   const saveEditTime=tid=>{
     const newMin=(parseInt(etH)||0)*60+(parseInt(etM)||0);
     const currentMin=gtt(tid);const diff=newMin-currentMin;
-    if(diff!==0){const n=new Date();setTl(p=>[...p,{id:gid(),taskId:tid,startTime:new Date(n-Math.abs(diff)*60000).toISOString(),endTime:n.toISOString(),duration:diff}]);show((diff>0?'+':'')+diff+'分');}
+    if(diff!==0){const n=new Date();const log={id:gid(),taskId:tid,startTime:new Date(n-Math.abs(diff)*60000).toISOString(),endTime:n.toISOString(),duration:diff};setTl(p=>[...p,log]);appendTimeLog([log]);show((diff>0?'+':'')+diff+'分');}
     setEditTime(null);
   };
 
@@ -743,7 +797,7 @@ function ReportPage({tasks,clients,setCl,timeLogs,setTl,gcn,setTk,pr,setPr,co,se
   const ts=useMemo(()=>{const m={};fl.forEach(l=>{const t=tasks.find(x=>x.id===l.taskId);if(!t)return;if(sf==='completed'&&!t.completed)return;if(sf==='active'&&t.completed)return;if(!m[t.id])m[t.id]={id:t.id,name:t.name,cn:gcn(t.clientId),cat:t.category,tm:0,due:t.dueDate,done:t.completed};m[t.id].tm+=l.duration||0});return Object.values(m).sort((a,b)=>(b.due||'').localeCompare(a.due||''))},[fl,tasks,gcn,sf]);
   const send=async()=>{if(!cin.trim()||cld)return;const um=cin.trim();setCin('');setMs(p=>[...p,{role:'user',content:um}]);setCld(true);const ctx=`作業レポート:\n- 総時間:${fT(kpi.tm)}\n${ts.map(t=>'- '+t.name+'('+t.cn+'):'+fT(t.tm)).join('\n')}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,system:'ワークコーチとして日本語で内省を促してください。\n'+ctx,messages:msgs.concat([{role:'user',content:um}]).map(m=>({role:m.role,content:m.content}))})});const d=await r.json();setMs(p=>[...p,{role:'assistant',content:d.content?.map(c=>c.text||'').join('')||'エラー'}])}catch{setMs(p=>[...p,{role:'assistant',content:'接続エラー'}])}setCld(false)};
   const expData=()=>{const d={clients,tasks,timeLogs,principles:pr,clientOrder:co,runningState:running,exportDate:new Date().toISOString(),version:'v17'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='timevalue-backup-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u);show('エクスポート完了')};
-  const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs)setTl(d.timeLogs);if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
+  const impData=e=>{const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const raw=JSON.parse(ev.target.result);const d=migrate(raw);if(d.clients)setCl(d.clients);if(d.tasks)setTk(d.tasks);if(d.timeLogs){setTl(d.timeLogs);appendTimeLog(d.timeLogs);}if(d.principles)setPr(d.principles);if(d.clientOrder)setCo(d.clientOrder);if(d.runningState!==undefined)setRn(d.runningState);show('インポート完了')}catch(err){console.error(err);show('失敗')}};r.readAsText(file);if(fRef.current)fRef.current.value=''};
   const genReport=async()=>{
     const cn=cf==='all'?'全取引先':(clients.find(x=>x.id===cf)?.name||'');
     const mrev=cf==='all'?clients.reduce((a,c)=>a+(c.monthlyRevenue||0),0):(clients.find(x=>x.id===cf)?.monthlyRevenue||0);
